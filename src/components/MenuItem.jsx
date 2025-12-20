@@ -33,47 +33,45 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             style={{
-                display: 'flex',
-                alignItems: 'flex-start', // Align top for complex items
-                justifyContent: 'space-between',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                gap: '16px',
                 padding: '16px 0',
                 borderBottom: isLast ? 'none' : '1px solid var(--border-color)',
-                gap: '16px',
             }}
         >
-            <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-                    <h3 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        color: 'var(--color-ink)'
-                    }}>
-                        {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
-                    </h3>
-                    <span style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: 'var(--color-text-subtle)'
-                    }}>
-                        {/* Dynamic price based on selection */}
-                        ${((item.price + (selectedOption?.price || 0))).toFixed(2)}
-                    </span>
-                </div>
-                <p style={{
-                    margin: 0,
-                    fontSize: '13px',
-                    color: 'var(--color-text-subtle)',
-                    lineHeight: 1.5,
-                    paddingRight: '8px',
-                    marginBottom: item.options ? '12px' : '0'
+            {/* Left Column: Content */}
+            <div style={{ minWidth: 0 }}> {/* minWidth: 0 allows text truncation */}
+                {/* Title */}
+                <h3 style={{
+                    margin: '0 0 4px 0',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: 'var(--color-ink)',
+                    lineHeight: 1.3
                 }}>
-                    {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en'] || '')}
-                </p>
+                    {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
+                </h3>
+
+                {/* Description */}
+                {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
+                    <p style={{
+                        margin: '0 0 8px 0',
+                        fontSize: '13px',
+                        color: 'var(--color-text-subtle)',
+                        lineHeight: 1.5,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                    }}>
+                        {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en'] || '')}
+                    </p>
+                )}
 
                 {/* Customization Toggle */}
                 {item.options && item.options.length > 0 && (
-                    <div style={{ marginTop: '4px' }}>
+                    <div style={{ marginTop: '8px' }}>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -126,7 +124,6 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                                                 key={opt.id}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    // Toggle logic
                                                     setSelectedOption(isSelected ? null : opt);
                                                 }}
                                                 style={{
@@ -157,45 +154,64 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                 )}
             </div>
 
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-                {/* Image */}
+            {/* Right Column: Image + Price + Add Button */}
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: '8px',
+                minWidth: '90px'
+            }}>
+                {/* Price - Fixed Position */}
                 <div style={{
-                    width: '72px',
-                    height: '72px',
-                    borderRadius: '12px',
-                    backgroundColor: 'var(--bg-surface-secondary)',
-                    backgroundImage: `url(${item.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    border: '1px solid var(--border-color)'
-                }} />
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    color: 'var(--color-ink)',
+                    whiteSpace: 'nowrap'
+                }}>
+                    ${((item.price + (selectedOption?.price || 0))).toFixed(2)}
+                </div>
 
-                {/* Add Button */}
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleAdd();
-                    }}
-                    style={{
-                        position: 'absolute',
-                        bottom: '-6px',
-                        right: '-6px',
-                        width: '26px',
-                        height: '26px',
-                        borderRadius: '50%',
-                        backgroundColor: 'var(--color-primary)',
-                        color: 'var(--color-on-primary)',
-                        border: '2px solid var(--bg-surface)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-                    }}
-                >
-                    <Plus size={16} strokeWidth={3} />
-                </motion.button>
+                {/* Image with Add Button */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <div style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '12px',
+                        backgroundColor: 'var(--bg-surface-secondary)',
+                        backgroundImage: `url(${item.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        border: '1px solid var(--border-color)'
+                    }} />
+
+                    {/* Add Button */}
+                    <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAdd();
+                        }}
+                        style={{
+                            position: 'absolute',
+                            bottom: '-8px',
+                            right: '-8px',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--color-primary)',
+                            color: 'var(--color-on-primary)',
+                            border: '3px solid var(--bg-surface)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                        }}
+                    >
+                        <Plus size={18} strokeWidth={3} />
+                    </motion.button>
+                </div>
             </div>
         </motion.div>
     );
