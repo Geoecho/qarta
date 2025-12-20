@@ -72,7 +72,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                 </p>
 
                 {/* Customization Toggle */}
-                {item.options && (
+                {item.options && item.options.length > 0 && (
                     <div style={{ marginTop: '4px' }}>
                         <button
                             onClick={(e) => {

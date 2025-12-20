@@ -30,13 +30,20 @@ const ClientApp = () => {
   const restaurant = getRestaurantBySlug(slug);
   const menuData = restaurant ? restaurant.menu : [];
 
-  const [activeTab, setActiveTab] = useState(menuData[0]?.id || null); // Top Level
+  const [activeTab, setActiveTab] = useState(null); // Top Level
   const [openSectionId, setOpenSectionId] = useState(null); // Accordion state
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' | 'mk' | 'sq'
 
   const { addToCart, totalCount, orderStatus, activeOrder } = useOrder();
+
+  // Set activeTab when menu loads
+  React.useEffect(() => {
+    if (menuData.length > 0 && !activeTab) {
+      setActiveTab(menuData[0].id);
+    }
+  }, [menuData, activeTab]);
 
   const currentData = menuData.find(d => d.id === activeTab) || menuData[0] || null;
 

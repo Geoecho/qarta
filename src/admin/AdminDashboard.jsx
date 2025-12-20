@@ -749,6 +749,32 @@ const MenuEditor = ({ restaurant }) => {
                                 </div>
                             </div>
                         ))}
+
+                        {/* Add Category Button (shows when categories exist) */}
+                        {restaurant.menu.length > 0 && (
+                            <button
+                                onClick={() => setShowCategoryForm(true)}
+                                style={{
+                                    padding: '12px 24px', borderRadius: '100px',
+                                    border: '2px dashed var(--border-color)', background: 'transparent',
+                                    cursor: 'pointer', fontSize: '14px', fontWeight: 600,
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    justifyContent: 'center', color: 'var(--color-text-subtle)',
+                                    transition: 'all 0.2s', width: '100%'
+                                }}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                    e.currentTarget.style.color = 'var(--color-primary)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                                    e.currentTarget.style.color = 'var(--color-text-subtle)';
+                                }}
+                            >
+                                <Plus size={20} />
+                                Add Another Category
+                            </button>
+                        )}
                     </div>
                 </>
             )}
