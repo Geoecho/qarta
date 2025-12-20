@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
+import { formatPrice } from '../utils/currencyHelper';
 
 const MenuItem = ({ item, index, onAdd, isLast, language }) => {
     // If item has options, default to null (Base item/Regular)
@@ -12,7 +13,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
             // Create a unique ID for the cart based on option
             const itemWithOption = {
                 ...item,
-                id: `${item.id}-${selectedOption.id}`,
+                id: `${item.id} -${selectedOption.id} `,
                 name: {
                     ...item.name,
                     en: `${item.name.en} (${selectedOption.label.en})`,
@@ -143,7 +144,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                                                 }}
                                             >
                                                 {opt.label[language] || opt.label['en']}
-                                                {opt.price > 0 && ` +$${opt.price.toFixed(2)}`}
+                                                {opt.price > 0 && ` + $${opt.price.toFixed(2)} `}
                                             </button>
                                         );
                                     })}
@@ -169,7 +170,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     color: 'var(--color-ink)',
                     whiteSpace: 'nowrap'
                 }}>
-                    ${((item.price + (selectedOption?.price || 0))).toFixed(2)}
+                    {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
                 </div>
 
                 {/* Image with Add Button */}
