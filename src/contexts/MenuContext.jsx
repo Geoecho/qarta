@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MENU_DATA as INITIAL_MENU } from '../data';
-import { db } from '../firebase'; // Keep imports to avoid breaking legacy refs if any
+// import { db } from '../firebase'; 
 
 const PlatformContext = createContext();
 
@@ -32,10 +32,14 @@ export const MenuProvider = ({ children }) => {
     // START OPTIMISTIC: Initialize with default data
     const [restaurants, setRestaurants] = useState([DEFAULT_RESTAURANT]);
     const [loading, setLoading] = useState(false);
+    const [lastSaveTime, setLastSaveTime] = useState(0);
 
     // Sync with Vercel KV API (Polling for updates, saving on change)
     useEffect(() => {
         const fetchRestaurants = async () => {
+            // Don't fetch if we just saved (prevent overwriting local optimistic state with stale server state)
+            if (Date.now() - lastSaveTime < 5000) return;
+
             try {
                 const res = await fetch('/api/menu');
                 if (res.ok) {
@@ -50,10 +54,10 @@ export const MenuProvider = ({ children }) => {
         };
 
         fetchRestaurants();
-        // Poll infrequently just to keep fresh if multiple admins exist
-        const interval = setInterval(fetchRestaurants, 15000);
+        // Poll frequently (2s) for "Instant" feeling
+        const interval = setInterval(fetchRestaurants, 2000);
         return () => clearInterval(interval);
-    }, []);
+    }, [lastSaveTime]); // Re-create interval if save time changes is fine
 
     // --- SAVE HELPER ---
     const saveToCloud = async (updatedRestaurants) => {
@@ -79,7 +83,8 @@ export const MenuProvider = ({ children }) => {
         const id = Date.now().toString();
         const payload = {
             ...newRestaurant,
-            id,
+            id, // IMPORTANT: Ensure id is string
+            slug: newRestaurant.slug || id, // Ensure slug exists
             status: 'Active',
             logo: '/logo.png',
             theme: {
@@ -137,6 +142,29 @@ export const MenuProvider = ({ children }) => {
         await saveToCloud(updated);
     };
 
+    const deleteMenuItem = async (restaurantId, categoryId, sectionId, itemId) => {
+        const updated = restaurants.map(restaurant => {
+            if (restaurant.id !== restaurantId) return restaurant;
+            return {
+                ...restaurant,
+                menu: restaurant.menu.map(category => {
+                    if (category.id !== categoryId) return category;
+                    return {
+                        ...category,
+                        sections: category.sections.map(section => {
+                            if (section.id !== sectionId) return section;
+                            return {
+                                ...section,
+                                items: section.items.filter(item => item.id !== itemId)
+                            };
+                        })
+                    };
+                })
+            };
+        });
+        await saveToCloud(updated);
+    };
+
     const addMenuItem = async (restaurantId, categoryId, sectionId, newItemData) => {
         const newItem = {
             id: `item-${Date.now()}`,
@@ -184,6 +212,7 @@ export const MenuProvider = ({ children }) => {
             updateRestaurantDetails,
             updateMenuItem,
             addMenuItem,
+            deleteMenuItem,
             getRestaurantBySlug
         }}>
             {children}

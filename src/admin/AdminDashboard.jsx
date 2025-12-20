@@ -215,7 +215,7 @@ const RestaurantList = ({ onSelect }) => {
 };
 
 const MenuEditor = ({ restaurant }) => {
-    const { updateMenuItem, addMenuItem, updateRestaurantDetails } = usePlatform();
+    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
     const [activeTab, setActiveTab] = useState('menu');
 
@@ -363,9 +363,16 @@ const MenuEditor = ({ restaurant }) => {
                                                                 <div style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>${item.price.toFixed(2)}</div>
                                                             </div>
                                                         </div>
-                                                        <button onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item, isNew: false })} style={{ padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-ink)' }}>
-                                                            <Edit2 size={14} /> Edit
-                                                        </button>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            <button onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item, isNew: false })} style={{ padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-ink)' }}>
+                                                                <Edit2 size={14} /> Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => { if (confirm("Delete item?")) deleteMenuItem(restaurant.id, category.id, section.id, item.id) }}
+                                                                style={{ padding: '8px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ))}
                                                 {section.items.length === 0 && (
