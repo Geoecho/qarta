@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Store, LayoutDashboard, Settings, Plus, Edit2, LogOut, Trash2, ArrowLeft, Menu as MenuIcon, X, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '../contexts/MenuContext';
+import { auth } from '../firebase';
 import './AdminDashboard.css';
 
 // --- Components ---
@@ -11,9 +12,14 @@ const AdminLayout = ({ children, onBack }) => {
     const navigate = useNavigate();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-    const handleLogout = () => {
-        localStorage.removeItem('isAdminAuthenticated');
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            localStorage.removeItem('isAdminAuthenticated');
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout failed', error);
+        }
     };
 
     return (

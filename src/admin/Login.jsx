@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Hardcoded credentials as requested
-        if (username === 'admin123' && password === '123admin123admin123') {
+        setError('');
+        setLoading(true);
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            // Set flag for ProtectedRoute (simple check)
             localStorage.setItem('isAdminAuthenticated', 'true');
             navigate('/admin');
-        } else {
-            setError('Invalid credentials');
+        } catch (err) {
+            console.error(err);
+            setError('Invalid email or password');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -58,13 +68,13 @@ const Login = () => {
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Username</label>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Email</label>
                         <div style={{ position: 'relative' }}>
                             <User size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--color-text-subtle)' }} />
                             <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 style={{
                                     width: '100%',
                                     padding: '12px 12px 12px 44px',
@@ -74,7 +84,8 @@ const Login = () => {
                                     color: 'var(--color-ink)',
                                     fontSize: '16px'
                                 }}
-                                placeholder="Enter username"
+                                placeholder="Enter admin email"
+                                required
                             />
                         </div>
                     </div>
@@ -96,6 +107,7 @@ const Login = () => {
                                     fontSize: '16px'
                                 }}
                                 placeholder="Enter password"
+                                required
                             />
                         </div>
                     </div>
@@ -108,19 +120,20 @@ const Login = () => {
 
                     <button
                         type="submit"
+                        disabled={loading}
                         style={{
                             padding: '16px',
                             borderRadius: '100px',
                             border: 'none',
-                            background: 'var(--color-primary)',
+                            background: loading ? '#ccc' : 'var(--color-primary)',
                             color: 'var(--color-on-primary)',
                             fontSize: '16px',
                             fontWeight: 700,
-                            cursor: 'pointer',
+                            cursor: loading ? 'not-allowed' : 'pointer',
                             marginTop: '12px'
                         }}
                     >
-                        Sign In
+                        {loading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
             </div>
