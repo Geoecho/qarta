@@ -279,10 +279,114 @@ const RestaurantList = ({ onSelect }) => {
     );
 };
 
+const CategoryForm = ({ onSave, onCancel }) => {
+    const [formData, setFormData] = useState({
+        id: '',
+        nameEn: '',
+        nameMk: '',
+        nameSq: ''
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+            id: formData.id || `cat-${Date.now()}`,
+            label: {
+                en: formData.nameEn,
+                mk: formData.nameMk,
+                sq: formData.nameSq
+            }
+        });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>ID (optional, auto-generated)</label>
+                <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="drinks" />
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English) *</label>
+                <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Drinks" required />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
+                    <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Пијалоци" />
+                </div>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
+                    <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Pije" />
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
+                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>Create Category</button>
+            </div>
+        </form>
+    );
+};
+
+const SectionForm = ({ onSave, onCancel }) => {
+    const [formData, setFormData] = useState({
+        id: '',
+        nameEn: '',
+        nameMk: '',
+        nameSq: ''
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({
+            id: formData.id || `sec-${Date.now()}`,
+            title: {
+                en: formData.nameEn,
+                mk: formData.nameMk,
+                sq: formData.nameSq
+            }
+        });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>ID (optional, auto-generated)</label>
+                <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="hot-drinks" />
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English) *</label>
+                <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Hot Drinks" required />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
+                    <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Топли Пијалоци" />
+                </div>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
+                    <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Pije të Ngrohta" />
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
+                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>Create Section</button>
+            </div>
+        </form>
+    );
+};
+
 const MenuEditor = ({ restaurant }) => {
     const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, deleteCategory, addSection, deleteSection } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
     const [activeTab, setActiveTab] = useState('menu');
+    const [showCategoryForm, setShowCategoryForm] = useState(false);
+    const [showSectionForm, setShowSectionForm] = useState(null); // categoryId when showing form
 
     // Draft State for Settings
     const [draftValues, setDraftValues] = useState({});
@@ -402,6 +506,70 @@ const MenuEditor = ({ restaurant }) => {
                         )}
                     </AnimatePresence>
 
+                    {/* Category Form Modal */}
+                    <AnimatePresence>
+                        {showCategoryForm && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    onClick={() => setShowCategoryForm(false)}
+                                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }}
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                    style={{
+                                        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                        width: '90%', maxWidth: '500px',
+                                        background: 'var(--bg-surface)',
+                                        padding: '32px', borderRadius: '24px', zIndex: 1001,
+                                        boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-color)', color: 'var(--color-ink)'
+                                    }}
+                                >
+                                    <h2 style={{ marginTop: 0 }}>New Category</h2>
+                                    <CategoryForm
+                                        onSave={(data) => {
+                                            addCategory(restaurant.id, data);
+                                            setShowCategoryForm(false);
+                                        }}
+                                        onCancel={() => setShowCategoryForm(false)}
+                                    />
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Section Form Modal */}
+                    <AnimatePresence>
+                        {showSectionForm && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    onClick={() => setShowSectionForm(null)}
+                                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }}
+                                />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                    style={{
+                                        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                        width: '90%', maxWidth: '500px',
+                                        background: 'var(--bg-surface)',
+                                        padding: '32px', borderRadius: '24px', zIndex: 1001,
+                                        boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-color)', color: 'var(--color-ink)'
+                                    }}
+                                >
+                                    <h2 style={{ marginTop: 0 }}>New Section</h2>
+                                    <SectionForm
+                                        onSave={(data) => {
+                                            addSection(restaurant.id, showSectionForm, data);
+                                            setShowSectionForm(null);
+                                        }}
+                                        onCancel={() => setShowSectionForm(null)}
+                                    />
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+
                     {restaurant.menu.length === 0 && (
                         <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
                             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
@@ -410,7 +578,7 @@ const MenuEditor = ({ restaurant }) => {
                                 Start building your menu by creating a category (e.g., "Drinks", "Food").
                             </p>
                             <button
-                                onClick={() => addCategory(restaurant.id, { label: { en: 'Drinks', mk: 'Пијалоци', sq: 'Pije' } })}
+                                onClick={() => setShowCategoryForm(true)}
                                 style={{
                                     backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
                                     border: 'none', padding: '12px 24px', borderRadius: '100px',
@@ -431,7 +599,7 @@ const MenuEditor = ({ restaurant }) => {
                                     <h2 style={{ fontSize: '20px', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', flex: 1 }}>{category.label.en}</h2>
                                     <div style={{ display: 'flex', gap: '8px' }}>
                                         <button
-                                            onClick={() => addSection(restaurant.id, category.id, { title: { en: 'New Section', mk: 'Нов Дел', sq: 'Seksion i Ri' } })}
+                                            onClick={() => setShowSectionForm(category.id)}
                                             style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
                                         >
                                             <Plus size={14} /> Add Section
