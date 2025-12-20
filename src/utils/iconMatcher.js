@@ -5,6 +5,14 @@ import {
     CupSoda, Candy, Popcorn, Shell, Citrus, Carrot
 } from 'lucide-react';
 
+// Icon object map (for direct access)
+const ICONS = {
+    Coffee, Utensils, Wine, Martini, Soup, Salad, Pizza, Croissant, IceCream,
+    GlassWater, Snowflake, Beer, Sunrise, Beef, Fish, Cake, Apple, Sandwich,
+    Cookie, Milk, Grape, Cherry, Flame, Leaf, Drumstick, Egg, Wheat, ChefHat,
+    CupSoda, Candy, Popcorn, Shell, Citrus, Carrot
+};
+
 // Comprehensive icon mapping with smart keyword matching
 const ICON_KEYWORDS = {
     // Drinks
@@ -62,16 +70,16 @@ export const getSmartIcon = (text) => {
     const searchText = text.toLowerCase();
 
     // Try exact ID match first
-    const exactMatch = Object.entries(ICON_KEYWORDS).find(([icon, keywords]) =>
+    const exactMatch = Object.entries(ICON_KEYWORDS).find(([iconName, keywords]) =>
         keywords.includes(searchText)
     );
-    if (exactMatch) return eval(exactMatch[0]);
+    if (exactMatch) return ICONS[exactMatch[0]];
 
     // Try partial keyword match
-    const partialMatch = Object.entries(ICON_KEYWORDS).find(([icon, keywords]) =>
+    const partialMatch = Object.entries(ICON_KEYWORDS).find(([iconName, keywords]) =>
         keywords.some(keyword => searchText.includes(keyword) || keyword.includes(searchText))
     );
-    if (partialMatch) return eval(partialMatch[0]);
+    if (partialMatch) return ICONS[partialMatch[0]];
 
     // Fallback to Utensils
     return Utensils;
