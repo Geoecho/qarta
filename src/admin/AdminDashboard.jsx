@@ -603,10 +603,11 @@ const MenuEditor = ({ restaurant }) => {
                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                                     style={{
                                         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                                        width: '90%', maxWidth: '500px',
+                                        width: '90%', maxWidth: '500px', maxHeight: '90vh',
                                         background: 'var(--bg-surface)',
                                         padding: '32px', borderRadius: '24px', zIndex: 1001,
-                                        boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-color)', color: 'var(--color-ink)'
+                                        boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-color)', color: 'var(--color-ink)',
+                                        overflowY: 'auto'
                                     }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>New Category</h2>
