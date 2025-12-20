@@ -111,7 +111,39 @@ const ClientApp = () => {
     </div>
   );
 
-  if (!restaurant) return <div>Restaurant not found</div>;
+  if (!restaurant) return (
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      gap: '24px',
+      padding: '24px',
+      textAlign: 'center'
+    }}>
+      <div style={{ fontSize: '64px' }}>🍽️</div>
+      <div>
+        <h1 style={{ margin: '0 0 8px 0', fontSize: '24px' }}>Restaurant Not Found</h1>
+        <p style={{ margin: 0, color: '#666' }}>
+          The handle <strong>/{slug || 'default'}</strong> doesn't exist yet.
+        </p>
+      </div>
+      <a
+        href="/admin"
+        style={{
+          padding: '12px 24px',
+          background: '#ff5f1f',
+          color: 'white',
+          borderRadius: '100px',
+          textDecoration: 'none',
+          fontWeight: 600
+        }}
+      >
+        Create in Admin Panel
+      </a>
+    </div>
+  );
 
   return (
     <div className={isDark ? 'dark' : ''}>

@@ -206,13 +206,38 @@ const RestaurantList = ({ onSelect }) => {
                     <h3 style={{ margin: '0 0 16px 0' }}>Add New Restaurant</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                         <input className="admin-input" placeholder="Restaurant Name" value={newRes.name} onChange={e => setNewRes({ ...newRes, name: e.target.value })} required />
-                        <input className="admin-input" placeholder="Slug (URL path)" value={newRes.slug} onChange={e => setNewRes({ ...newRes, slug: e.target.value })} required />
+                        <input className="admin-input" placeholder="Slug (URL path, e.g. 'netaville')" value={newRes.slug} onChange={e => setNewRes({ ...newRes, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })} required />
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--color-text-subtle)', marginBottom: '16px' }}>
+                        Your restaurant will be available at: <strong>qarta.xyz/{newRes.slug || 'your-slug'}</strong>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button type="submit" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', cursor: 'pointer', fontWeight: 600 }}>Create</button>
                         <button type="button" onClick={() => setIsAddMode(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
                     </div>
                 </form>
+            )}
+
+            {!isAddMode && restaurants.length === 0 && (
+                <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏪</div>
+                    <h3 style={{ margin: '0 0 8px 0' }}>No Restaurants Yet</h3>
+                    <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)' }}>
+                        Create your first restaurant to get started.
+                    </p>
+                    <button
+                        onClick={() => setIsAddMode(true)}
+                        style={{
+                            backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
+                            border: 'none', padding: '12px 24px', borderRadius: '100px',
+                            fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+                            display: 'inline-flex', alignItems: 'center', gap: '8px'
+                        }}
+                    >
+                        <Plus size={20} />
+                        Create First Restaurant
+                    </button>
+                </div>
             )}
 
             <div style={{ display: 'grid', gap: '16px' }}>
@@ -255,7 +280,7 @@ const RestaurantList = ({ onSelect }) => {
 };
 
 const MenuEditor = ({ restaurant }) => {
-    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem } = usePlatform();
+    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, deleteCategory, addSection, deleteSection } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
     const [activeTab, setActiveTab] = useState('menu');
 
@@ -377,10 +402,48 @@ const MenuEditor = ({ restaurant }) => {
                         )}
                     </AnimatePresence>
 
+                    {restaurant.menu.length === 0 && (
+                        <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                            <h3 style={{ margin: '0 0 8px 0' }}>Empty Menu</h3>
+                            <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)' }}>
+                                Start building your menu by creating a category (e.g., "Drinks", "Food").
+                            </p>
+                            <button
+                                onClick={() => addCategory(restaurant.id, { label: { en: 'Drinks', mk: 'Пијалоци', sq: 'Pije' } })}
+                                style={{
+                                    backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
+                                    border: 'none', padding: '12px 24px', borderRadius: '100px',
+                                    fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+                                    display: 'inline-flex', alignItems: 'center', gap: '8px'
+                                }}
+                            >
+                                <Plus size={20} />
+                                Create First Category
+                            </button>
+                        </div>
+                    )}
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                         {restaurant.menu.map(category => (
                             <div key={category.id}>
-                                <h2 style={{ fontSize: '20px', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>{category.label.en}</h2>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                    <h2 style={{ fontSize: '20px', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', flex: 1 }}>{category.label.en}</h2>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={() => addSection(restaurant.id, category.id, { title: { en: 'New Section', mk: 'Нов Дел', sq: 'Seksion i Ri' } })}
+                                            style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Plus size={14} /> Add Section
+                                        </button>
+                                        <button
+                                            onClick={() => { if (confirm('Delete category?')) deleteCategory(restaurant.id, category.id) }}
+                                            style={{ padding: '6px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                </div>
                                 <div style={{ display: 'grid', gap: '24px' }}>
                                     {category.sections.map(section => (
                                         <div key={section.id} className="admin-card" style={{ marginBottom: 0, padding: 0, overflow: 'hidden' }}>

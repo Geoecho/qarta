@@ -29,9 +29,9 @@ const DEFAULT_RESTAURANT = {
 };
 
 export const MenuProvider = ({ children }) => {
-    // START OPTIMISTIC: Initialize with default data
-    const [restaurants, setRestaurants] = useState([DEFAULT_RESTAURANT]);
-    const [loading, setLoading] = useState(false);
+    // Start with EMPTY state - Admin must create restaurants
+    const [restaurants, setRestaurants] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [lastSaveTime, setLastSaveTime] = useState(0);
     const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'success', 'error'
     const [serverError, setServerError] = useState(null);
@@ -46,12 +46,14 @@ export const MenuProvider = ({ children }) => {
                 const res = await fetch('/api/menu');
                 if (res.ok) {
                     const data = await res.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        setRestaurants(data);
+                    if (Array.isArray(data)) {
+                        setRestaurants(data); // Can be empty array
                     }
                 }
+                setLoading(false);
             } catch (e) {
                 console.warn("Menu sync failed (offline mode):", e);
+                setLoading(false);
             }
         };
 
@@ -114,7 +116,7 @@ export const MenuProvider = ({ children }) => {
                 message: 'Welcome to ' + newRestaurant.name,
                 image: ''
             },
-            menu: INITIAL_MENU
+            menu: [] // Start with EMPTY menu - Admin builds from scratch
         };
         const updated = [...restaurants, payload];
         await saveToCloud(updated);
@@ -131,6 +133,60 @@ export const MenuProvider = ({ children }) => {
     };
 
     // --- Menu Editing ---
+
+    const addCategory = async (restaurantId, categoryData) => {
+        const newCategory = {
+            id: categoryData.id || `cat-${Date.now()}`,
+            label: categoryData.label || { en: 'New Category', mk: 'Нова Категорија', sq: 'Kategori e Re' },
+            sections: []
+        };
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return { ...r, menu: [...r.menu, newCategory] };
+        });
+        await saveToCloud(updated);
+    };
+
+    const deleteCategory = async (restaurantId, categoryId) => {
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return { ...r, menu: r.menu.filter(c => c.id !== categoryId) };
+        });
+        await saveToCloud(updated);
+    };
+
+    const addSection = async (restaurantId, categoryId, sectionData) => {
+        const newSection = {
+            id: sectionData.id || `sec-${Date.now()}`,
+            title: sectionData.title || { en: 'New Section', mk: 'Нов Дел', sq: 'Seksion i Ri' },
+            items: []
+        };
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return {
+                ...r,
+                menu: r.menu.map(cat => {
+                    if (cat.id !== categoryId) return cat;
+                    return { ...cat, sections: [...cat.sections, newSection] };
+                })
+            };
+        });
+        await saveToCloud(updated);
+    };
+
+    const deleteSection = async (restaurantId, categoryId, sectionId) => {
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return {
+                ...r,
+                menu: r.menu.map(cat => {
+                    if (cat.id !== categoryId) return cat;
+                    return { ...cat, sections: cat.sections.filter(s => s.id !== sectionId) };
+                })
+            };
+        });
+        await saveToCloud(updated);
+    };
 
     const updateMenuItem = async (restaurantId, categoryId, sectionId, itemId, updates) => {
         const updated = restaurants.map(restaurant => {
@@ -215,8 +271,12 @@ export const MenuProvider = ({ children }) => {
     };
 
     const getRestaurantBySlug = (slug) => {
-        if (!slug) return restaurants[0] || null;
-        return restaurants.find(r => r.slug === slug || r.id === slug) || restaurants[0] || null;
+        // If no slug provided, return first restaurant or null
+        if (!slug || slug === 'default') {
+            return restaurants[0] || null;
+        }
+        // Find by slug, return null if not found (no fallback)
+        return restaurants.find(r => r.slug === slug || r.id === slug) || null;
     };
 
     return (
@@ -226,6 +286,10 @@ export const MenuProvider = ({ children }) => {
             addRestaurant,
             removeRestaurant,
             updateRestaurantDetails,
+            addCategory,
+            deleteCategory,
+            addSection,
+            deleteSection,
             updateMenuItem,
             addMenuItem,
             deleteMenuItem,
