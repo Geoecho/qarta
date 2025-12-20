@@ -701,12 +701,20 @@ const MenuEditor = ({ restaurant }) => {
                                         <div key={section.id} className="admin-card" style={{ marginBottom: 0, padding: 0, overflow: 'hidden' }}>
                                             <div style={{ padding: '16px 20px', background: 'var(--bg-surface-secondary)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span>{section.title.en}</span>
-                                                <button
-                                                    onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item: { name: {}, price: 0 }, isNew: true })}
-                                                    style={{ border: 'none', background: 'var(--color-primary)', color: 'white', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                                >
-                                                    <Plus size={14} /> Add Item
-                                                </button>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <button
+                                                        onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item: { name: {}, price: 0 }, isNew: true })}
+                                                        style={{ border: 'none', background: 'var(--color-primary)', color: 'white', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                    >
+                                                        <Plus size={14} /> Add Item
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { if (confirm('Delete section "' + section.title.en + '"?')) deleteSection(restaurant.id, category.id, section.id) }}
+                                                        style={{ padding: '6px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div style={{ padding: '0 20px' }}>
                                                 {section.items.map(item => (

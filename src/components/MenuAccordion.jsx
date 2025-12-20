@@ -1,32 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Coffee, Utensils, Wine, Martini, Soup, Salad, Pizza, Croissant, IceCream, GlassWater, Snowflake, Beer, Sunrise } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { getSmartIcon, Utensils } from '../utils/iconMatcher';
 import MenuItem from './MenuItem';
 
-const ICON_MAP = {
-    'coffee': Coffee,
-    'hot-drinks': Coffee,
-    'soft-drinks': GlassWater,
-    'cold-brew': Snowflake,
-    'cocktails': Martini,
-    'wine': Wine,
-    'whiskey': GlassWater,
-    'beer': Beer,
-    'bakery': Croissant,
-    'breakfast': Sunrise,
-    'sweets': IceCream,
-    // Add extras from data.js just in case
-    'fresh-pasta': Utensils,
-    'appetizers': Soup,
-    'soup': Soup,
-    'greens': Salad,
-    'red': Pizza, // Pizza sections
-    'white': Pizza
-};
-
 const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => {
-    // Safe Icon Resolution
-    const IconComponent = ICON_MAP[section.id] || section.icon || Utensils;
+    // Smart Icon Resolution
+    const IconComponent = getSmartIcon(section.id) || getSmartIcon(section.title?.en) || Utensils;
     const [activeFilter, setActiveFilter] = useState('all');
 
     // Reset filter when closed (optional, keeps it clean)

@@ -1,32 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Coffee, Utensils, Wine, Martini, Soup, Salad, Pizza, Croissant, IceCream, GlassWater } from 'lucide-react';
-
-const ICON_MAP = {
-    'drinks': Coffee,
-    'alcoholic': Martini,
-    'starters': Soup,
-    'salads': Salad,
-    'pizza': Pizza,
-    'pasta': Utensils,
-    'food': Croissant,
-    'dessert': IceCream,
-    // sub-section fallbacks or extras if needed
-    'coffee': Coffee,
-    'hot-drinks': Coffee,
-    'soft-drinks': GlassWater,
-    'cold-brew': Snowflake, // Need to import Snowflake if used
-    'cocktails': Martini,
-    'wine': Wine,
-    'whiskey': GlassWater,
-    'beer': Beer, // Need import
-    'bakery': Croissant,
-    'breakfast': Sunrise, // Need import
-    'sweets': IceCream
-};
-
-// Import missing ones locally for the map
-import { Snowflake, Beer, Sunrise } from 'lucide-react';
+import { getSmartIcon, Utensils } from '../utils/iconMatcher';
 
 const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
     return (
@@ -49,10 +23,8 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                 msOverflowStyle: 'none',
             }}>
                 {categories.map((cat) => {
-                    // Safe Icon Resolution:
-                    // 1. Try to get it from our static map using the ID
-                    // 2. Fallback to Utensils
-                    const IconComponent = ICON_MAP[cat.id] || Utensils;
+                    // Smart Icon Resolution: Automatically match icon based on name/ID
+                    const IconComponent = getSmartIcon(cat.id) || getSmartIcon(cat.label?.en) || Utensils;
 
                     const isActive = activeCategory === cat.id;
 
