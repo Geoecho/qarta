@@ -956,6 +956,9 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
         nameEn: item.name?.en || '',
         nameMk: item.name?.mk || '',
         nameSq: item.name?.sq || '',
+        descEn: item.desc?.en || item.description?.en || '',
+        descMk: item.desc?.mk || item.description?.mk || '',
+        descSq: item.desc?.sq || item.description?.sq || '',
         image: item.image || '',
         tag: item.tag || '' // Sub-category tag
     });
@@ -966,6 +969,9 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
             nameEn: item.name?.en || '',
             nameMk: item.name?.mk || '',
             nameSq: item.name?.sq || '',
+            descEn: item.desc?.en || item.description?.en || '',
+            descMk: item.desc?.mk || item.description?.mk || '',
+            descSq: item.desc?.sq || item.description?.sq || '',
             image: item.image || '',
             tag: item.tag || ''
         });
@@ -984,6 +990,11 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
                 en: formData.nameEn,
                 mk: formData.nameMk,
                 sq: formData.nameSq
+            },
+            desc: {
+                en: formData.descEn,
+                mk: formData.descMk,
+                sq: formData.descSq
             },
             image: formData.image,
             tag: formData.tag || undefined // Only include if set
@@ -1009,6 +1020,22 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
                 <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
                     <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={handleChange} placeholder="..." />
+                </div>
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (English)</label>
+                <textarea className="admin-input" name="descEn" value={formData.descEn || ''} onChange={handleChange} placeholder="Describe what's in this item..." rows="2" style={{ resize: 'vertical' }} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (MK)</label>
+                    <textarea className="admin-input" name="descMk" value={formData.descMk || ''} onChange={handleChange} placeholder="..." rows="2" style={{ resize: 'vertical' }} />
+                </div>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (SQ)</label>
+                    <textarea className="admin-input" name="descSq" value={formData.descSq || ''} onChange={handleChange} placeholder="..." rows="2" style={{ resize: 'vertical' }} />
                 </div>
             </div>
 
