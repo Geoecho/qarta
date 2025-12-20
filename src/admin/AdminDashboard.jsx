@@ -335,8 +335,29 @@ const SectionForm = ({ onSave, onCancel }) => {
         id: '',
         nameEn: '',
         nameMk: '',
-        nameSq: ''
+        nameSq: '',
+        filters: [] // Sub-categories like Red/White for Wine
     });
+
+    const addFilter = () => {
+        setFormData({
+            ...formData,
+            filters: [...formData.filters, { id: '', labelEn: '', labelMk: '', labelSq: '' }]
+        });
+    };
+
+    const removeFilter = (index) => {
+        setFormData({
+            ...formData,
+            filters: formData.filters.filter((_, i) => i !== index)
+        });
+    };
+
+    const updateFilter = (index, field, value) => {
+        const updated = [...formData.filters];
+        updated[index][field] = value;
+        setFormData({ ...formData, filters: updated });
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -346,31 +367,91 @@ const SectionForm = ({ onSave, onCancel }) => {
                 en: formData.nameEn,
                 mk: formData.nameMk,
                 sq: formData.nameSq
-            }
+            },
+            filters: formData.filters.filter(f => f.labelEn).map(f => ({
+                id: f.id || f.labelEn.toLowerCase().replace(/\s+/g, '-'),
+                label: {
+                    en: f.labelEn,
+                    mk: f.labelMk || f.labelEn,
+                    sq: f.labelSq || f.labelEn
+                }
+            })),
+            items: []
         });
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '80vh', overflowY: 'auto' }}>
             <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>ID (optional, auto-generated)</label>
-                <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="hot-drinks" />
+                <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="wine" />
             </div>
 
             <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English) *</label>
-                <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Hot Drinks" required />
+                <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Wine" required />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
-                    <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Топли Пијалоци" />
+                    <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Вино" />
                 </div>
                 <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
-                    <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Pije të Ngrohta" />
+                    <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Verë" />
                 </div>
+            </div>
+
+            {/* Sub-Categories (Filters) */}
+            <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-surface-secondary)', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600 }}>Sub-Categories (e.g., Red, White)</label>
+                    <button type="button" onClick={addFilter} style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                        + Add
+                    </button>
+                </div>
+                {formData.filters.map((filter, index) => (
+                    <div key={index} style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                            <input
+                                className="admin-input"
+                                placeholder="English (e.g., Red)"
+                                value={filter.labelEn}
+                                onChange={(e) => updateFilter(index, 'labelEn', e.target.value)}
+                                style={{ flex: 1 }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeFilter(index)}
+                                style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer' }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <input
+                                className="admin-input"
+                                placeholder="MK"
+                                value={filter.labelMk}
+                                onChange={(e) => updateFilter(index, 'labelMk', e.target.value)}
+                                style={{ fontSize: '12px' }}
+                            />
+                            <input
+                                className="admin-input"
+                                placeholder="SQ"
+                                value={filter.labelSq}
+                                onChange={(e) => updateFilter(index, 'labelSq', e.target.value)}
+                                style={{ fontSize: '12px' }}
+                            />
+                        </div>
+                    </div>
+                ))}
+                {formData.filters.length === 0 && (
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-subtle)', textAlign: 'center' }}>
+                        No sub-categories yet. Click "+ Add" to create filters.
+                    </p>
+                )}
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -497,6 +578,9 @@ const MenuEditor = ({ restaurant }) => {
                                     <h2 style={{ marginTop: 0 }}>{editingItem.isNew ? 'New Item' : 'Edit Item'}</h2>
                                     <EditItemForm
                                         item={editingItem.item}
+                                        section={restaurant.menu
+                                            .find(c => c.id === editingItem.categoryId)?.sections
+                                            .find(s => s.id === editingItem.sectionId)}
                                         onSave={handleSaveMenu}
                                         onCancel={() => setEditingItem(null)}
                                         isNew={editingItem.isNew}
@@ -830,14 +914,15 @@ const MenuEditor = ({ restaurant }) => {
     );
 };
 
-const EditItemForm = ({ item, onSave, onCancel, isNew }) => {
+const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
     // Should initialize with default values if new, or item values if editing.
     const [formData, setFormData] = useState({
         price: item.price || 0,
         nameEn: item.name?.en || '',
         nameMk: item.name?.mk || '',
         nameSq: item.name?.sq || '',
-        image: item.image || ''
+        image: item.image || '',
+        tag: item.tag || '' // Sub-category tag
     });
 
     useEffect(() => {
@@ -846,7 +931,8 @@ const EditItemForm = ({ item, onSave, onCancel, isNew }) => {
             nameEn: item.name?.en || '',
             nameMk: item.name?.mk || '',
             nameSq: item.name?.sq || '',
-            image: item.image || ''
+            image: item.image || '',
+            tag: item.tag || ''
         });
     }, [item]);
 
@@ -864,7 +950,8 @@ const EditItemForm = ({ item, onSave, onCancel, isNew }) => {
                 mk: formData.nameMk,
                 sq: formData.nameSq
             },
-            image: formData.image
+            image: formData.image,
+            tag: formData.tag || undefined // Only include if set
         });
     };
     return (
@@ -894,6 +981,30 @@ const EditItemForm = ({ item, onSave, onCancel, isNew }) => {
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Image URL</label>
                 <input className="admin-input" name="image" value={formData.image} onChange={handleChange} placeholder="https://..." />
             </div>
+
+            {/* Sub-Category Tag Selector */}
+            {section?.filters && section.filters.length > 0 && (
+                <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Sub-Category</label>
+                    <select
+                        className="admin-input"
+                        name="tag"
+                        value={formData.tag}
+                        onChange={handleChange}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <option value="">All (No filter)</option>
+                        {section.filters.map(filter => (
+                            <option key={filter.id} value={filter.id}>
+                                {filter.label.en}
+                            </option>
+                        ))}
+                    </select>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--color-text-subtle)' }}>
+                        Assign this item to a sub-category (e.g., Red wine, White wine)
+                    </p>
+                </div>
+            )}
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
