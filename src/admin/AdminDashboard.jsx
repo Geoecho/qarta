@@ -341,13 +341,14 @@ const CategoryForm = ({ onSave, onCancel, initialData = null }) => {
     );
 };
 
-const SectionForm = ({ onSave, onCancel }) => {
+const SectionForm = ({ onSave, onCancel, initialData = null }) => {
     const [formData, setFormData] = useState({
-        id: '',
-        nameEn: '',
-        nameMk: '',
-        nameSq: '',
-        filters: [] // Sub-categories like Red/White for Wine
+        id: initialData?.id || '',
+        nameEn: initialData?.title?.en || '',
+        nameMk: initialData?.title?.mk || '',
+        nameSq: initialData?.title?.sq || '',
+        icon: initialData?.icon || 'Utensils',
+        filters: initialData?.filters || [] // Sub-categories like Red/White for Wine
     });
 
     const addFilter = () => {
@@ -379,6 +380,7 @@ const SectionForm = ({ onSave, onCancel }) => {
                 mk: formData.nameMk,
                 sq: formData.nameSq
             },
+            icon: formData.icon,
             filters: formData.filters.filter(f => f.labelEn).map(f => ({
                 id: f.id || f.labelEn.toLowerCase().replace(/\s+/g, '-'),
                 label: {
@@ -387,7 +389,7 @@ const SectionForm = ({ onSave, onCancel }) => {
                     sq: f.labelSq || f.labelEn
                 }
             })),
-            items: []
+            items: initialData?.items || []
         });
     };
 
@@ -465,9 +467,17 @@ const SectionForm = ({ onSave, onCancel }) => {
                 )}
             </div>
 
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Icon</label>
+                <IconPicker
+                    selectedIcon={formData.icon}
+                    onSelect={(iconId) => setFormData({ ...formData, icon: iconId })}
+                />
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>Create Section</button>
+                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>{initialData ? 'Save Changes' : 'Create Section'}</button>
             </div>
         </form>
     );
@@ -477,6 +487,7 @@ const MenuEditor = ({ restaurant }) => {
     const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, deleteCategory, addSection, deleteSection } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
     const [editingCategory, setEditingCategory] = useState(null); // For editing categories
+    const [editingSection, setEditingSection] = useState(null); // For editing sections
     const [activeTab, setActiveTab] = useState('menu');
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [showSectionForm, setShowSectionForm] = useState(null); // categoryId when showing form
