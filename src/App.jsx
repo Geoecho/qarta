@@ -331,6 +331,7 @@ const ClientApp = () => {
           isOpen={isOrderOpen}
           onClose={() => setIsOrderOpen(false)}
           language={language}
+          restaurantSlug={slug || 'default'}
         />
       </div>
     </div>

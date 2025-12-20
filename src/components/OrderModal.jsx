@@ -20,7 +20,7 @@ const translations = {
     close: { en: 'Close', mk: 'Затвори', sq: 'Mbyll' },
 };
 
-const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
+const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'default' }) => {
     const {
         cart,
         updateQuantity,
@@ -35,7 +35,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
     const t = translations;
 
     const handleCheckout = () => {
-        placeOrder();
+        placeOrder(restaurantSlug); // Pass the restaurant slug
     };
 
     const handleCloseFinal = () => {
