@@ -476,6 +476,7 @@ const SectionForm = ({ onSave, onCancel }) => {
 const MenuEditor = ({ restaurant }) => {
     const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, deleteCategory, addSection, deleteSection } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
+    const [editingCategory, setEditingCategory] = useState(null); // For editing categories
     const [activeTab, setActiveTab] = useState('menu');
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [showSectionForm, setShowSectionForm] = useState(null); // categoryId when showing form
@@ -701,6 +702,12 @@ const MenuEditor = ({ restaurant }) => {
                                             style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
                                         >
                                             <Plus size={14} /> Add Section
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingCategory(category)}
+                                            style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Edit2 size={14} /> Edit
                                         </button>
                                         <button
                                             onClick={() => { if (confirm('Delete category?')) deleteCategory(restaurant.id, category.id) }}
