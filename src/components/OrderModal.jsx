@@ -26,7 +26,8 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
         updateQuantity,
         totalPrice,
         orderStatus,
-        placeOrder
+        placeOrder,
+        activeOrder
     } = useOrder();
 
     const [note, setNote] = useState('');
@@ -229,86 +230,73 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
                             </motion.div>
                         )}
 
-                        {/* View: Minimal Accepted */}
+                        {/* View: Active Order Status (Confirmed/Tracking) */}
                         {orderStatus === 'confirmed' && (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 40px' }}
+                                style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '40px 24px', overflowY: 'auto' }}
                             >
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, y: 20 }}
-                                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, ease: 'backOut' }}
-                                    style={{ textAlign: 'center' }}
-                                >
-                                    <h2 style={{ fontSize: '32px', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.03em' }}>
-                                        {t.confirmedTitle[language]}
-                                    </h2>
-                                    <p style={{ color: 'var(--color-text-subtle)', margin: 0 }}>{t.kitchenHasIt[language]}</p>
-                                </motion.div>
-
-                                {/* Responsive Tracker */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.3 }}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        marginTop: '32px',
-                                        width: '100%',
-                                        maxWidth: '320px', // Wider container
-                                        justifyContent: 'center'
-                                    }}
-                                >
-                                    <div style={{ flexShrink: 0, width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-ink)' }} />
-                                    <div style={{ flex: 1, height: '1px', background: 'var(--color-ink)' }} />
-                                    <div style={{ flexShrink: 0, width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--color-ink)' }} />
-                                    <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                                    <div style={{ flexShrink: 0, width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--border-color)' }} />
-                                </motion.div>
-
-                                {/* Responsive Labels */}
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    width: '100%',
-                                    maxWidth: '340px', // Matches dot width approx +/- margins
-                                    marginTop: '8px',
-                                    fontSize: '11px', // Slightly smaller for safety
-                                    color: 'var(--color-text-subtle)',
-                                    fontWeight: 600,
-                                    letterSpacing: '0.05em',
-                                    textTransform: 'uppercase'
-                                }}>
-                                    <span>{t.sent[language]}</span>
-                                    <span style={{ color: 'var(--color-ink)' }}>{t.prep[language]}</span>
-                                    <span>{t.ready[language]}</span>
-                                </div>
-
-                                <div style={{ margin: '40px 0', textAlign: 'center' }}>
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 0.4 }}
-                                        style={{ fontSize: '64px', fontWeight: 200, fontFamily: 'monospace', letterSpacing: '-0.05em', lineHeight: 1 }}
+                                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                                    <motion.h2
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0' }}
                                     >
-                                        08:00
-                                    </motion.div>
-                                    <div style={{ color: 'var(--color-text-subtle)', fontSize: '12px', fontWeight: 600, marginTop: '8px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{t.minsRemaining[language]}</div>
+                                        {activeOrder?.status === 'accepted' ? (language === 'mk' ? 'Нарачката е прифатена!' : 'Order Accepted!') :
+                                            activeOrder?.status === 'rejected' ? (language === 'mk' ? 'Нарачката е одбиена' : 'Order Declined') :
+                                                t.kitchenHasIt[language]}
+                                    </motion.h2>
+
+                                    {activeOrder?.status === 'accepted' ? (
+                                        <div style={{ margin: '24px 0' }}>
+                                            <div style={{ fontSize: '56px', fontWeight: 700, lineHeight: 1, fontFamily: 'monospace' }}>
+                                                {activeOrder.estimatedMinutes}
+                                            </div>
+                                            <div style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: 'var(--color-text-subtle)', marginTop: '8px' }}>
+                                                {t.minsRemaining[language]}
+                                            </div>
+                                        </div>
+                                    ) : activeOrder?.status === 'rejected' ? (
+                                        <div style={{ color: '#ef4444', marginTop: '16px' }}>
+                                            {language === 'mk' ? 'Ве молиме обидете се повторно.' : 'Please try again.'}
+                                        </div>
+                                    ) : (
+                                        <div style={{ color: 'var(--color-text-subtle)' }}>
+                                            {t.sent[language]}...
+                                        </div>
+                                    )}
                                 </div>
 
-                                <motion.button
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.8 }}
+                                {/* Order Summary / Receipt */}
+                                <div style={{ background: 'var(--bg-surface-secondary)', padding: '24px', borderRadius: '24px' }}>
+                                    <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700, opacity: 0.8 }}>
+                                        {language === 'mk' ? 'Вашата нарачка' : 'Receipt'}
+                                    </h3>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {activeOrder?.items?.map((item, idx) => (
+                                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px' }}>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <span style={{ fontWeight: 600 }}>{item.quantity}x</span>
+                                                    <span>{item.name[language] || item.name.en}</span>
+                                                </div>
+                                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{ borderTop: '1px dashed var(--border-color)', marginTop: '16px', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '18px' }}>
+                                        <span>Total</span>
+                                        <span>${activeOrder?.total?.toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                <button
                                     onClick={handleCloseFinal}
                                     style={{
+                                        marginTop: 'auto',
                                         background: 'transparent',
                                         border: '1px solid var(--border-color)',
-                                        padding: '12px 32px',
+                                        padding: '16px',
                                         borderRadius: '100px',
                                         color: 'var(--color-ink)',
                                         fontSize: '14px',
@@ -316,11 +304,12 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
+                                        justifyContent: 'center',
                                         gap: '8px'
                                     }}
                                 >
-                                    {t.close[language]} <ArrowRight size={14} />
-                                </motion.button>
+                                    {t.close[language]}
+                                </button>
                             </motion.div>
                         )}
                     </motion.div>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Store, LayoutDashboard, Settings, Plus, Edit2, LogOut, Trash2, ArrowLeft, Menu as MenuIcon, X, Save } from 'lucide-react';
+import { User, Store, LayoutDashboard, Settings, Plus, Edit2, LogOut, Trash2, ArrowLeft, Menu as MenuIcon, X, Save, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '../contexts/MenuContext';
 import { auth } from '../firebase';
 import './AdminDashboard.css';
+import { OrdersDashboard } from './OrdersDashboard';
 
 // --- Components ---
 
-const AdminLayout = ({ children, onBack }) => {
+const AdminLayout = ({ children, onBack, view, setView }) => {
     const navigate = useNavigate();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
 
@@ -60,7 +61,26 @@ const AdminLayout = ({ children, onBack }) => {
                 </div>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                    <SidebarItem icon={LayoutDashboard} label="Restaurants" active={!onBack} onClick={() => { if (onBack) onBack(); setSidebarOpen(false); }} />
+                    <SidebarItem
+                        icon={LayoutDashboard}
+                        label="Restaurants"
+                        active={!onBack && view === 'restaurants'}
+                        onClick={() => {
+                            if (onBack) onBack();
+                            if (setView) setView('restaurants');
+                            setSidebarOpen(false);
+                        }}
+                    />
+                    <SidebarItem
+                        icon={ShoppingBag}
+                        label="Orders"
+                        active={!onBack && view === 'orders'}
+                        onClick={() => {
+                            if (onBack) onBack();
+                            if (setView) setView('orders');
+                            setSidebarOpen(false);
+                        }}
+                    />
                     {onBack && <SidebarItem icon={Settings} label="Menu Editor" active />}
                 </nav>
 
@@ -608,14 +628,23 @@ const EditItemForm = ({ item, onSave, onCancel, isNew }) => {
 export const AdminDashboard = () => {
     const { restaurants } = usePlatform();
     const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
+    const [view, setView] = useState('restaurants');
 
     // Derive object from ID so it updates when Context updates
     const selectedRestaurant = restaurants.find(r => r.id === selectedRestaurantId);
 
+    const handleBack = selectedRestaurantId ? () => setSelectedRestaurantId(null) : null;
+
     return (
-        <AdminLayout onBack={selectedRestaurantId ? () => setSelectedRestaurantId(null) : null}>
+        <AdminLayout
+            onBack={handleBack}
+            view={view}
+            setView={setView}
+        >
             {selectedRestaurant ? (
                 <MenuEditor restaurant={selectedRestaurant} />
+            ) : view === 'orders' ? (
+                <OrdersDashboard />
             ) : (
                 <RestaurantList onSelect={setSelectedRestaurantId} />
             )}

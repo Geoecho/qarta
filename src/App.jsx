@@ -36,14 +36,17 @@ const ClientApp = () => {
   const [isDark, setIsDark] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' | 'mk' | 'sq'
 
-  const { addToCart, totalCount, orderStatus } = useOrder();
+  const { addToCart, totalCount, orderStatus, activeOrder } = useOrder();
 
   const currentData = menuData.find(d => d.id === activeTab) || menuData[0];
 
   // Translations for floating buttons
   const t = {
     viewOrder: { en: 'View Order', mk: 'Види Нарачка', sq: 'Shiko Porosinë' },
-    remaining: { en: 'remaining', mk: 'преостанато', sq: 'të mbetura' }
+    remaining: { en: 'remaining', mk: 'преостанато', sq: 'të mbetura' },
+    waiting: { en: 'Waiting for confirmation...', mk: 'Чекаме потврда...', sq: 'Duke pritur...' },
+    ready: { en: 'Ready for pickup!', mk: 'Готово за подигање!', sq: 'Gati për t\'u marrë!' },
+    declined: { en: 'Order declined', mk: 'Нарачката е одбиена', sq: 'Porosia u refuzua' }
   };
 
   // Handle Dark Mode Class on Body/HTML and Meta Theme Color
@@ -204,10 +207,15 @@ const ClientApp = () => {
               }}>
                 <div style={{
                   width: '8px', height: '8px', borderRadius: '50%',
-                  backgroundColor: '#22c55e',
-                  boxShadow: '0 0 10px #22c55e'
+                  backgroundColor: activeOrder?.status === 'rejected' ? '#ef4444' : '#22c55e',
+                  boxShadow: activeOrder?.status === 'rejected' ? '0 0 10px #ef4444' : '0 0 10px #22c55e'
                 }} />
-                <span style={{ fontWeight: 600, fontSize: '14px' }}>08:00 {t["remaining"][language]}</span>
+                <span style={{ fontWeight: 600, fontSize: '14px' }}>
+                  {activeOrder?.status === 'placed' && t.waiting[language]}
+                  {activeOrder?.status === 'accepted' && `${activeOrder.estimatedMinutes} min ${t.remaining[language]}`}
+                  {activeOrder?.status === 'completed' && t.ready[language]}
+                  {activeOrder?.status === 'rejected' && t.declined[language]}
+                </span>
               </div>
             </motion.div>
           )}
