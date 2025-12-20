@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Store, LayoutDashboard, Settings, Plus, Edit2, LogOut, Trash2, ArrowLeft, Menu as MenuIcon, X, Save, ShoppingBag } from 'lucide-react';
+import { User, Store, LayoutDashboard, Settings, Plus, Edit2, LogOut, Trash2, ArrowLeft, Menu as MenuIcon, X, Save, ShoppingBag, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePlatform } from '../contexts/MenuContext';
 import { auth } from '../firebase';
+import IconPicker from '../components/IconPicker';
 import './AdminDashboard.css';
 import { OrdersDashboard } from './OrdersDashboard';
 
@@ -279,12 +280,13 @@ const RestaurantList = ({ onSelect }) => {
     );
 };
 
-const CategoryForm = ({ onSave, onCancel }) => {
+const CategoryForm = ({ onSave, onCancel, initialData = null }) => {
     const [formData, setFormData] = useState({
-        id: '',
-        nameEn: '',
-        nameMk: '',
-        nameSq: ''
+        id: initialData?.id || '',
+        nameEn: initialData?.label?.en || '',
+        nameMk: initialData?.label?.mk || '',
+        nameSq: initialData?.label?.sq || '',
+        icon: initialData?.icon || 'Utensils'
     });
 
     const handleSubmit = (e) => {
@@ -295,7 +297,8 @@ const CategoryForm = ({ onSave, onCancel }) => {
                 en: formData.nameEn,
                 mk: formData.nameMk,
                 sq: formData.nameSq
-            }
+            },
+            icon: formData.icon
         });
     };
 
@@ -322,9 +325,17 @@ const CategoryForm = ({ onSave, onCancel }) => {
                 </div>
             </div>
 
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Icon</label>
+                <IconPicker
+                    selectedIcon={formData.icon}
+                    onSelect={(iconId) => setFormData({ ...formData, icon: iconId })}
+                />
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>Create Category</button>
+                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>{initialData ? 'Save Changes' : 'Create Category'}</button>
             </div>
         </form>
     );
