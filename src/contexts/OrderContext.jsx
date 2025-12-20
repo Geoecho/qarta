@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { db, auth } from '../firebase';
-import { collection, addDoc, onSnapshot, doc, serverTimestamp } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
+import { db, auth } from '../firebase'; // Kept imports for safety, but unused
+// import { collection, addDoc, onSnapshot, doc, serverTimestamp } from 'firebase/firestore'; // Commented out
+// import { signInAnonymously } from 'firebase/auth'; // Commented out
 
 const OrderContext = createContext();
 
@@ -15,61 +15,62 @@ export const OrderProvider = ({ children }) => {
     // Initialize from LocalStorage to survive refreshes
     const [currentOrderId, setCurrentOrderId] = useState(() => localStorage.getItem('activeOrderId'));
     const [activeOrder, setActiveOrder] = useState(null);
+    const [isLocalMode, setIsLocalMode] = useState(!db); // Default to true if db is undefined
 
-    // --- EFFECT: AUTH ---
+    // --- EFFECT: LIVE ORDER LISTEN (POLLING VERCEL API) ---
     useEffect(() => {
-        if (!auth) return;
-        try {
-            signInAnonymously(auth).catch(err => console.warn("Anon Auth failed:", err));
-        } catch (e) {
-            console.warn("Auth initialization error:", e);
-        }
-    }, []);
+        // If we are on localhost, the /api route might not exist (unless vercel dev).
+        // So we just stick to local mode or try fetching once.
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-    // --- EFFECT: LIVE ORDER LISTEN ---
-    useEffect(() => {
-        if (!currentOrderId) return;
-
-        let unsubscribe = () => { };
-
-        // 1. Try Firebase
-        if (db) {
+        // Polling function
+        const fetchOrders = async () => {
             try {
-                unsubscribe = onSnapshot(doc(db, 'orders', currentOrderId), (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        setActiveOrder({ id: snapshot.id, ...data });
+                const res = await fetch('/api/orders');
+                if (!res.ok) throw new Error("API Error");
+                const orders = await res.json();
+
+                // Find my active order
+                if (currentOrderId) {
+                    const myOrder = orders.find(o => o.id === currentOrderId);
+                    if (myOrder) {
+                        setActiveOrder(myOrder);
+                        setOrderStatus('confirmed');
+                        setIsLocalMode(false); // API worked!
+                    }
+                }
+            } catch (e) {
+                if (!isLocalhost) console.warn("Sync failed:", e);
+                setIsLocalMode(true);
+            }
+        };
+
+        if (currentOrderId && !isLocalMode) {
+            // Poll every 5 seconds if we think we have server access
+            const interval = setInterval(fetchOrders, 5000);
+            fetchOrders(); // Initial check
+            return () => clearInterval(interval);
+        }
+    }, [currentOrderId, isLocalMode]);
+
+    // Local Fallback checker
+    useEffect(() => {
+        if (isLocalMode && currentOrderId) {
+            try {
+                const raw = localStorage.getItem('local_orders');
+                if (raw) {
+                    const all = JSON.parse(raw);
+                    const mine = all.find(o => o.id === currentOrderId);
+                    if (mine) {
+                        setActiveOrder(mine);
                         setOrderStatus('confirmed');
                     }
-                }, (error) => {
-                    console.error("Firestore listen error, falling back to local:", error);
-                    fallbackToLocal(currentOrderId);
-                });
-            } catch (e) {
-                console.error("Firestore setup error:", e);
-                fallbackToLocal(currentOrderId);
-            }
-        } else {
-            fallbackToLocal(currentOrderId);
-        }
-
-        return () => unsubscribe();
-    }, [currentOrderId]);
-
-    const fallbackToLocal = (id) => {
-        // Simple fallback: Retrieve from local storage if exists
-        try {
-            const raw = localStorage.getItem('local_orders');
-            if (raw) {
-                const all = JSON.parse(raw);
-                const mine = all.find(o => o.id === id);
-                if (mine) {
-                    setActiveOrder(mine);
-                    setOrderStatus('confirmed');
                 }
-            }
-        } catch (e) { }
-    };
+            } catch (e) { }
+        }
+    }, [isLocalMode, currentOrderId]);
+
 
     const addToCart = (item) => {
         setCart(prev => {
@@ -112,38 +113,44 @@ export const OrderProvider = ({ children }) => {
                 })),
                 total: totalPrice,
                 status: 'placed',
-                createdAt: serverTimestamp(),
+                // createdAt: serverTimestamp(), // Removed Firebase specific timestamp
                 estimatedMinutes: null
             };
 
-            let newId;
-            try {
-                if (db) {
-                    const docRef = await addDoc(collection(db, 'orders'), orderDoc);
-                    newId = docRef.id;
-                } else {
-                    throw new Error("No Database");
-                }
-            } catch (dbError) {
-                console.warn("Database offline/blocked, using LocalStorage Demo Mode.");
-                // Fallback: Save to LocalStorage "orders" array
-                newId = 'local-' + Date.now();
-                const localOrder = { id: newId, ...orderDoc };
+            let newId = 'ord-' + Date.now();
+            const payload = { ...orderDoc, id: newId };
 
+            try {
+                // Try sending to Vercel API
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    setIsLocalMode(false);
+                } else {
+                    throw new Error("API Offline");
+                }
+            } catch (apiError) {
+                console.warn("API Offline, using LocalStorage Demo Mode.");
+                setIsLocalMode(true);
+
+                // Fallback: Save to LocalStorage "orders" array
+                const localOrder = payload;
                 const existingRaw = localStorage.getItem('local_orders');
                 const existing = existingRaw ? JSON.parse(existingRaw) : [];
                 existing.push(localOrder);
                 localStorage.setItem('local_orders', JSON.stringify(existing));
 
-                // Trigger local update manually since we aren't using a listener for local
                 setActiveOrder(localOrder);
-                setOrderStatus('confirmed'); // Skip 'waiting' in local mode for instant feedback
+                setOrderStatus('confirmed');
             }
 
             setCurrentOrderId(newId);
             localStorage.setItem('activeOrderId', newId);
 
-            // status will update via snapshot listener if using Firebase
         } catch (error) {
             console.error("Critical Error placing order:", error);
             alert("Could not place order. Please try again.");
@@ -175,7 +182,8 @@ export const OrderProvider = ({ children }) => {
             orderStatus,
             placeOrder,
             resetOrder,
-            activeOrder
+            activeOrder,
+            isLocalMode
         }}>
             {children}
         </OrderContext.Provider>

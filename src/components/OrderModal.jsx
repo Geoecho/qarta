@@ -27,7 +27,8 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
         totalPrice,
         orderStatus,
         placeOrder,
-        activeOrder
+        activeOrder,
+        isLocalMode
     } = useOrder();
 
     const [note, setNote] = useState('');
@@ -243,12 +244,23 @@ const OrderModal = ({ isOpen, onClose, language = 'en' }) => {
                                         animate={{ scale: 1, opacity: 1 }}
                                         style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0' }}
                                     >
-                                        {activeOrder?.status === 'accepted' ? (language === 'mk' ? 'Нарачката е прифатена!' : 'Order Accepted!') :
-                                            activeOrder?.status === 'rejected' ? (language === 'mk' ? 'Нарачката е одбиена' : 'Order Declined') :
-                                                t.kitchenHasIt[language]}
+                                        {isLocalMode ? (
+                                            language === 'mk' ? 'Покажи на келнер' : 'Show to Waiter'
+                                        ) : activeOrder?.status === 'accepted' ? (
+                                            language === 'mk' ? 'Нарачката е прифатена!' : 'Order Accepted!'
+                                        ) : activeOrder?.status === 'rejected' ? (
+                                            language === 'mk' ? 'Нарачката е одбиена' : 'Order Declined'
+                                        ) : (
+                                            t.kitchenHasIt[language]
+                                        )}
                                     </motion.h2>
 
-                                    {activeOrder?.status === 'accepted' ? (
+                                    {isLocalMode ? (
+                                        <div style={{ margin: '24px 0', padding: '24px', background: '#fef3c7', borderRadius: '16px', color: '#b45309', border: '2px dashed #b45309' }}>
+                                            <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>ORDER #{activeOrder?.id?.slice(-4) || 'OPEN'}</div>
+                                            <div style={{ fontSize: '14px' }}>Please show this screen to a staff member to place your order.</div>
+                                        </div>
+                                    ) : activeOrder?.status === 'accepted' ? (
                                         <div style={{ margin: '24px 0' }}>
                                             <div style={{ fontSize: '56px', fontWeight: 700, lineHeight: 1, fontFamily: 'monospace' }}>
                                                 {activeOrder.estimatedMinutes}

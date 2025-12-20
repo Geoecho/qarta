@@ -44,14 +44,17 @@ export const MenuProvider = ({ children }) => {
                 if (data.length > 0) {
                     setRestaurants(data);
                 } else {
-                    // Only seed if empty and we have connection, 
-                    // otherwise we keep using our local default default
-                    seedDatabase().catch(e => console.error("Auto-seed failed", e));
+                    // Only seed if empty and we have connection
+                    seedDatabase().catch(e => {
+                        console.error("Auto-seed failed", e);
+                        // No DB connection? Stay with defaults (Static Mode)
+                    });
                 }
             },
             (error) => {
                 console.warn("Firestore sync error (offline?):", error);
                 // We just keep the current (optimistic) state
+                // This essentially ensures the app works in 'Static Mode' if DB is blocked.
             }
         );
 

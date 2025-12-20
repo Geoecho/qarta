@@ -9,35 +9,46 @@ export const OrdersDashboard = () => {
 
     const [error, setError] = useState(null);
 
+    // Fetch loop for Admin (Vercel API)
     useEffect(() => {
-        // Simple query to avoid index issues during dev
-        const q = query(
-            collection(db, 'orders')
-        );
+        const fetchOrders = async () => {
+            try {
+                const res = await fetch('/api/orders');
+                if (res.status === 404 || res.status === 501) {
+                    throw new Error("TICKET_MODE");
+                }
+                if (!res.ok) throw new Error("Could not fetch orders");
+                const data = await res.json();
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const ordersData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+                if (Array.isArray(data)) {
+                    const validData = data.filter(x => x && x.id);
+                    validData.sort((a, b) => {
+                        const timeA = a.id.split('-')[1] || 0;
+                        const timeB = b.id.split('-')[1] || 0;
+                        return timeB - timeA;
+                    });
+                    setOrders(validData);
+                    setLoading(false);
+                }
+            } catch (e) {
+                if (e.message === 'TICKET_MODE') {
+                    setError('TICKET_MODE');
+                } else {
+                    console.error("Fetch error", e);
+                }
+                setLoading(false);
+            }
+        };
 
-            // Client side sort
-            ordersData.sort((a, b) => {
-                const tA = a.createdAt?.seconds || 0;
-                const tB = b.createdAt?.seconds || 0;
-                return tB - tA;
-            });
-
-            setOrders(ordersData);
-            setLoading(false);
-        }, (err) => {
-            console.error("Firestore Error:", err);
-            setError(err.message);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
+        fetchOrders();
+        const interval = setInterval(fetchOrders, 5000); // 5s admin poll
+        return () => clearInterval(interval);
     }, []);
+
+    // No legacy useEffect for realtime necessary
+    /* 
+    Legacy Firestore code removed
+    */
 
     // Foolproof Backup: Polling every 15s to force sync if socket fails
     useEffect(() => {
@@ -74,17 +85,8 @@ export const OrdersDashboard = () => {
     };
 
     const updateOrderStatus = async (orderId, status, minutes = null) => {
-        const updateData = { status };
-        if (minutes !== null) {
-            updateData.estimatedMinutes = minutes;
-            updateData.acceptedAt = new Date().toISOString();
-        }
-
-        try {
-            await updateDoc(doc(db, 'orders', orderId), updateData);
-        } catch (error) {
-            console.error("Error updating order:", error);
-        }
+        // In Ticket/Local mode, admin cannot update orders remotely
+        alert("In Ticket Mode, orders are managed on the customer's device.");
     };
 
     if (loading) return (
@@ -97,20 +99,37 @@ export const OrdersDashboard = () => {
     const completedOrders = orders.filter(o => ['completed', 'rejected'].includes(o.status));
 
     const sendTestOrder = async () => {
-        try {
-            await addDoc(collection(db, 'orders'), {
-                items: [{ name: { en: 'Test Item' }, quantity: 1, price: 5 }],
-                total: 5,
-                status: 'placed',
-                createdAt: serverTimestamp(),
-                estimatedMinutes: null,
-                isTest: true
-            });
-            alert("Test order sent! If it doesn't appear below, Firestore is not syncing.");
-        } catch (e) {
-            alert("Write failed: " + e.message + "\n\nSet Firestore Rules to 'allow read, write: if true;'");
-        }
+        // ... removed test order logic as it's complex to replicate with API easily without auth context issues
+        // Simplified: use real flow.
+        alert("Please test by making an order on the home page.");
     };
+
+    if (error === 'TICKET_MODE') return (
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+            <div style={{
+                background: '#fef3c7',
+                color: '#92400e',
+                padding: '32px',
+                borderRadius: '16px',
+                border: '2px solid #f59e0b',
+                maxWidth: '500px',
+                margin: '0 auto'
+            }}>
+                <h2 style={{ margin: '0 0 16px 0', fontSize: '24px', fontWeight: 800 }}>Digital Ticket Mode Active</h2>
+                <p style={{ lineHeight: 1.6 }}>
+                    You are running on <strong>Edge Only</strong> (No Database).
+                </p>
+                <ul style={{ textAlign: 'left', margin: '24px 0', paddingLeft: '24px', listStyle: 'disc' }}>
+                    <li style={{ marginBottom: '8px' }}>Orders will appear on the <strong>Customer's Phone</strong> as a ticket.</li>
+                    <li style={{ marginBottom: '8px' }}>The Customer will show you their phone to order.</li>
+                    <li>This Dashboard is for <strong>Menu Editing</strong> only.</li>
+                </ul>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>
+                    To enable live sync, create a Vercel KV Database.
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="orders-dashboard">
