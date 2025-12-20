@@ -34,25 +34,80 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
+                display: 'flex',
                 gap: '16px',
-                padding: '16px 0',
+                padding: '16px',
                 borderBottom: isLast ? 'none' : '1px solid var(--border-color)',
+                alignItems: 'flex-start'
             }}
         >
-            {/* Left Column: Content */}
-            <div style={{ minWidth: 0 }}> {/* minWidth: 0 allows text truncation */}
-                {/* Title */}
-                <h3 style={{
-                    margin: '0 0 4px 0',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    color: 'var(--color-ink)',
-                    lineHeight: 1.3
-                }}>
-                    {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
-                </h3>
+            {/* Image on Left */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{
+                    width: '100px',
+                    height: '100px',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--bg-surface-secondary)',
+                    backgroundImage: `url(${item.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    border: '1px solid var(--border-color)'
+                }} />
+
+                {/* Add Button on Image */}
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleAdd();
+                    }}
+                    style={{
+                        position: 'absolute',
+                        bottom: '-8px',
+                        right: '-8px',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--color-primary)',
+                        color: 'var(--color-on-primary)',
+                        border: '3px solid var(--bg-surface)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }}
+                >
+                    <Plus size={20} strokeWidth={3} />
+                </motion.button>
+            </div>
+
+            {/* Content in Middle */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Title and Price Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px', gap: '12px' }}>
+                    <h3 style={{
+                        margin: 0,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        color: 'var(--color-ink)',
+                        lineHeight: 1.3,
+                        flex: 1
+                    }}>
+                        {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
+                    </h3>
+
+                    {/* Price - Top Right */}
+                    <div style={{
+                        fontSize: '18px',
+                        fontWeight: 700,
+                        color: 'var(--color-primary)',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
+                    }}>
+                        {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
+                    </div>
+                </div>
 
                 {/* Description */}
                 {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
@@ -72,7 +127,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
 
                 {/* Customization Toggle */}
                 {item.options && item.options.length > 0 && (
-                    <div style={{ marginTop: '8px' }}>
+                    <div>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -144,7 +199,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                                                 }}
                                             >
                                                 {opt.label[language] || opt.label['en']}
-                                                {opt.price > 0 && ` + $${opt.price.toFixed(2)} `}
+                                                {opt.price > 0 && ` +${formatPrice(opt.price, 'MKD')}`}
                                             </button>
                                         );
                                     })}
@@ -153,66 +208,6 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                         )}
                     </div>
                 )}
-            </div>
-
-            {/* Right Column: Image + Price + Add Button */}
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-                gap: '8px',
-                minWidth: '90px'
-            }}>
-                {/* Price - Fixed Position */}
-                <div style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    color: 'var(--color-ink)',
-                    whiteSpace: 'nowrap'
-                }}>
-                    {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
-                </div>
-
-                {/* Image with Add Button */}
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '12px',
-                        backgroundColor: 'var(--bg-surface-secondary)',
-                        backgroundImage: `url(${item.image})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        border: '1px solid var(--border-color)'
-                    }} />
-
-                    {/* Add Button */}
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleAdd();
-                        }}
-                        style={{
-                            position: 'absolute',
-                            bottom: '-8px',
-                            right: '-8px',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: 'var(--color-primary)',
-                            color: 'var(--color-on-primary)',
-                            border: '3px solid var(--bg-surface)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
-                        }}
-                    >
-                        <Plus size={18} strokeWidth={3} />
-                    </motion.button>
-                </div>
             </div>
         </motion.div>
     );
