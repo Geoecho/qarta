@@ -11,6 +11,7 @@ import PromoPopup from './components/PromoPopup';
 import { ShoppingBag } from 'lucide-react';
 import { AdminDashboard } from './admin/AdminDashboard';
 import Login from './admin/Login';
+import CafeOrdersDashboard from './admin/CafeOrdersDashboard';
 
 /* 
    Protected Route Component 
@@ -356,6 +357,8 @@ function App() {
             {/* Client Routes */}
             {/* Default Route (no slug) -> Load default restaurant */}
             <Route path="/" element={<ClientApp />} />
+            {/* Cafe Orders Dashboard */}
+            <Route path="/:slug/orders" element={<CafeOrdersDashboard />} />
             {/* Dynamic Route (slug) -> Load specific restaurant */}
             <Route path="/:slug" element={<ClientApp />} />
           </Routes>

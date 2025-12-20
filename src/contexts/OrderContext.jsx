@@ -100,7 +100,7 @@ export const OrderProvider = ({ children }) => {
     const clearCart = () => setCart([]);
 
     // Logic to handle order placement
-    const placeOrder = async () => {
+    const placeOrder = async (restaurantSlug = 'default') => {
         setOrderStatus('waiting');
 
         try {
@@ -113,6 +113,8 @@ export const OrderProvider = ({ children }) => {
                 })),
                 total: totalPrice,
                 status: 'placed',
+                restaurantSlug: restaurantSlug, // Add restaurant slug
+                timestamp: new Date().toISOString(),
                 // createdAt: serverTimestamp(), // Removed Firebase specific timestamp
                 estimatedMinutes: null
             };
