@@ -621,7 +621,8 @@ const MenuEditor = ({ restaurant }) => {
                                 <motion.div
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setShowCategoryForm(false)}
-                                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }}
+                                    className="modal-overlay"
+                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
@@ -654,18 +655,13 @@ const MenuEditor = ({ restaurant }) => {
                                 <motion.div
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setShowSectionForm(null)}
-                                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }}
+                                    className="modal-overlay"
+                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                    style={{
-                                        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                                        width: '90%', maxWidth: '500px', maxHeight: '85vh',
-                                        background: 'var(--bg-surface)',
-                                        padding: '24px', borderRadius: '24px', zIndex: 1001,
-                                        boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border-color)', color: 'var(--color-ink)',
-                                        overflowY: 'auto'
-                                    }}
+                                    className="modal-content"
+                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>New Section</h2>
                                     <SectionForm
