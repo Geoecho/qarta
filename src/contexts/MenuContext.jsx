@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MENU_DATA as INITIAL_MENU } from '../data';
-import { db } from '../firebase';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase'; // Keep imports to avoid breaking legacy refs if any
 
 const PlatformContext = createContext();
 
 export const usePlatform = () => useContext(PlatformContext);
 
-// Initial Seed Data (Only used if DB is empty)
+// Initial Seed Data (Only used if DB is empty or offline)
 const DEFAULT_RESTAURANT = {
     id: 'default',
     slug: 'default',
@@ -30,45 +29,47 @@ const DEFAULT_RESTAURANT = {
 };
 
 export const MenuProvider = ({ children }) => {
-    // START OPTIMISTIC: Initialize with default data so UI shows immediately
+    // START OPTIMISTIC: Initialize with default data
     const [restaurants, setRestaurants] = useState([DEFAULT_RESTAURANT]);
-    const [loading, setLoading] = useState(false); // No global blocking loading state
+    const [loading, setLoading] = useState(false);
 
-    // Sync with Firestore Realtime
+    // Sync with Vercel KV API (Polling for updates, saving on change)
     useEffect(() => {
-        const unsubscribe = onSnapshot(
-            collection(db, 'restaurants'),
-            (snapshot) => {
-                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                if (data.length > 0) {
-                    setRestaurants(data);
-                } else {
-                    // Only seed if empty and we have connection
-                    seedDatabase().catch(e => {
-                        console.error("Auto-seed failed", e);
-                        // No DB connection? Stay with defaults (Static Mode)
-                    });
+        const fetchRestaurants = async () => {
+            try {
+                const res = await fetch('/api/menu');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        setRestaurants(data);
+                    }
                 }
-            },
-            (error) => {
-                console.warn("Firestore sync error (offline?):", error);
-                // We just keep the current (optimistic) state
-                // This essentially ensures the app works in 'Static Mode' if DB is blocked.
+            } catch (e) {
+                console.warn("Menu sync failed (offline mode):", e);
             }
-        );
+        };
 
-        return () => unsubscribe();
+        fetchRestaurants();
+        // Poll infrequently just to keep fresh if multiple admins exist
+        const interval = setInterval(fetchRestaurants, 15000);
+        return () => clearInterval(interval);
     }, []);
 
-
-
-    const seedDatabase = async () => {
+    // --- SAVE HELPER ---
+    const saveToCloud = async (updatedRestaurants) => {
         try {
-            await setDoc(doc(db, 'restaurants', 'default'), DEFAULT_RESTAURANT);
+            // Optimistic Update First
+            setRestaurants(updatedRestaurants);
+
+            // Send to KV
+            await fetch('/api/menu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ restaurants: updatedRestaurants })
+            });
         } catch (e) {
-            console.error("Failed to seed database:", e);
-            throw e;
+            console.error("Failed to save menu:", e);
+            alert("Warning: Changes saved locally but failed to sync to server.");
         }
     };
 
@@ -94,50 +95,49 @@ export const MenuProvider = ({ children }) => {
             },
             menu: INITIAL_MENU
         };
-        await setDoc(doc(db, 'restaurants', id), payload);
+        const updated = [...restaurants, payload];
+        await saveToCloud(updated);
     };
 
     const removeRestaurant = async (id) => {
-        await deleteDoc(doc(db, 'restaurants', id));
+        const updated = restaurants.filter(r => r.id !== id);
+        await saveToCloud(updated);
     };
 
     const updateRestaurantDetails = async (id, details) => {
-        const ref = doc(db, 'restaurants', id);
-        await updateDoc(ref, details);
+        const updated = restaurants.map(r => r.id === id ? { ...r, ...details } : r);
+        await saveToCloud(updated);
     };
 
     // --- Menu Editing ---
-    // Firestore doesn't support deep array updates easily.
-    // We strictly read -> modify -> write back the whole menu array.
 
     const updateMenuItem = async (restaurantId, categoryId, sectionId, itemId, updates) => {
-        const restaurant = restaurants.find(r => r.id === restaurantId);
-        if (!restaurant) return;
-
-        const newMenu = restaurant.menu.map(category => {
-            if (category.id !== categoryId) return category;
+        const updated = restaurants.map(restaurant => {
+            if (restaurant.id !== restaurantId) return restaurant;
             return {
-                ...category,
-                sections: category.sections.map(section => {
-                    if (section.id !== sectionId) return section;
+                ...restaurant,
+                menu: restaurant.menu.map(category => {
+                    if (category.id !== categoryId) return category;
                     return {
-                        ...section,
-                        items: section.items.map(item => {
-                            if (item.id !== itemId) return item;
-                            return { ...item, ...updates };
+                        ...category,
+                        sections: category.sections.map(section => {
+                            if (section.id !== sectionId) return section;
+                            return {
+                                ...section,
+                                items: section.items.map(item => {
+                                    if (item.id !== itemId) return item;
+                                    return { ...item, ...updates };
+                                })
+                            };
                         })
                     };
                 })
             };
         });
-
-        await updateDoc(doc(db, 'restaurants', restaurantId), { menu: newMenu });
+        await saveToCloud(updated);
     };
 
     const addMenuItem = async (restaurantId, categoryId, sectionId, newItemData) => {
-        const restaurant = restaurants.find(r => r.id === restaurantId);
-        if (!restaurant) return;
-
         const newItem = {
             id: `item-${Date.now()}`,
             name: { en: 'New Item', mk: 'Нова Ставка', sq: 'Artikull i Ri', ...newItemData.name },
@@ -148,21 +148,26 @@ export const MenuProvider = ({ children }) => {
             tags: []
         };
 
-        const newMenu = restaurant.menu.map(category => {
-            if (category.id !== categoryId) return category;
+        const updated = restaurants.map(restaurant => {
+            if (restaurant.id !== restaurantId) return restaurant;
             return {
-                ...category,
-                sections: category.sections.map(section => {
-                    if (section.id !== sectionId) return section;
+                ...restaurant,
+                menu: restaurant.menu.map(category => {
+                    if (category.id !== categoryId) return category;
                     return {
-                        ...section,
-                        items: [newItem, ...section.items]
+                        ...category,
+                        sections: category.sections.map(section => {
+                            if (section.id !== sectionId) return section;
+                            return {
+                                ...section,
+                                items: [newItem, ...section.items]
+                            };
+                        })
                     };
                 })
             };
         });
-
-        await updateDoc(doc(db, 'restaurants', restaurantId), { menu: newMenu });
+        await saveToCloud(updated);
     };
 
     const getRestaurantBySlug = (slug) => {

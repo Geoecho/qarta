@@ -14,12 +14,10 @@ export const OrdersDashboard = () => {
         const fetchOrders = async () => {
             try {
                 const res = await fetch('/api/orders');
-                if (res.status === 404 || res.status === 501) {
-                    throw new Error("TICKET_MODE");
-                }
-                if (!res.ok) throw new Error("Could not fetch orders");
+                if (!res.ok) throw new Error("Could not fetch orders (API offline?)");
                 const data = await res.json();
 
+                // Sort by ID/Date desc
                 if (Array.isArray(data)) {
                     const validData = data.filter(x => x && x.id);
                     validData.sort((a, b) => {
@@ -31,17 +29,14 @@ export const OrdersDashboard = () => {
                     setLoading(false);
                 }
             } catch (e) {
-                if (e.message === 'TICKET_MODE') {
-                    setError('TICKET_MODE');
-                } else {
-                    console.error("Fetch error", e);
-                }
-                setLoading(false);
+                console.error("Fetch error", e);
+                // Don't show error immediately to avoid flicker on first load
+                // setLoading(false);
             }
         };
 
         fetchOrders();
-        const interval = setInterval(fetchOrders, 5000); // 5s admin poll
+        const interval = setInterval(fetchOrders, 4000);
         return () => clearInterval(interval);
     }, []);
 
@@ -85,8 +80,23 @@ export const OrdersDashboard = () => {
     };
 
     const updateOrderStatus = async (orderId, status, minutes = null) => {
-        // In Ticket/Local mode, admin cannot update orders remotely
-        alert("In Ticket Mode, orders are managed on the customer's device.");
+        try {
+            await fetch('/api/orders', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: orderId, status, estimatedMinutes: minutes })
+            });
+            // Optimistic update
+            setOrders(prev => prev.map(o => {
+                if (o.id === orderId) {
+                    return { ...o, status, estimatedMinutes: minutes };
+                }
+                return o;
+            }));
+        } catch (error) {
+            console.error("Error updating order:", error);
+            alert("Failed to update status. Server offline?");
+        }
     };
 
     if (loading) return (
@@ -104,32 +114,8 @@ export const OrdersDashboard = () => {
         alert("Please test by making an order on the home page.");
     };
 
-    if (error === 'TICKET_MODE') return (
-        <div style={{ padding: '40px', textAlign: 'center' }}>
-            <div style={{
-                background: '#fef3c7',
-                color: '#92400e',
-                padding: '32px',
-                borderRadius: '16px',
-                border: '2px solid #f59e0b',
-                maxWidth: '500px',
-                margin: '0 auto'
-            }}>
-                <h2 style={{ margin: '0 0 16px 0', fontSize: '24px', fontWeight: 800 }}>Digital Ticket Mode Active</h2>
-                <p style={{ lineHeight: 1.6 }}>
-                    You are running on <strong>Edge Only</strong> (No Database).
-                </p>
-                <ul style={{ textAlign: 'left', margin: '24px 0', paddingLeft: '24px', listStyle: 'disc' }}>
-                    <li style={{ marginBottom: '8px' }}>Orders will appear on the <strong>Customer's Phone</strong> as a ticket.</li>
-                    <li style={{ marginBottom: '8px' }}>The Customer will show you their phone to order.</li>
-                    <li>This Dashboard is for <strong>Menu Editing</strong> only.</li>
-                </ul>
-                <div style={{ fontSize: '14px', opacity: 0.8 }}>
-                    To enable live sync, create a Vercel KV Database.
-                </div>
-            </div>
-        </div>
-    );
+    /* TICKET MODE REMOVED - FULL DB ACTIVE */
+    if (error === 'TICKET_MODE') return null;
 
     return (
         <div className="orders-dashboard">
