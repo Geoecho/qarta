@@ -30,7 +30,7 @@ const ClientApp = () => {
   const restaurant = getRestaurantBySlug(slug);
   const menuData = restaurant ? restaurant.menu : [];
 
-  const [activeTab, setActiveTab] = useState('drinks'); // Top Level
+  const [activeTab, setActiveTab] = useState(menuData[0]?.id || null); // Top Level
   const [openSectionId, setOpenSectionId] = useState(null); // Accordion state
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -38,7 +38,7 @@ const ClientApp = () => {
 
   const { addToCart, totalCount, orderStatus, activeOrder } = useOrder();
 
-  const currentData = menuData.find(d => d.id === activeTab) || menuData[0];
+  const currentData = menuData.find(d => d.id === activeTab) || menuData[0] || null;
 
   // Translations for floating buttons
   const t = {
@@ -190,7 +190,19 @@ const ClientApp = () => {
 
         {/* Detailed Accordion Sections */}
         <div style={{ padding: '0 var(--space-3)', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '24px' }}>
-          {currentData && currentData.sections.map((section) => (
+          {menuData.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '64px 24px',
+              color: 'var(--color-text-subtle)'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+              <h3 style={{ margin: '0 0 8px 0' }}>Menu Coming Soon</h3>
+              <p style={{ margin: 0, fontSize: '14px' }}>
+                This restaurant is still setting up their menu.
+              </p>
+            </div>
+          ) : currentData && currentData.sections.map((section) => (
             <MenuAccordion
               key={section.id}
               section={section}
