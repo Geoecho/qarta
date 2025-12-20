@@ -49,7 +49,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                         fontWeight: 600,
                         color: 'var(--color-ink)'
                     }}>
-                        {item.name[language] || item.name['en']}
+                        {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
                     </h3>
                     <span style={{
                         fontSize: '14px',
@@ -68,7 +68,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     paddingRight: '8px',
                     marginBottom: item.options ? '12px' : '0'
                 }}>
-                    {item.desc[language] || item.desc['en']}
+                    {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en'] || '')}
                 </p>
 
                 {/* Customization Toggle */}
