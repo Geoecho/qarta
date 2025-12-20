@@ -33,6 +33,8 @@ export const MenuProvider = ({ children }) => {
     const [restaurants, setRestaurants] = useState([DEFAULT_RESTAURANT]);
     const [loading, setLoading] = useState(false);
     const [lastSaveTime, setLastSaveTime] = useState(0);
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'success', 'error'
+    const [serverError, setServerError] = useState(null);
 
     // Sync with Vercel KV API (Polling for updates, saving on change)
     useEffect(() => {
@@ -62,18 +64,32 @@ export const MenuProvider = ({ children }) => {
     // --- SAVE HELPER ---
     const saveToCloud = async (updatedRestaurants) => {
         try {
+            setSaveStatus('saving');
+            setServerError(null);
+
             // Optimistic Update First
             setRestaurants(updatedRestaurants);
+            setLastSaveTime(Date.now()); // Block polling for 5s
 
-            // Send to KV
-            await fetch('/api/menu', {
+            // Send to Redis
+            const res = await fetch('/api/menu', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ restaurants: updatedRestaurants })
             });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Server rejected save");
+            }
+
+            setSaveStatus('success');
+            setTimeout(() => setSaveStatus('idle'), 2000);
+
         } catch (e) {
             console.error("Failed to save menu:", e);
-            alert("Warning: Changes saved locally but failed to sync to server.");
+            setSaveStatus('error');
+            setServerError(e.message);
         }
     };
 
@@ -213,7 +229,9 @@ export const MenuProvider = ({ children }) => {
             updateMenuItem,
             addMenuItem,
             deleteMenuItem,
-            getRestaurantBySlug
+            getRestaurantBySlug,
+            saveStatus,
+            serverError
         }}>
             {children}
         </PlatformContext.Provider>

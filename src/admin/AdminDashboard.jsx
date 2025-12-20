@@ -60,6 +60,9 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
                     </button>
                 </div>
 
+                {/* Status Indicator */}
+                <StatusBadge />
+
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                     <SidebarItem
                         icon={LayoutDashboard}
@@ -122,6 +125,43 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
         {label}
     </div>
 );
+
+const StatusBadge = () => {
+    const { saveStatus, serverError } = usePlatform();
+
+    if (saveStatus === 'idle') return null;
+
+    let bg = '#f3f4f6';
+    let color = '#374151';
+    let text = 'Ready';
+
+    if (saveStatus === 'saving') {
+        bg = '#bfdbfe'; color = '#1e3a8a'; text = 'Saving...';
+    } else if (saveStatus === 'success') {
+        bg = '#bbf7d0'; color = '#14532d'; text = 'Saved!';
+    } else if (saveStatus === 'error') {
+        bg = '#fecaca'; color = '#7f1d1d'; text = 'Error!';
+    }
+
+    return (
+        <div style={{
+            margin: '0 0 16px 0',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            backgroundColor: bg,
+            color: color,
+            fontSize: '12px',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+        }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color }} />
+            <div style={{ flex: 1 }}>{text}</div>
+            {serverError && <div style={{ fontSize: 10 }}>{serverError.slice(0, 10)}...</div>}
+        </div>
+    );
+};
 
 // --- Sub-Views ---
 
