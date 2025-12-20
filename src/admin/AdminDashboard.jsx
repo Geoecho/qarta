@@ -741,6 +741,12 @@ const MenuEditor = ({ restaurant }) => {
                                                         <Plus size={14} /> Add Item
                                                     </button>
                                                     <button
+                                                        onClick={() => setEditingSection({ categoryId: category.id, section })}
+                                                        style={{ padding: '4px 12px', borderRadius: '100px', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                    >
+                                                        <Edit2 size={14} /> Edit
+                                                    </button>
+                                                    <button
                                                         onClick={() => { if (confirm('Delete section "' + section.title.en + '"?')) deleteSection(restaurant.id, category.id, section.id) }}
                                                         style={{ padding: '6px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                                     >
