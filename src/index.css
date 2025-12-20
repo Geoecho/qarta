@@ -1,0 +1,71 @@
+:root {
+  /* 8px Strict Grid System */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+
+  /* Animation */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Light Mode (Default) */
+  --bg-app: #FAFAFA;
+  --bg-surface: #FFFFFF;
+  --bg-surface-secondary: #F4F4F5;
+  --color-ink: #111111;
+  --color-text-subtle: #71717A;
+  --border-color: #E4E4E5;
+  --color-primary: #111111;
+  --color-on-primary: #FFFFFF;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dark {
+  /* Dark Mode Overrides */
+  --bg-app: #09090b;
+  /* Zinc 950 */
+  --bg-surface: #18181b;
+  /* Zinc 900 */
+  --bg-surface-secondary: #27272a;
+  /* Zinc 800 */
+  --color-ink: #fafafa;
+  --color-text-subtle: #a1a1aa;
+  --border-color: #27272a;
+  --color-primary: #fafafa;
+  --color-on-primary: #000000;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Typography - Outfit */
+:root {
+  --font-sans: 'Outfit', sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-app);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Hide Scrollbar but keep functionality */
+::-webkit-scrollbar {
+  display: none;
+}

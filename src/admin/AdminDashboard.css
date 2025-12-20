@@ -1,0 +1,140 @@
+/* Admin Dashboard Responsive Styles */
+:root {
+    --admin-sidebar-width: 260px;
+    --admin-header-height: 60px;
+}
+
+/* Layout */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--color-ink);
+    transition: all 0.3s ease;
+}
+
+.admin-sidebar {
+    width: var(--admin-sidebar-width);
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    transition: transform 0.3s ease;
+}
+
+.admin-content {
+    flex: 1;
+    margin-left: var(--admin-sidebar-width);
+    padding: 40px;
+    max-width: 1200px;
+    width: 100%;
+}
+
+/* Mobile Sidebar & Header */
+.admin-mobile-header {
+    display: none;
+    height: var(--admin-header-height);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    backdrop-filter: blur(2px);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .admin-container {
+        padding-top: var(--admin-header-height);
+    }
+
+    .admin-sidebar {
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .admin-mobile-header {
+        display: flex;
+    }
+
+    .sidebar-overlay.open {
+        display: block;
+    }
+}
+
+/* Inputs & Forms */
+.admin-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-app);
+    color: var(--color-ink);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.admin-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.save-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-ink);
+    color: var(--bg-app);
+    padding: 12px 24px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
