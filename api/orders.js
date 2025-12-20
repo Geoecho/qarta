@@ -1,12 +1,13 @@
-import redis from './db';
+const redis = require('./db');
 
-export default async function handler(request, response) {
+module.exports = async function handler(request, response) {
     try {
         if (request.method === 'POST') {
             // 1. PLACE ORDER
             const order = request.body;
             // Push to list "orders_v1"
             await redis.lpush('orders_v1', JSON.stringify(order));
+            console.log('✅ Order saved:', order.id);
             return response.status(200).json({ success: true, id: order.id });
 
         } else if (request.method === 'PUT') {
@@ -35,16 +36,18 @@ export default async function handler(request, response) {
                 await redis.lpush('orders_v1', JSON.stringify(ord));
             }
 
+            console.log('✅ Order updated:', id, status);
             return response.status(200).json({ success: true });
 
         } else {
             // 3. GET ORDERS
             const rawOrders = await redis.lrange('orders_v1', 0, -1);
             const orders = rawOrders.map(o => JSON.parse(o));
+            console.log('✅ Loaded orders:', orders.length);
             return response.status(200).json(orders);
         }
     } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: error.message });
+        console.error('❌ Orders Error:', error);
+        return response.status(500).json({ error: error.message, stack: error.stack });
     }
-}
+};
