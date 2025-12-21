@@ -526,9 +526,15 @@ const MenuEditor = ({ restaurant }) => {
         });
     };
 
-    const saveSettings = () => {
-        updateRestaurantDetails(restaurant.id, draftValues);
-        setHasChanges(false);
+
+    const saveSettings = async () => {
+        try {
+            await updateRestaurantDetails(restaurant.id, draftValues);
+            setHasChanges(false);
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            alert('Failed to save settings. Please try again.');
+        }
     };
 
     const handleSaveMenu = (data) => {
