@@ -134,7 +134,7 @@ export const OrdersDashboard = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button
                         onClick={manualRefresh}
-                        style={{ border: 'none', background: 'white', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600 }}
+                        style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600 }}
                     >
                         <RefreshCw size={14} /> Refresh
                     </button>

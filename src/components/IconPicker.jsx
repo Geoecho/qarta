@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     Coffee, Pizza, Cake, IceCream, Wine, Beer, Martini, Popcorn,
     Sandwich, Cookie, Soup, Salad, Beef, Fish, Apple, Cherry,
-    Grape, Lemon, Banana, Croissant, Donut, Egg, Milk, ChefHat,
+    Grape, Banana, Croissant, Donut, Egg, Milk, ChefHat,
     UtensilsCrossed, Utensils, Drumstick, Candy, CupSoda, GlassWater,
     Wheat, Carrot, Sprout, Leaf, Flame, Snowflake, Sun, Moon,
     Star, Heart, ThumbsUp, Smile, Lightbulb, Gift, Trophy, Crown,
@@ -34,7 +34,6 @@ const ICON_SET = [
     { id: 'Apple', icon: Apple, label: 'Apple', category: 'fruit' },
     { id: 'Cherry', icon: Cherry, label: 'Cherry', category: 'fruit' },
     { id: 'Grape', icon: Grape, label: 'Grape', category: 'fruit' },
-    { id: 'Lemon', icon: Lemon, label: 'Lemon', category: 'fruit' },
     { id: 'Banana', icon: Banana, label: 'Banana', category: 'fruit' },
     { id: 'Croissant', icon: Croissant, label: 'Croissant', category: 'food' },
     { id: 'Donut', icon: Donut, label: 'Donut', category: 'dessert' },
