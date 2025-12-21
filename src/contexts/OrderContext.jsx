@@ -71,17 +71,14 @@ export const OrderProvider = ({ children }) => {
         }
     }, [isLocalMode, currentOrderId]);
 
-
-    // Clear order state when switching restaurants or unmounting
-    useEffect(() => {
-        return () => {
-            // Clear order state on unmount
-            setOrderStatus('idle');
-            setCurrentOrderId(null);
-            setActiveOrder(null);
-            localStorage.removeItem('activeOrderId');
-        };
-    }, []);
+    // Cancel current order
+    const cancelOrder = () => {
+        setOrderStatus('idle');
+        setCurrentOrderId(null);
+        setActiveOrder(null);
+        localStorage.removeItem('activeOrderId');
+        setCart([]);
+    };
 
     const addToCart = (item) => {
         setCart(prev => {
@@ -195,6 +192,7 @@ export const OrderProvider = ({ children }) => {
             orderStatus,
             placeOrder,
             resetOrder,
+            cancelOrder,
             activeOrder,
             isLocalMode
         }}>
