@@ -28,6 +28,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
         orderStatus,
         placeOrder,
         activeOrder,
+        cancelOrder,
         isLocalMode
     } = useOrder();
 
