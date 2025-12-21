@@ -129,7 +129,7 @@
     animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Foolproof Modal Centering */
+/* Bottom Sheet Modal (slides up from bottom) */
 .modal-overlay {
     position: fixed !important;
     top: 0 !important;
@@ -137,28 +137,41 @@
     right: 0 !important;
     bottom: 0 !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-end !important;
     justify-content: center !important;
     z-index: 1000 !important;
-    padding: 16px !important;
+    padding: 0 !important;
 }
 
 .modal-content {
     position: relative !important;
-    width: 90% !important;
-    max-width: 500px !important;
-    max-height: 85vh !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    max-height: 90vh !important;
     overflow-y: auto !important;
     background: var(--bg-surface) !important;
-    border-radius: 24px !important;
-    padding: 24px !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 32px 24px 24px 24px !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3) !important;
     border: 1px solid var(--border-color) !important;
+    border-bottom: none !important;
     z-index: 1001 !important;
 }
 
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
 .modal-content-wide {
-    max-width: 600px !important;
+    max-width: 800px !important;
 }
 
 @keyframes slideUp {
