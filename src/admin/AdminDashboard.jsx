@@ -526,6 +526,22 @@ const MenuEditor = ({ restaurant }) => {
         });
     };
 
+    // Auto-save settings when draftValues change (with debounce)
+    useEffect(() => {
+        if (!hasChanges) return;
+
+        const timer = setTimeout(async () => {
+            try {
+                await updateRestaurantDetails(restaurant.id, draftValues);
+                setHasChanges(false);
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            }
+        }, 1000); // Save 1 second after user stops typing
+
+        return () => clearTimeout(timer);
+    }, [draftValues, hasChanges, restaurant.id, updateRestaurantDetails]);
+
 
     const saveSettings = async () => {
         try {
