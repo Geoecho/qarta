@@ -37,7 +37,12 @@ const ClientApp = () => {
   const [isDark, setIsDark] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' | 'mk' | 'sq'
 
-  const { addToCart, totalCount, orderStatus, activeOrder } = useOrder();
+  const { addToCart, totalCount, orderStatus, activeOrder, loadOrderForRestaurant } = useOrder();
+
+  // Load active order for this restaurant
+  useEffect(() => {
+    loadOrderForRestaurant(slug);
+  }, [slug, loadOrderForRestaurant]);
 
   // Set activeTab when menu loads
   React.useEffect(() => {

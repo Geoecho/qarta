@@ -12,10 +12,25 @@ export const OrderProvider = ({ children }) => {
 
     // 'idle' | 'waiting' | 'confirmed'
     const [orderStatus, setOrderStatus] = useState('idle');
-    // Initialize from LocalStorage to survive refreshes
-    const [currentOrderId, setCurrentOrderId] = useState(() => localStorage.getItem('activeOrderId'));
+    const [currentOrderId, setCurrentOrderId] = useState(null);
     const [activeOrder, setActiveOrder] = useState(null);
-    const [isLocalMode, setIsLocalMode] = useState(!db); // Default to true if db is undefined
+    const [isLocalMode, setIsLocalMode] = useState(!db);
+    const [currentSlug, setCurrentSlug] = useState(null);
+
+    // Load order for specific restaurant
+    const loadOrderForRestaurant = (slug) => {
+        const scopedSlug = slug || 'default';
+        setCurrentSlug(scopedSlug);
+        const savedId = localStorage.getItem(`activeOrderId_${scopedSlug}`);
+        setCurrentOrderId(savedId);
+
+        if (savedId) {
+            setOrderStatus('waiting'); // Assume waiting initially if ID exists
+        } else {
+            setOrderStatus('idle');
+            setActiveOrder(null);
+        }
+    };
 
     // --- EFFECT: LIVE ORDER LISTEN (POLLING VERCEL API) ---
     useEffect(() => {
@@ -26,6 +41,8 @@ export const OrderProvider = ({ children }) => {
 
         // Polling function
         const fetchOrders = async () => {
+            if (!currentOrderId) return;
+
             try {
                 const res = await fetch('/api/orders');
                 if (!res.ok) throw new Error("API Error");
@@ -76,7 +93,9 @@ export const OrderProvider = ({ children }) => {
         setOrderStatus('idle');
         setCurrentOrderId(null);
         setActiveOrder(null);
-        localStorage.removeItem('activeOrderId');
+        if (currentSlug) {
+            localStorage.removeItem(`activeOrderId_${currentSlug}`);
+        }
         setCart([]);
     };
 
@@ -194,7 +213,8 @@ export const OrderProvider = ({ children }) => {
             resetOrder,
             cancelOrder,
             activeOrder,
-            isLocalMode
+            isLocalMode,
+            loadOrderForRestaurant
         }}>
             {children}
         </OrderContext.Provider>
