@@ -3,7 +3,7 @@
 export const CURRENCIES = {
     MKD: {
         code: 'MKD',
-        symbol: 'ден',
+        symbol: 'МКД',
         name: 'Macedonian Denar'
     },
     EUR: {
