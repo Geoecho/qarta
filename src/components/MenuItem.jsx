@@ -6,14 +6,13 @@ import { formatPrice } from '../utils/currencyHelper';
 const MenuItem = ({ item, index, onAdd, isLast, language }) => {
     // If item has options, default to null (Base item/Regular)
     const [selectedOption, setSelectedOption] = useState(null);
-    const [isExpanded, setIsExpanded] = useState(false);
 
     const handleAdd = () => {
         if (selectedOption) {
             // Create a unique ID for the cart based on option
             const itemWithOption = {
                 ...item,
-                id: `${item.id} -${selectedOption.id} `,
+                id: `${item.id}-${selectedOption.id}`,
                 name: {
                     ...item.name,
                     en: `${item.name.en} (${selectedOption.label.en})`,
@@ -35,17 +34,92 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
             transition={{ delay: index * 0.05, duration: 0.3 }}
             style={{
                 display: 'flex',
-                gap: '16px',
-                padding: '16px',
+                gap: '12px',
+                padding: '12px 0',
                 borderBottom: isLast ? 'none' : '1px solid var(--border-color)',
                 alignItems: 'flex-start'
             }}
         >
-            {/* Image on Left */}
+            {/* Content on Left */}
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {/* Title */}
+                <h3 style={{
+                    margin: 0,
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    color: 'var(--color-ink)',
+                    lineHeight: 1.3
+                }}>
+                    {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
+                </h3>
+
+                {/* Price - Subtle */}
+                <div style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: 'var(--color-text-subtle)'
+                }}>
+                    {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
+                </div>
+
+                {/* Description */}
+                {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
+                    <p style={{
+                        margin: 0,
+                        fontSize: '13px',
+                        color: 'var(--color-text-subtle)',
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                    }}>
+                        {item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']}
+                    </p>
+                )}
+
+                {/* Options Chips Row */}
+                {item.options && item.options.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '6px',
+                        marginTop: '2px'
+                    }}>
+                        {item.options.map((opt) => (
+                            <motion.button
+                                key={opt.id}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedOption(opt.id === selectedOption?.id ? null : opt);
+                                }}
+                                style={{
+                                    padding: '5px 10px',
+                                    borderRadius: '100px',
+                                    border: `1.5px solid ${selectedOption?.id === opt.id ? 'var(--color-primary)' : 'var(--border-color)'}`,
+                                    backgroundColor: selectedOption?.id === opt.id ? 'var(--color-primary)' : 'transparent',
+                                    color: selectedOption?.id === opt.id ? 'var(--color-on-primary)' : 'var(--color-ink)',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {opt.label?.[language] || opt.label?.['en'] || opt.label}
+                                {opt.price > 0 && ` +${formatPrice(opt.price, 'MKD')}`}
+                            </motion.button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Image on Right */}
             <div style={{ position: 'relative', flexShrink: 0 }}>
                 <div style={{
-                    width: '100px',
-                    height: '100px',
+                    width: '80px',
+                    height: '80px',
                     borderRadius: '12px',
                     backgroundColor: 'var(--bg-surface-secondary)',
                     backgroundImage: `url(${item.image})`,
@@ -63,151 +137,23 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     }}
                     style={{
                         position: 'absolute',
-                        bottom: '-8px',
-                        right: '-8px',
-                        width: '36px',
-                        height: '36px',
+                        bottom: '-6px',
+                        right: '-6px',
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         backgroundColor: 'var(--color-primary)',
                         color: 'var(--color-on-primary)',
-                        border: '3px solid var(--bg-surface)',
+                        border: '2px solid var(--bg-surface)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                     }}
                 >
-                    <Plus size={20} strokeWidth={3} />
+                    <Plus size={18} strokeWidth={2.5} />
                 </motion.button>
-            </div>
-
-            {/* Content in Middle */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-                {/* Title and Price Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px', gap: '12px' }}>
-                    <h3 style={{
-                        margin: 0,
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        color: 'var(--color-ink)',
-                        lineHeight: 1.3,
-                        flex: 1
-                    }}>
-                        {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
-                    </h3>
-
-                    {/* Price - Top Right */}
-                    <div style={{
-                        fontSize: '18px',
-                        fontWeight: 700,
-                        color: 'var(--color-primary)',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0
-                    }}>
-                        {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
-                    </div>
-                </div>
-
-                {/* Description */}
-                {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
-                    <p style={{
-                        margin: '0 0 8px 0',
-                        fontSize: '13px',
-                        color: 'var(--color-text-subtle)',
-                        lineHeight: 1.5,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                    }}>
-                        {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en'] || '')}
-                    </p>
-                )}
-
-                {/* Customization Toggle */}
-                {item.options && item.options.length > 0 && (
-                    <div>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsExpanded(!isExpanded);
-                            }}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                padding: '4px 0',
-                                color: selectedOption ? 'var(--color-primary)' : 'var(--color-text-subtle)',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                transition: 'color 0.2s'
-                            }}
-                        >
-                            {selectedOption ? (
-                                <>
-                                    <span>{selectedOption.label[language] || selectedOption.label['en']}</span>
-                                    <span style={{ opacity: 0.6, fontWeight: 400, marginLeft: '4px', fontSize: '12px' }}>• Edit</span>
-                                </>
-                            ) : (
-                                <span>Customize</span>
-                            )}
-                            <motion.div
-                                animate={{ rotate: isExpanded ? 45 : 0 }}
-                                transition={{ duration: 0.2 }}
-                                style={{ display: 'flex' }}
-                            >
-                                <Plus size={14} />
-                            </motion.div>
-                        </button>
-
-                        {/* Options Drawer */}
-                        {isExpanded && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                style={{ marginTop: '8px', overflow: 'hidden' }}
-                            >
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingBottom: '4px' }}>
-                                    {item.options.map(opt => {
-                                        const isSelected = selectedOption?.id === opt.id;
-                                        return (
-                                            <button
-                                                key={opt.id}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedOption(isSelected ? null : opt);
-                                                }}
-                                                style={{
-                                                    border: isSelected ? '1px solid var(--color-primary)' : '1px solid var(--border-color)',
-                                                    backgroundColor: isSelected ? 'var(--color-primary)' : 'var(--bg-surface)',
-                                                    color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
-                                                    padding: '6px 12px',
-                                                    borderRadius: '20px',
-                                                    fontSize: '12px',
-                                                    fontWeight: 500,
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px',
-                                                    boxShadow: isSelected ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
-                                                }}
-                                            >
-                                                {opt.label[language] || opt.label['en']}
-                                                {opt.price > 0 && ` +${formatPrice(opt.price, 'MKD')}`}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </motion.div>
-                        )}
-                    </div>
-                )}
             </div>
         </motion.div>
     );
