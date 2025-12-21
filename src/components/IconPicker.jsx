@@ -1,153 +1,259 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, X } from 'lucide-react';
-import * as Icons from '../utils/iconMatcher';
+import {
+    Coffee, Pizza, Cake, IceCream, Wine, Beer, Martini, Popcorn,
+    Sandwich, Cookie, Soup, Salad, Beef, Fish, Apple, Cherry,
+    Grape, Lemon, Banana, Croissant, Donut, Egg, Milk, ChefHat,
+    UtensilsCrossed, Utensils, Drumstick, Candy, CupSoda, GlassWater,
+    Wheat, Carrot, Sprout, Leaf, Flame, Snowflake, Sun, Moon,
+    Star, Heart, ThumbsUp, Smile, Lightbulb, Gift, Trophy, Crown,
+    Diamond, Music, Headphones, Book, Palette, Camera, Rocket,
+    Zap, CloudRain, MapPin, Home, Store, ShoppingBag, Package,
+    Clock, Calendar, Tag, Percent, DollarSign, Euro,
+    Menu, Grid, List, Search, Filter, Settings,
+    Plus, Minus, Check, X, AlertCircle, Info,
+    ChevronRight, ChevronLeft, ChevronUp, ChevronDown
+} from 'lucide-react';
 
-// List of all available icons with their names
-const ICON_LIST = [
-    { id: 'Coffee', name: 'Coffee', Icon: Icons.Coffee },
-    { id: 'Beer', name: 'Beer', Icon: Icons.Beer },
-    { id: 'Wine', name: 'Wine', Icon: Icons.Wine },
-    { id: 'Martini', name: 'Cocktail', Icon: Icons.Martini },
-    { id: 'GlassWater', name: 'Water/Drinks', Icon: Icons.GlassWater },
-    { id: 'CupSoda', name: 'Soda', Icon: Icons.CupSoda },
-    { id: 'Milk', name: 'Milk', Icon: Icons.Milk },
-    { id: 'Pizza', name: 'Pizza', Icon: Icons.Pizza },
-    { id: 'Utensils', name: 'Utensils/Pasta', Icon: Icons.Utensils },
-    { id: 'Sandwich', name: 'Burger/Sandwich', Icon: Icons.Sandwich },
-    { id: 'Soup', name: 'Soup/Starter', Icon: Icons.Soup },
-    { id: 'Salad', name: 'Salad', Icon: Icons.Salad },
-    { id: 'Beef', name: 'Beef/Steak', Icon: Icons.Beef },
-    { id: 'Drumstick', name: 'Chicken', Icon: Icons.Drumstick },
-    { id: 'Fish', name: 'Fish/Seafood', Icon: Icons.Fish },
-    { id: 'Egg', name: 'Egg/Breakfast', Icon: Icons.Egg },
-    { id: 'Croissant', name: 'Bakery', Icon: Icons.Croissant },
-    { id: 'Sunrise', name: 'Breakfast', Icon: Icons.Sunrise },
-    { id: 'Wheat', name: 'Grain/Cereal', Icon: Icons.Wheat },
-    { id: 'Cookie', name: 'Cookie', Icon: Icons.Cookie },
-    { id: 'IceCream', name: 'Ice Cream', Icon: Icons.IceCream },
-    { id: 'Cake', name: 'Cake/Dessert', Icon: Icons.Cake },
-    { id: 'Candy', name: 'Candy', Icon: Icons.Candy },
-    { id: 'Popcorn', name: 'Popcorn/Snack', Icon: Icons.Popcorn },
-    { id: 'Apple', name: 'Fruit', Icon: Icons.Apple },
-    { id: 'Grape', name: 'Grape/Berry', Icon: Icons.Grape },
-    { id: 'Cherry', name: 'Cherry', Icon: Icons.Cherry },
-    { id: 'Citrus', name: 'Citrus', Icon: Icons.Citrus },
-    { id: 'Carrot', name: 'Vegetable', Icon: Icons.Carrot },
-    { id: 'Leaf', name: 'Green/Herb', Icon: Icons.Leaf },
-    { id: 'Flame', name: 'Spicy/Hot', Icon: Icons.Flame },
-    { id: 'ChefHat', name: 'Chef Special', Icon: Icons.ChefHat },
-    { id: 'Shell', name: 'Shellfish', Icon: Icons.Shell }
+const ICON_SET = [
+    // Food & Beverages
+    { id: 'Coffee', icon: Coffee, label: 'Coffee', category: 'beverage' },
+    { id: 'Pizza', icon: Pizza, label: 'Pizza', category: 'food' },
+    { id: 'Cake', icon: Cake, label: 'Cake', category: 'dessert' },
+    { id: 'IceCream', icon: IceCream, label: 'Ice Cream', category: 'dessert' },
+    { id: 'Wine', icon: Wine, label: 'Wine', category: 'beverage' },
+    { id: 'Beer', icon: Beer, label: 'Beer', category: 'beverage' },
+    { id: 'Martini', icon: Martini, label: 'Cocktail', category: 'beverage' },
+    { id: 'Popcorn', icon: Popcorn, label: 'Popcorn', category: 'food' },
+    { id: 'Sandwich', icon: Sandwich, label: 'Sandwich', category: 'food' },
+    { id: 'Cookie', icon: Cookie, label: 'Cookie', category: 'dessert' },
+    { id: 'Soup', icon: Soup, label: 'Soup', category: 'food' },
+    { id: 'Salad', icon: Salad, label: 'Salad', category: 'food' },
+    { id: 'Beef', icon: Beef, label: 'Beef', category: 'food' },
+    { id: 'Fish', icon: Fish, label: 'Fish', category: 'food' },
+    { id: 'Apple', icon: Apple, label: 'Apple', category: 'fruit' },
+    { id: 'Cherry', icon: Cherry, label: 'Cherry', category: 'fruit' },
+    { id: 'Grape', icon: Grape, label: 'Grape', category: 'fruit' },
+    { id: 'Lemon', icon: Lemon, label: 'Lemon', category: 'fruit' },
+    { id: 'Banana', icon: Banana, label: 'Banana', category: 'fruit' },
+    { id: 'Croissant', icon: Croissant, label: 'Croissant', category: 'food' },
+    { id: 'Donut', icon: Donut, label: 'Donut', category: 'dessert' },
+    { id: 'Egg', icon: Egg, label: 'Egg', category: 'food' },
+    { id: 'Milk', icon: Milk, label: 'Milk', category: 'beverage' },
+    { id: 'ChefHat', icon: ChefHat, label: 'Chef', category: 'food' },
+    { id: 'UtensilsCrossed', icon: UtensilsCrossed, label: 'Dining', category: 'food' },
+    { id: 'Utensils', icon: Utensils, label: 'Utensils', category: 'food' },
+    { id: 'Drumstick', icon: Drumstick, label: 'Drumstick', category: 'food' },
+    { id: 'Candy', icon: Candy, label: 'Candy', category: 'dessert' },
+    { id: 'CupSoda', icon: CupSoda, label: 'Soda', category: 'beverage' },
+    { id: 'GlassWater', icon: GlassWater, label: 'Water', category: 'beverage' },
+    { id: 'Wheat', icon: Wheat, label: 'Wheat', category: 'food' },
+    { id: 'Carrot', icon: Carrot, label: 'Carrot', category: 'food' },
+    { id: 'Sprout', icon: Sprout, label: 'Sprout', category: 'food' },
+    { id: 'Leaf', icon: Leaf, label: 'Leaf', category: 'food' },
+
+    // Atmosphere & Features
+    { id: 'Flame', icon: Flame, label: 'Hot', category: 'feature' },
+    { id: 'Snowflake', icon: Snowflake, label: 'Cold', category: 'feature' },
+    { id: 'Sun', icon: Sun, label: 'Sun', category: 'feature' },
+    { id: 'Moon', icon: Moon, label: 'Moon', category: 'feature' },
+    { id: 'Star', icon: Star, label: 'Star', category: 'feature' },
+    { id: 'Heart', icon: Heart, label: 'Heart', category: 'feature' },
+    { id: 'ThumbsUp', icon: ThumbsUp, label: 'Popular', category: 'feature' },
+    { id: 'Smile', icon: Smile, label: 'Happy', category: 'feature' },
+    { id: 'Lightbulb', icon: Lightbulb, label: 'New', category: 'feature' },
+    { id: 'Gift', icon: Gift, label: 'Gift', category: 'feature' },
+    { id: 'Trophy', icon: Trophy, label: 'Trophy', category: 'feature' },
+    { id: 'Crown', icon: Crown, label: 'Premium', category: 'feature' },
+    { id: 'Diamond', icon: Diamond, label: 'Diamond', category: 'feature' },
+
+    // Entertainment & Lifestyle
+    { id: 'Music', icon: Music, label: 'Music', category: 'lifestyle' },
+    { id: 'Headphones', icon: Headphones, label: 'Audio', category: 'lifestyle' },
+    { id: 'Book', icon: Book, label: 'Book', category: 'lifestyle' },
+    { id: 'Palette', icon: Palette, label: 'Art', category: 'lifestyle' },
+    { id: 'Camera', icon: Camera, label: 'Camera', category: 'lifestyle' },
+    { id: 'Rocket', icon: Rocket, label: 'Rocket', category: 'feature' },
+    { id: 'Zap', icon: Zap, label: 'Fast', category: 'feature' },
+    { id: 'CloudRain', icon: CloudRain, label: 'Weather', category: 'feature' },
+
+    // Business & Location
+    { id: 'MapPin', icon: MapPin, label: 'Location', category: 'business' },
+    { id: 'Home', icon: Home, label: 'Home', category: 'business' },
+    { id: 'Store', icon: Store, label: 'Store', category: 'business' },
+    { id: 'ShoppingBag', icon: ShoppingBag, label: 'Shopping', category: 'business' },
+    { id: 'Package', icon: Package, label: 'Package', category: 'business' },
+
+    // Time & Pricing
+    { id: 'Clock', icon: Clock, label: 'Clock', category: 'utility' },
+    { id: 'Calendar', icon: Calendar, label: 'Calendar', category: 'utility' },
+    { id: 'Tag', icon: Tag, label: 'Tag', category: 'utility' },
+    { id: 'Percent', icon: Percent, label: 'Discount', category: 'utility' },
+    { id: 'DollarSign', icon: DollarSign, label: 'Dollar', category: 'utility' },
+    { id: 'Euro', icon: Euro, label: 'Euro', category: 'utility' },
+
+    // Navigation & UI
+    { id: 'Menu', icon: Menu, label: 'Menu', category: 'ui' },
+    { id: 'Grid', icon: Grid, label: 'Grid', category: 'ui' },
+    { id: 'List', icon: List, label: 'List', category: 'ui' },
+    { id: 'Search', icon: Search, label: 'Search', category: 'ui' },
+    { id: 'Filter', icon: Filter, label: 'Filter', category: 'ui' },
+    { id: 'Settings', icon: Settings, label: 'Settings', category: 'ui' },
 ];
 
-const IconPicker = ({ selectedIcon, onSelect, onClose }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+const IconPicker = ({ selectedIcon, onSelect, showSearch = true }) => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [scrollPosition, setScrollPosition] = useState(0);
+    const containerRef = React.useRef(null);
 
-    const filteredIcons = ICON_LIST.filter(icon =>
-        icon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        icon.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredIcons = useMemo(() => {
+        if (!searchQuery.trim()) return ICON_SET;
+        const query = searchQuery.toLowerCase();
+        return ICON_SET.filter(icon =>
+            icon.label.toLowerCase().includes(query) ||
+            icon.category.toLowerCase().includes(query)
+        );
+    }, [searchQuery]);
+
+    const scroll = (direction) => {
+        if (containerRef.current) {
+            const scrollAmount = 300;
+            const newPosition = direction === 'left'
+                ? Math.max(0, scrollPosition - scrollAmount)
+                : scrollPosition + scrollAmount;
+
+            containerRef.current.scrollTo({
+                left: newPosition,
+                behavior: 'smooth'
+            });
+            setScrollPosition(newPosition);
+        }
+    };
 
     return (
-        <div style={{
-            background: 'var(--bg-surface)',
-            borderRadius: '12px',
-            padding: '16px',
-            border: '1px solid var(--border-color)'
-        }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Select Icon</h4>
-                {onClose && (
-                    <button
-                        onClick={onClose}
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex',
-                            color: 'var(--color-text-subtle)'
-                        }}
-                    >
-                        <X size={16} />
-                    </button>
-                )}
-            </div>
-
-            {/* Search */}
-            <div style={{ position: 'relative', marginBottom: '12px' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-subtle)' }} />
-                <input
-                    type="text"
-                    placeholder="Search icons..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '8px 8px 8px 32px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-color)',
-                        fontSize: '13px',
-                        background: 'var(--bg-app)'
-                    }}
-                />
-            </div>
-
-            {/* Icon Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))',
-                gap: '8px',
-                maxHeight: '300px',
-                overflowY: 'auto'
-            }}>
-                {filteredIcons.map(({ id, name, Icon }) => {
-                    const isSelected = selectedIcon === id;
-                    return (
-                        <motion.button
-                            key={id}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => onSelect(id)}
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '12px 8px',
-                                borderRadius: '8px',
-                                border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--border-color)',
-                                background: isSelected ? 'var(--color-primary-light, rgba(99, 102, 241, 0.1))' : 'var(--bg-surface)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                gap: '4px'
-                            }}
-                            title={name}
-                        >
-                            <Icon size={24} style={{ color: isSelected ? 'var(--color-primary)' : 'var(--color-ink)' }} />
-                            <span style={{
-                                fontSize: '10px',
-                                color: isSelected ? 'var(--color-primary)' : 'var(--color-text-subtle)',
-                                textAlign: 'center',
-                                lineHeight: 1.2,
-                                maxWidth: '100%',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                            }}>
-                                {name.split('/')[0]}
-                            </span>
-                        </motion.button>
-                    );
-                })}
-            </div>
-
-            {filteredIcons.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--color-text-subtle)' }}>
-                    No icons found
+        <div>
+            {showSearch && (
+                <div style={{ marginBottom: '16px' }}>
+                    <input
+                        type="text"
+                        placeholder="Search icons..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="admin-input"
+                        style={{ fontSize: '14px' }}
+                    />
                 </div>
             )}
+
+            {/* Horizontal Carousel */}
+            <div style={{ position: 'relative' }}>
+                {/* Left Scroll Button */}
+                {scrollPosition > 0 && (
+                    <button
+                        onClick={() => scroll('left')}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            zIndex: 10,
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            border: 'none',
+                            background: 'var(--bg-surface)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                )}
+
+                {/* Icon Container */}
+                <div
+                    ref={containerRef}
+                    onScroll={(e) => setScrollPosition(e.target.scrollLeft)}
+                    style={{
+                        display: 'flex',
+                        gap: '8px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        padding: '8px 4px',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none'
+                    }}
+                    className="hide-scrollbar"
+                >
+                    {filteredIcons.map(({ id, icon: Icon, label }) => (
+                        <motion.button
+                            key={id}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => onSelect(id)}
+                            title={label}
+                            style={{
+                                flexShrink: 0,
+                                width: '56px',
+                                height: '56px',
+                                borderRadius: '12px',
+                                border: `2px solid ${selectedIcon === id ? 'var(--color-primary)' : 'var(--border-color)'}`,
+                                backgroundColor: selectedIcon === id ? 'rgba(var(--color-primary-rgb), 0.1)' : 'var(--bg-surface)',
+                                color: selectedIcon === id ? 'var(--color-primary)' : 'var(--color-ink)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <Icon size={24} strokeWidth={selectedIcon === id ? 2.5 : 1.5} />
+                        </motion.button>
+                    ))}
+                </div>
+
+                {/* Right Scroll Button */}
+                <button
+                    onClick={() => scroll('right')}
+                    style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        zIndex: 10,
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: 'var(--bg-surface)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    <ChevronRight size={16} />
+                </button>
+            </div>
+
+            <style>{`
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
+
+            {/* Icon Count */}
+            <div style={{
+                marginTop: '12px',
+                fontSize: '12px',
+                color: 'var(--color-text-subtle)',
+                textAlign: 'center'
+            }}>
+                {filteredIcons.length} icon{filteredIcons.length !== 1 ? 's' : ''} available
+            </div>
         </div>
     );
 };

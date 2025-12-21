@@ -962,22 +962,7 @@ const MenuEditor = ({ restaurant }) => {
                         </div>
                     </div>
 
-                    {/* Save Action Bar */}
-                    <AnimatePresence>
-                        {hasChanges && (
-                            <motion.div
-                                className="save-bar"
-                                initial={{ y: 100, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 100, opacity: 0 }}
-                                onClick={saveSettings}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <Save size={20} />
-                                <span style={{ fontWeight: 600 }}>Save Changes</span>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    {/* Auto-save is active - no manual save button needed */}
                 </div>
             )}
 
