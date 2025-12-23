@@ -7,6 +7,8 @@ import { auth } from '../firebase';
 import IconPicker from '../components/IconPicker';
 import './AdminDashboard.css';
 import { OrdersDashboard } from './OrdersDashboard';
+import { ALLERGENS, getAllergenDetails } from '../utils/allergenHelper';
+import CloudinaryUploadButton from '../components/CloudinaryUploadButton';
 
 // --- Components ---
 
@@ -475,7 +477,7 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
 };
 
 const MenuEditor = ({ restaurant }) => {
-    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, deleteCategory, addSection, deleteSection } = usePlatform();
+    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, updateCategory, deleteCategory, addSection, updateSection, deleteSection } = usePlatform();
     const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
     const [editingCategory, setEditingCategory] = useState(null); // For editing categories
     const [editingSection, setEditingSection] = useState(null); // For editing sections
@@ -680,6 +682,66 @@ const MenuEditor = ({ restaurant }) => {
                         )}
                     </AnimatePresence>
 
+                    {/* Edit Category Modal */}
+                    <AnimatePresence>
+                        {editingCategory && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    onClick={() => setEditingCategory(null)}
+                                    className="modal-overlay"
+                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+                                />
+                                <motion.div
+                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    className="modal-content"
+                                    style={{ color: 'var(--color-ink)' }}
+                                >
+                                    <h2 style={{ marginTop: 0 }}>Edit Category</h2>
+                                    <CategoryForm
+                                        initialData={editingCategory}
+                                        onSave={(data) => {
+                                            updateCategory(restaurant.id, editingCategory.id, data);
+                                            setEditingCategory(null);
+                                        }}
+                                        onCancel={() => setEditingCategory(null)}
+                                    />
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Edit Section Modal */}
+                    <AnimatePresence>
+                        {editingSection && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                    onClick={() => setEditingSection(null)}
+                                    className="modal-overlay"
+                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+                                />
+                                <motion.div
+                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    className="modal-content"
+                                    style={{ color: 'var(--color-ink)' }}
+                                >
+                                    <h2 style={{ marginTop: 0 }}>Edit Section</h2>
+                                    <SectionForm
+                                        initialData={editingSection.section}
+                                        onSave={(data) => {
+                                            updateSection(restaurant.id, editingSection.categoryId, editingSection.section.id, data);
+                                            setEditingSection(null);
+                                        }}
+                                        onCancel={() => setEditingSection(null)}
+                                    />
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+
                     {restaurant.menu.length === 0 && (
                         <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
                             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
@@ -836,12 +898,17 @@ const MenuEditor = ({ restaurant }) => {
 
                         <div style={{ marginBottom: '16px' }}>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Logo URL</label>
-                            <div style={{ display: 'flex', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                 <input
                                     className="admin-input"
                                     value={draftValues.logo || ''}
                                     onChange={(e) => handleDraftChange('logo', e.target.value)}
                                     placeholder="https://"
+                                    style={{ flex: 1 }}
+                                />
+                                <CloudinaryUploadButton
+                                    onUpload={(url) => handleDraftChange('logo', url)}
+                                    small
                                 />
                                 <div style={{ width: '42px', height: '42px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#eee', flexShrink: 0 }}>
                                     {draftValues.logo ? <img src={draftValues.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <Store size={20} />}
@@ -949,12 +1016,19 @@ const MenuEditor = ({ restaurant }) => {
                             </div>
                             <div style={{ marginBottom: '16px' }}>
                                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Banner Image URL</label>
-                                <input
-                                    className="admin-input"
-                                    value={draftValues.promotion?.image || ''}
-                                    onChange={(e) => handleDeepDraftChange('promotion', 'image', e.target.value)}
-                                    placeholder="https://"
-                                />
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    <input
+                                        className="admin-input"
+                                        value={draftValues.promotion?.image || ''}
+                                        onChange={(e) => handleDeepDraftChange('promotion', 'image', e.target.value)}
+                                        placeholder="https://"
+                                        style={{ flex: 1 }}
+                                    />
+                                    <CloudinaryUploadButton
+                                        onUpload={(url) => handleDeepDraftChange('promotion', 'image', url)}
+                                        small
+                                    />
+                                </div>
                                 <div style={{ fontSize: '12px', color: 'var(--color-text-subtle)', marginTop: '4px' }}>
                                     Recommended Size: 800x600 (4:3 aspect ratio) or larger.
                                 </div>
@@ -982,7 +1056,11 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
         descMk: item.desc?.mk || item.description?.mk || '',
         descSq: item.desc?.sq || item.description?.sq || '',
         image: item.image || '',
-        tag: item.tag || '' // Sub-category tag
+        descSq: item.desc?.sq || item.description?.sq || '',
+        image: item.image || '',
+        tag: item.tag || '', // Sub-category tag
+        ingredients: item.ingredients || '',
+        allergens: item.allergens || []
     });
 
     useEffect(() => {
@@ -995,7 +1073,11 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
             descMk: item.desc?.mk || item.description?.mk || '',
             descSq: item.desc?.sq || item.description?.sq || '',
             image: item.image || '',
-            tag: item.tag || ''
+            descSq: item.desc?.sq || item.description?.sq || '',
+            image: item.image || '',
+            tag: item.tag || '',
+            ingredients: item.ingredients || '',
+            allergens: item.allergens || []
         });
     }, [item]);
 
@@ -1018,6 +1100,8 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
                 mk: formData.descMk,
                 sq: formData.descSq
             },
+            ingredients: formData.ingredients,
+            allergens: formData.allergens,
             image: formData.image,
             tag: formData.tag || undefined // Only include if set
         });
@@ -1063,7 +1147,78 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
 
             <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Image URL</label>
-                <input className="admin-input" name="image" value={formData.image} onChange={handleChange} placeholder="https://..." />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                        className="admin-input"
+                        name="image"
+                        value={formData.image}
+                        onChange={handleChange}
+                        placeholder="https://..."
+                        style={{ flex: 1 }}
+                    />
+                    <CloudinaryUploadButton
+                        onUpload={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                    />
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--color-text-subtle)', marginTop: '4px' }}>
+                    Click "Upload" to select an image from your device, or paste a URL above.
+                </div>
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Ingredients (English/Primary)</label>
+                <textarea
+                    className="admin-input"
+                    name="ingredients"
+                    value={formData.ingredients}
+                    onChange={handleChange}
+                    placeholder="Tomato, Mozzarella, Basil..."
+                    rows={2}
+                />
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Allergens</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {ALLERGENS.map(alg => {
+                        const isSelected = formData.allergens.includes(alg);
+                        const { icon: Icon, color } = getAllergenDetails(alg);
+                        return (
+                            <button
+                                key={alg}
+                                type="button"
+                                onClick={() => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        allergens: isSelected
+                                            ? prev.allergens.filter(a => a !== alg)
+                                            : [...prev.allergens, alg]
+                                    }));
+                                }}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '6px 12px',
+                                    borderRadius: '100px',
+                                    border: `1px solid ${isSelected ? color : 'var(--border-color)'}`,
+                                    backgroundColor: isSelected ? `${color}15` : 'transparent',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Icon size={14} color={isSelected ? color : 'var(--color-text-subtle)'} />
+                                <span style={{
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    color: isSelected ? color : 'var(--color-text-subtle)'
+                                }}>
+                                    {alg}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Sub-Category Tag Selector */}

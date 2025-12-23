@@ -2,10 +2,22 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
 import { formatPrice } from '../utils/currencyHelper';
+import { getAllergenDetails } from '../utils/allergenHelper';
 
 const MenuItem = ({ item, index, onAdd, isLast, language }) => {
-    // If item has options, default to null (Base item/Regular)
     const [selectedOption, setSelectedOption] = useState(null);
+
+    // DEMO DATA: Hardcode allergens for specific items if missing
+    // Ideally this comes from the admin panel, but user asked for immediate demo
+    let displayAllergens = item.allergens || [];
+    let displayIngredients = item.ingredients || '';
+
+    if (item.name?.en?.toLowerCase().includes('pepperoni') && !item.allergens) {
+        displayAllergens = ['Gluten', 'Dairy', 'Spicy'];
+        displayIngredients = 'Tomato sauce, Mozzarella, Spicy Pepperoni, Oregano';
+    }
+
+    const currency = language === 'mk' ? 'MKD' : 'EUR';
 
     const handleAdd = () => {
         if (selectedOption) {
@@ -33,15 +45,16 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             style={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: '1fr 100px',
                 gap: '12px',
                 padding: '12px 0',
                 borderBottom: isLast ? 'none' : '1px solid var(--border-color)',
-                alignItems: 'flex-start'
+                alignItems: 'start'
             }}
         >
-            {/* Content on Left */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {/* Left Column: Content */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
                 {/* Title */}
                 <h3 style={{
                     margin: 0,
@@ -53,22 +66,22 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
                 </h3>
 
-                {/* Price - Subtle */}
+                {/* Price */}
                 <div style={{
                     fontSize: '14px',
-                    fontWeight: 500,
-                    color: 'var(--color-text-subtle)'
+                    fontWeight: 600,
+                    color: 'var(--color-primary)'
                 }}>
-                    {formatPrice((item.price + (selectedOption?.price || 0)), 'MKD')}
+                    {formatPrice((item.price + (selectedOption?.price || 0)), currency)}
                 </div>
 
                 {/* Description */}
                 {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
                     <p style={{
                         margin: 0,
-                        fontSize: '13px',
+                        fontSize: '12px',
                         color: 'var(--color-text-subtle)',
-                        lineHeight: 1.4,
+                        lineHeight: 1.5,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
@@ -78,13 +91,65 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     </p>
                 )}
 
+                {/* Ingredients */}
+                {displayIngredients && (
+                    <p style={{
+                        margin: 0,
+                        fontSize: '11px',
+                        fontStyle: 'italic',
+                        color: 'var(--color-text-subtle)',
+                        lineHeight: 1.4
+                    }}>
+                        {typeof displayIngredients === 'object'
+                            ? (displayIngredients[language] || displayIngredients.en)
+                            : displayIngredients
+                        }
+                    </p>
+                )}
+
+                {/* Allergens - Horizontal */}
+                {displayAllergens.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '4px',
+                        marginTop: '2px'
+                    }}>
+                        {displayAllergens.map((alg, i) => {
+                            const { icon: Icon, color, label } = getAllergenDetails(alg);
+                            return (
+                                <div key={i} style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                    padding: '3px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: `${color}15`,
+                                    border: `1px solid ${color}40`
+                                }}>
+                                    <Icon size={10} color={color} strokeWidth={2.5} />
+                                    <span style={{
+                                        fontSize: '9px',
+                                        fontWeight: 700,
+                                        color: color,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.02em'
+                                    }}>
+                                        {label}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
                 {/* Options Chips Row */}
                 {item.options && item.options.length > 0 && (
                     <div style={{
                         display: 'flex',
                         flexWrap: 'wrap',
                         gap: '6px',
-                        marginTop: '2px'
+                        marginTop: '4px'
                     }}>
                         {item.options.map((opt) => (
                             <motion.button
@@ -108,18 +173,18 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                                 }}
                             >
                                 {opt.label?.[language] || opt.label?.['en'] || opt.label}
-                                {opt.price > 0 && ` +${formatPrice(opt.price, 'MKD')}`}
+                                {opt.price > 0 && ` +${formatPrice(opt.price, currency)}`}
                             </motion.button>
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Image on Right */}
-            <div style={{ position: 'relative', flexShrink: 0 }}>
+            {/* Right Column: Image */}
+            <div style={{ position: 'relative', width: '100px', height: '100px' }}>
                 <div style={{
-                    width: '80px',
-                    height: '80px',
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '12px',
                     backgroundColor: 'var(--bg-surface-secondary)',
                     backgroundImage: `url(${item.image})`,
@@ -128,9 +193,10 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     border: '1px solid var(--border-color)'
                 }} />
 
-                {/* Add Button on Image */}
+                {/* Add Button */}
                 <motion.button
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.8, rotate: -10 }}
+                    whileHover={{ scale: 1.1 }}
                     onClick={(e) => {
                         e.stopPropagation();
                         handleAdd();

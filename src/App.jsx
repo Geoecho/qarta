@@ -8,6 +8,8 @@ import CategoryNav from './components/CategoryNav';
 import MenuAccordion from './components/MenuAccordion';
 import OrderModal from './components/OrderModal';
 import PromoPopup from './components/PromoPopup';
+import SearchBar from './components/SearchBar';
+import SearchResults from './components/SearchResults';
 import { ShoppingBag } from 'lucide-react';
 import { AdminDashboard } from './admin/AdminDashboard';
 import Login from './admin/Login';
@@ -36,6 +38,7 @@ const ClientApp = () => {
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' | 'mk' | 'sq'
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { addToCart, totalCount, orderStatus, activeOrder, loadOrderForRestaurant } = useOrder();
 
@@ -51,7 +54,58 @@ const ClientApp = () => {
     }
   }, [menuData, activeTab]);
 
+  // Auto-close search results when a section is opened
+  useEffect(() => {
+    if (openSectionId) {
+      setSearchQuery('');
+    }
+  }, [openSectionId]);
+
   const currentData = menuData.find(d => d.id === activeTab) || menuData[0] || null;
+
+  // Global Search Logic (Flat list of all matching items)
+  const searchResults = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+
+    const results = [];
+
+    menuData.forEach(category => {
+      const categoryNameMatch = Object.values(category.label || {}).some(name =>
+        name && typeof name === 'string' && name.toLowerCase().includes(query)
+      );
+
+      (category.sections || []).forEach(section => {
+        const sectionNameMatch = Object.values(section.title || {}).some(title =>
+          title && typeof title === 'string' && title.toLowerCase().includes(query)
+        );
+
+        (section.items || []).forEach(item => {
+          if (!item) return;
+
+          const nameMatch = Object.values(item.name || {}).some(name =>
+            name && typeof name === 'string' && name.toLowerCase().includes(query)
+          );
+          const descMatch = Object.values(item.desc || item.description || {}).some(desc =>
+            desc && typeof desc === 'string' && desc.toLowerCase().includes(query)
+          );
+
+          // Include item if it matches directly OR if its category/section matches
+          if (nameMatch || descMatch || categoryNameMatch || sectionNameMatch) {
+            results.push(item);
+          }
+        });
+      });
+    });
+
+    return results;
+  }, [searchQuery, menuData]);
+
+  // Determine if FAB is visible to offset search bar
+  const showTrackFab = orderStatus === 'confirmed';
+  const showCartFab = orderStatus === 'idle' && totalCount > 0;
+  const isFabVisible = showTrackFab || showCartFab;
+  const searchBottomOffset = isFabVisible ? 100 : 24;
 
   // Translations for floating buttons
   const t = {
@@ -284,6 +338,8 @@ const ClientApp = () => {
               initial={{ scale: 0, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0, y: 50 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsOrderOpen(true)}
               style={{
                 position: 'fixed',
@@ -291,46 +347,110 @@ const ClientApp = () => {
                 left: '50%',
                 x: '-50%',
                 zIndex: 100,
-                width: 'calc(100% - 48px)', // Full width minus margin
+                width: 'calc(100% - 48px)',
                 maxWidth: '432px'
               }}
             >
-              <div style={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--color-on-primary)',
-                padding: '16px 24px',
-                borderRadius: '100px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                boxShadow: 'var(--shadow-lg)',
-                cursor: 'pointer',
-                width: '100%',
-                justifyContent: 'space-between',
-                whiteSpace: 'nowrap'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <ShoppingBag size={20} />
-                  <span style={{ fontWeight: 600 }}>{t["viewOrder"][language]}</span>
-                </div>
-                <div style={{
-                  background: 'var(--bg-surface)',
-                  color: 'var(--color-ink)',
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
+              <motion.div
+                animate={{
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeInOut"
+                }}
+                key={totalCount}
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-on-primary)',
+                  padding: '16px 24px',
+                  borderRadius: '100px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700,
-                  fontSize: '13px'
-                }}>
-                  {totalCount}
+                  gap: '12px',
+                  boxShadow: 'var(--shadow-lg)',
+                  cursor: 'pointer',
+                  width: '100%',
+                  justifyContent: 'space-between',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <motion.div
+                    animate={{ rotate: [0, -10, 10, -10, 0] }}
+                    transition={{ duration: 0.5 }}
+                    key={`bag-${totalCount}`}
+                  >
+                    <ShoppingBag size={20} />
+                  </motion.div>
+                  <span style={{ fontWeight: 600 }}>{t["viewOrder"][language]}</span>
                 </div>
-              </div>
+                <motion.div
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 0.3 }}
+                  key={`count-${totalCount}`}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    color: 'var(--color-ink)',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '13px'
+                  }}
+                >
+                  {totalCount}
+                </motion.div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Search Backdrop (Click outside to close) */}
+        <AnimatePresence>
+          {searchQuery && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.3)',
+                zIndex: 93, // Above CategoryNav (90), below SearchBar/Results (96+)
+                backdropFilter: 'blur(4px)' // Increased blur
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Search Results Overlay */}
+        <AnimatePresence>
+          {searchQuery && (
+            <SearchResults
+              results={searchResults}
+              onAdd={addToCart}
+              language={language}
+              bottomOffset={searchBottomOffset}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Search Bar */}
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
+          language={language}
+          bottomOffset={searchBottomOffset}
+        />
 
         <OrderModal
           isOpen={isOrderOpen}

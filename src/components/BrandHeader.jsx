@@ -9,14 +9,14 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
             alignItems: 'center',
             justifyContent: 'space-between',
             background: 'var(--bg-app)',
-            zIndex: 100
+            zIndex: 92 // Below search backdrop (93)
         }}>
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
                     width: '42px',
                     height: '42px',
-                    borderRadius: '12px',
+                    borderRadius: '50%', // Circle
                     backgroundColor: 'var(--color-primary)',
                     display: 'flex',
                     alignItems: 'center',
@@ -46,7 +46,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                 <div style={{
                     display: 'flex',
                     background: 'var(--bg-surface-secondary)',
-                    borderRadius: '10px',
+                    borderRadius: '100px', // Pill
                     padding: '3px',
                     border: '1px solid var(--border-color)'
                 }}>
@@ -59,8 +59,8 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                             boxShadow: language === 'mk' ? 'var(--shadow-sm)' : 'none',
                             fontSize: '12px',
                             fontWeight: 700,
-                            padding: '6px 10px',
-                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            borderRadius: '100px', // Pill
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
@@ -76,8 +76,8 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                             boxShadow: language === 'en' ? 'var(--shadow-sm)' : 'none',
                             fontSize: '12px',
                             fontWeight: 700,
-                            padding: '6px 10px',
-                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            borderRadius: '100px', // Pill
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
@@ -93,8 +93,8 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                             boxShadow: language === 'sq' ? 'var(--shadow-sm)' : 'none',
                             fontSize: '12px',
                             fontWeight: 700,
-                            padding: '6px 10px',
-                            borderRadius: '8px',
+                            padding: '6px 12px',
+                            borderRadius: '100px', // Pill
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                         }}
@@ -109,7 +109,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                     style={{
                         width: '40px',
                         height: '40px',
-                        borderRadius: '12px',
+                        borderRadius: '50%', // Circle
                         border: '1px solid var(--border-color)',
                         background: 'var(--bg-surface-secondary)',
                         color: 'var(--color-ink)',

@@ -7,7 +7,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
         <div style={{
             position: 'sticky',
             top: 0,
-            zIndex: 90,
+            zIndex: 91, // Below search backdrop (93)
             backgroundColor: 'var(--bg-app)',
             paddingBottom: '8px',
             paddingTop: '12px',

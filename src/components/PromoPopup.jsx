@@ -28,39 +28,36 @@ const PromoPopup = ({ promotion }) => {
     return (
         <AnimatePresence>
             {isVisible && (
-                <>
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={handleClose}
-                        style={{
-                            position: 'fixed',
-                            inset: 0,
-                            backgroundColor: 'rgba(0,0,0,0.6)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 9998
-                        }}
-                    />
-
-                    {/* Modal */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={handleClose}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        backdropFilter: 'blur(4px)',
+                        zIndex: 9998,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '24px'
+                    }}
+                >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        onClick={(e) => e.stopPropagation()}
                         style={{
-                            position: 'fixed',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 'calc(100% - 48px)',
-                            maxWidth: '400px',
+                            width: '100%',
+                            maxWidth: '420px',
                             backgroundColor: 'var(--bg-surface)',
                             borderRadius: '24px',
                             overflow: 'hidden',
-                            zIndex: 9999,
-                            boxShadow: 'var(--shadow-lg)'
+                            position: 'relative',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
                         }}
                     >
                         {/* Close Button */}
@@ -86,7 +83,6 @@ const PromoPopup = ({ promotion }) => {
                             <X size={18} />
                         </button>
 
-                        {/* Image Header (Optional) */}
                         {/* Image Header */}
                         {promotion.image ? (
                             <div style={{ height: '240px', width: '100%', position: 'relative' }}>
@@ -111,11 +107,17 @@ const PromoPopup = ({ promotion }) => {
                         )}
 
                         {/* Content */}
-                        <div style={{ padding: '32px 24px 24px 24px', textAlign: 'center' }}>
-                            <h2 style={{ margin: '0 0 12px 0', fontSize: '22px', fontFamily: 'var(--font-sans)', color: 'var(--color-ink)' }}>
+                        <div style={{
+                            padding: '28px 20px 24px 20px',
+                            textAlign: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center'
+                        }}>
+                            <h2 style={{ margin: '0 0 12px 0', fontSize: '22px', fontFamily: 'var(--font-sans)', color: 'var(--color-ink)', lineHeight: 1.3 }}>
                                 {promotion.title}
                             </h2>
-                            <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)', lineHeight: 1.5 }}>
+                            <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)', lineHeight: 1.6, fontSize: '15px' }}>
                                 {promotion.message}
                             </p>
 
@@ -137,10 +139,11 @@ const PromoPopup = ({ promotion }) => {
                             </button>
                         </div>
                     </motion.div>
-                </>
+                </motion.div>
             )}
         </AnimatePresence>
     );
+
 };
 
 export default PromoPopup;

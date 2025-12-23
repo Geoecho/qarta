@@ -188,6 +188,40 @@ export const MenuProvider = ({ children }) => {
         await saveToCloud(updated);
     };
 
+    const updateCategory = async (restaurantId, categoryId, categoryData) => {
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return {
+                ...r,
+                menu: r.menu.map(cat => {
+                    if (cat.id !== categoryId) return cat;
+                    return { ...cat, ...categoryData };
+                })
+            };
+        });
+        await saveToCloud(updated);
+    };
+
+    const updateSection = async (restaurantId, categoryId, sectionId, sectionData) => {
+        const updated = restaurants.map(r => {
+            if (r.id !== restaurantId) return r;
+            return {
+                ...r,
+                menu: r.menu.map(cat => {
+                    if (cat.id !== categoryId) return cat;
+                    return {
+                        ...cat,
+                        sections: cat.sections.map(sec => {
+                            if (sec.id !== sectionId) return sec;
+                            return { ...sec, ...sectionData };
+                        })
+                    };
+                })
+            };
+        });
+        await saveToCloud(updated);
+    };
+
     const updateMenuItem = async (restaurantId, categoryId, sectionId, itemId, updates) => {
         const updated = restaurants.map(restaurant => {
             if (restaurant.id !== restaurantId) return restaurant;
@@ -242,7 +276,7 @@ export const MenuProvider = ({ children }) => {
             id: `item-${Date.now()}`,
             name: { en: 'New Item', mk: 'Нова Ставка', sq: 'Artikull i Ri', ...newItemData.name },
             price: parseFloat(newItemData.price) || 0,
-            description: { en: '', mk: '', sq: '', ...newItemData.description },
+            description: { en: '', mk: '', sq: '', ...(newItemData.description || newItemData.desc) },
             image: newItemData.image || 'https://via.placeholder.com/150',
             options: [],
             tags: []
@@ -287,8 +321,10 @@ export const MenuProvider = ({ children }) => {
             removeRestaurant,
             updateRestaurantDetails,
             addCategory,
+            updateCategory,
             deleteCategory,
             addSection,
+            updateSection,
             deleteSection,
             updateMenuItem,
             addMenuItem,

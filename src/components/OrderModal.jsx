@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, CreditCard, MessageSquare, ArrowRight } from 'lucide-react';
 import { useOrder } from '../contexts/OrderContext';
+import { formatPrice } from '../utils/currencyHelper';
 
 const translations = {
     orderTitle: { en: 'Your Order', mk: 'Твоја нарачка', sq: 'Porosia Juaj' },
@@ -34,6 +35,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
 
     const [note, setNote] = useState('');
     const t = translations;
+    const currency = language === 'mk' ? 'MKD' : 'EUR';
 
     const handleCheckout = () => {
         placeOrder(restaurantSlug); // Pass the restaurant slug
@@ -126,7 +128,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
                                                             <div style={{ fontWeight: 600 }}>
                                                                 {item.name[language] || item.name['en']}
                                                             </div>
-                                                            <div style={{ color: 'var(--color-text-subtle)', fontSize: '14px' }}>${item.price.toFixed(2)}</div>
+                                                            <div style={{ color: 'var(--color-text-subtle)', fontSize: '14px' }}>{formatPrice(item.price, currency)}</div>
                                                         </div>
                                                     </div>
 
@@ -180,7 +182,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
                                 <div style={{ padding: '24px', paddingBottom: '40px', background: 'var(--bg-surface)' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '18px', fontWeight: 600 }}>
                                         <span>{t.total[language]}</span>
-                                        <span>${totalPrice.toFixed(2)}</span>
+                                        <span>{formatPrice(totalPrice, currency)}</span>
                                     </div>
                                     <button
                                         onClick={handleCheckout}
@@ -293,13 +295,13 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
                                                     <span style={{ fontWeight: 600 }}>{item.quantity}x</span>
                                                     <span>{item.name[language] || item.name.en}</span>
                                                 </div>
-                                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span>{formatPrice(item.price * item.quantity, currency)}</span>
                                             </div>
                                         ))}
                                     </div>
                                     <div style={{ borderTop: '1px dashed var(--border-color)', marginTop: '16px', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '18px' }}>
                                         <span>Total</span>
-                                        <span>${activeOrder?.total?.toFixed(2)}</span>
+                                        <span>{formatPrice(activeOrder?.total || 0, currency)}</span>
                                     </div>
                                 </div>
 
