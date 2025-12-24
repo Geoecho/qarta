@@ -123,7 +123,7 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
                             </div>
                         )}
 
-                        <div style={{ padding: section.filters && section.filters.length > 0 ? '8px 20px 16px 20px' : '16px 20px 16px 20px' }}>
+                        <div style={{ padding: '0 20px 16px 20px' }}>
                             {visibleItems.map((item, index) => (
                                 <MenuItem
                                     key={item.id}
