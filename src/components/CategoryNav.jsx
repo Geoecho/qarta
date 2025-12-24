@@ -18,7 +18,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                 display: 'flex',
                 gap: '12px',
                 padding: '16px 24px',
-                paddingBottom: '24px',
+                paddingBottom: '32px', // Increased to avoid bottom shadow clip
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
             }}>

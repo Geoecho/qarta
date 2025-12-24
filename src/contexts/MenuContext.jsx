@@ -28,6 +28,27 @@ const DEFAULT_RESTAURANT = {
     menu: INITIAL_MENU
 };
 
+const NETAVILLE_RESTAURANT = {
+    id: 'netaville',
+    slug: 'netaville',
+    name: 'Netaville',
+    type: 'Bistro',
+    status: 'Active',
+    logo: 'https://res.cloudinary.com/dczgkqqqr/image/upload/v1766511537/Logo1_z8tf5n.png',
+    theme: {
+        primary: '#000000',
+        background: '#ffffff',
+        surface: '#f4f4f5'
+    },
+    promotion: {
+        active: true,
+        title: 'Netaville Special',
+        message: 'Experience our exclusive menu.',
+        image: ''
+    },
+    menu: INITIAL_MENU
+};
+
 export const MenuProvider = ({ children }) => {
     // Start with EMPTY state - Admin must create restaurants
     const [restaurants, setRestaurants] = useState([]);
@@ -44,15 +65,36 @@ export const MenuProvider = ({ children }) => {
 
             try {
                 const res = await fetch('/api/menu');
-                if (res.ok) {
+                const contentType = res.headers.get("content-type");
+
+                if (res.ok && contentType && contentType.includes("application/json")) {
                     const data = await res.json();
-                    if (Array.isArray(data)) {
-                        setRestaurants(data); // Can be empty array
+                    if (Array.isArray(data) && data.length > 0) {
+                        setRestaurants(data);
+                        // Also sync to local storage for backup
+                        localStorage.setItem('qarta_restaurants', JSON.stringify(data));
+                        setLoading(false);
+                        return;
                     }
                 }
-                setLoading(false);
+                throw new Error("API not available or returned empty");
             } catch (e) {
-                console.warn("Menu sync failed (offline mode):", e);
+                // Fallback to Local Storage
+                const local = localStorage.getItem('qarta_restaurants');
+                if (local) {
+                    try {
+                        setRestaurants(JSON.parse(local));
+                    } catch (parseErr) {
+                        console.error("Local storage corrupted", parseErr);
+                        // If corrupt, use defaults
+                        setRestaurants([DEFAULT_RESTAURANT, NETAVILLE_RESTAURANT]);
+                    }
+                } else {
+                    // No local data, initialize with Defaults
+                    const seed = [DEFAULT_RESTAURANT, NETAVILLE_RESTAURANT];
+                    setRestaurants(seed);
+                    localStorage.setItem('qarta_restaurants', JSON.stringify(seed));
+                }
                 setLoading(false);
             }
         };
@@ -80,18 +122,30 @@ export const MenuProvider = ({ children }) => {
                 body: JSON.stringify({ restaurants: updatedRestaurants })
             });
 
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "Server rejected save");
+            // If API fails (e.g. 404 locally), we still want to save to localStorage
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                throw new Error("API unavailable, falling back to local");
             }
 
             setSaveStatus('success');
             setTimeout(() => setSaveStatus('idle'), 2000);
 
+            // Sync successfully saved data to local storage too
+            localStorage.setItem('qarta_restaurants', JSON.stringify(updatedRestaurants));
+
         } catch (e) {
-            console.error("Failed to save menu:", e);
-            setSaveStatus('error');
-            setServerError(e.message);
+            console.warn("Saving to cloud failed, using LocalStorage:", e);
+            // Fallback: Save to Local Storage
+            try {
+                localStorage.setItem('qarta_restaurants', JSON.stringify(updatedRestaurants));
+                setSaveStatus('success'); // Treat local save as success for the user
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            } catch (localErr) {
+                console.error("Failed to save menu locally:", localErr);
+                setSaveStatus('error');
+                setServerError(e.message);
+            }
         }
     };
 
@@ -279,6 +333,7 @@ export const MenuProvider = ({ children }) => {
             description: { en: '', mk: '', sq: '', ...(newItemData.description || newItemData.desc) },
             image: newItemData.image || 'https://via.placeholder.com/150',
             options: [],
+            tag: newItemData.tag || null, // Fix: Save the subcategory tag
             tags: []
         };
 

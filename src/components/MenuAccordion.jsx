@@ -107,7 +107,7 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
                                                 padding: '6px 14px',
                                                 borderRadius: '100px',
                                                 border: isActive ? 'none' : '1px solid var(--border-color)',
-                                                backgroundColor: isActive ? 'var(--color-primary)' : 'var(--bg-app)',
+                                                backgroundColor: isActive ? 'var(--color-primary)' : 'var(--bg-surface-secondary)',
                                                 color: isActive ? 'var(--color-on-primary)' : 'var(--color-text-subtle)',
                                                 fontSize: '13px',
                                                 fontWeight: 600,
@@ -123,7 +123,7 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
                             </div>
                         )}
 
-                        <div style={{ padding: '0 20px 8px 20px' }}>
+                        <div style={{ padding: section.filters && section.filters.length > 0 ? '0 20px 8px 20px' : '12px 20px 8px 20px' }}>
                             {visibleItems.map((item, index) => (
                                 <MenuItem
                                     key={item.id}

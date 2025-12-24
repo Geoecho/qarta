@@ -163,7 +163,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                                     padding: '5px 10px',
                                     borderRadius: '100px',
                                     border: `1.5px solid ${selectedOption?.id === opt.id ? 'var(--color-primary)' : 'var(--border-color)'}`,
-                                    backgroundColor: selectedOption?.id === opt.id ? 'var(--color-primary)' : 'transparent',
+                                    backgroundColor: selectedOption?.id === opt.id ? 'var(--color-primary)' : 'var(--bg-surface-secondary)',
                                     color: selectedOption?.id === opt.id ? 'var(--color-on-primary)' : 'var(--color-ink)',
                                     fontSize: '12px',
                                     fontWeight: 600,

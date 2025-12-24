@@ -5,8 +5,8 @@ const CloudinaryUploadButton = ({ onUpload, buttonText = "📤 Upload", small = 
     const handleClick = () => {
         if (window.cloudinary) {
             window.cloudinary.openUploadWidget({
-                cloudName: 'demo', // Replace with your cloud name
-                uploadPreset: 'ml_default', // Replace with your upload preset
+                cloudName: 'dczgkqqqr', // Hardcoded from existing netaville URL
+                uploadPreset: 'VUi5JSFIBdETlGxu1a4VnbFO5Hw', // Provided by user
                 sources: ['local', 'url', 'camera'],
                 multiple: false,
                 maxFiles: 1,

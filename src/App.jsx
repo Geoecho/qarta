@@ -36,7 +36,32 @@ const ClientApp = () => {
   const [activeTab, setActiveTab] = useState(null); // Top Level
   const [openSectionId, setOpenSectionId] = useState(null); // Accordion state
   const [isOrderOpen, setIsOrderOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  // Theme Default Mode Logic
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('qarta_theme');
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  // Track if we've initialized the default mode from the restaurant settings
+  const hasInitializedTheme = React.useRef(false);
+
+  // Update theme when restaurant data loads - BUT only if user hasn't set a preference
+  useEffect(() => {
+    if (restaurant?.theme?.defaultMode && !hasInitializedTheme.current) {
+      const saved = localStorage.getItem('qarta_theme');
+      if (saved === null) {
+        // Only apply default if no user preference exists
+        setIsDark(restaurant.theme.defaultMode === 'dark');
+      }
+      hasInitializedTheme.current = true;
+    }
+  }, [restaurant]);
+
+  // Persist theme changes
+  useEffect(() => {
+    localStorage.setItem('qarta_theme', JSON.stringify(isDark));
+  }, [isDark]);
+
   const [language, setLanguage] = useState('en'); // 'en' | 'mk' | 'sq'
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -226,7 +251,7 @@ const ClientApp = () => {
         color: 'var(--color-ink)',
         display: 'flex',
         flexDirection: 'column',
-        paddingBottom: '120px',
+        paddingBottom: '200px', // Increased heavily to avoid fab/search overlap
         boxShadow: '0 0 50px rgba(0,0,0,0.05)',
         position: 'relative',
         overflow: 'hidden',
@@ -256,7 +281,7 @@ const ClientApp = () => {
         />
 
         {/* Detailed Accordion Sections */}
-        <div style={{ padding: '0 var(--space-3)', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '24px' }}>
+        <div style={{ padding: '0 var(--space-3)', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
           {menuData.length === 0 ? (
             <div style={{
               textAlign: 'center',
@@ -371,7 +396,7 @@ const ClientApp = () => {
                   boxShadow: 'var(--shadow-lg)',
                   cursor: 'pointer',
                   width: '100%',
-                  justifyContent: 'space-between',
+                  justifyContent: 'center',
                   whiteSpace: 'nowrap'
                 }}
               >

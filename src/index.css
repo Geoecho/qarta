@@ -11,38 +11,41 @@
   /* Animation */
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* Light Mode (Default) */
-  --bg-app: #FAFAFA;
-  --bg-surface: #FFFFFF;
-  --bg-surface-secondary: #F4F4F5;
-  --color-ink: #111111;
-  --color-text-subtle: #71717A;
-  --border-color: #E4E4E5;
-  --color-primary: #111111;
+  /* Light Mode (Neumorphism) */
+  --bg-app: #EFEEEE;
+  --bg-surface: #EFEEEE;
+  --bg-surface-secondary: #EFEEEE;
+  /* Lighter, less gray */
+  --color-ink: #2D3A4B;
+  --color-text-subtle: #7D8CA3;
+  --border-color: rgba(0, 0, 0, 0.1);
+  /* Subtle highlight border */
+  --color-primary: #FF5F1F;
+  /* Keep brand color or make it pop */
   --color-on-primary: #FFFFFF;
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+  /* Neumorphic Shadows (Light) - Soft & Subtle */
+  --shadow-sm: 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.8);
+  --shadow-md: 6px 6px 12px rgba(163, 177, 198, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8);
+  --shadow-lg: 12px 12px 24px rgba(163, 177, 198, 0.4), -12px -12px 24px rgba(255, 255, 255, 0.8);
 }
 
 .dark {
-  /* Dark Mode Overrides */
-  --bg-app: #09090b;
-  /* Zinc 950 */
-  --bg-surface: #18181b;
-  /* Zinc 900 */
-  --bg-surface-secondary: #27272a;
-  /* Zinc 800 */
-  --color-ink: #fafafa;
-  --color-text-subtle: #a1a1aa;
-  --border-color: #27272a;
-  --color-primary: #fafafa;
-  --color-on-primary: #000000;
+  /* Dark Mode Overrides (Neumorphism) */
+  --bg-app: #282C34;
+  --bg-surface: #282C34;
+  --bg-surface-secondary: #3B404C;
+  /* Match lighter button bg */
+  --color-ink: #E0E6ED;
+  --color-text-subtle: #9DA5B4;
+  --border-color: rgba(255, 255, 255, 0.05);
+  /* --color-primary: #FF7D4F; REMOVED to allow injection */
+  --color-on-primary: #1A1D23;
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
+  /* Neumorphic Shadows (Dark) - Soft & Subtle */
+  --shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
+  --shadow-md: 8px 8px 16px rgba(0, 0, 0, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.05);
+  --shadow-lg: 16px 16px 32px rgba(0, 0, 0, 0.4), -16px -16px 32px rgba(255, 255, 255, 0.05);
 }
 
 /* Typography - Outfit */

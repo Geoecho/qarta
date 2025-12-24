@@ -35,7 +35,7 @@ const SearchBar = ({ value, onChange, onClear, language, bottomOffset = 24 }) =>
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                boxShadow: 'var(--shadow-sm)', // Matched to sections
                 border: '1px solid var(--border-color)',
                 backdropFilter: 'blur(10px)'
             }}>

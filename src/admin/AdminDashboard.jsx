@@ -950,6 +950,34 @@ const MenuEditor = ({ restaurant }) => {
                             </div>
                         </div>
 
+                        {/* Default Appearance Setting */}
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Default Appearance</label>
+                            <div style={{ display: 'flex', gap: '16px' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="radio"
+                                        name="defaultMode"
+                                        checked={draftValues.theme?.defaultMode !== 'dark'}
+                                        onChange={() => handleDeepDraftChange('theme', 'defaultMode', 'light')}
+                                    />
+                                    <span>Light Mode</span>
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="radio"
+                                        name="defaultMode"
+                                        checked={draftValues.theme?.defaultMode === 'dark'}
+                                        onChange={() => handleDeepDraftChange('theme', 'defaultMode', 'dark')}
+                                    />
+                                    <span>Dark Mode</span>
+                                </label>
+                            </div>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
+                                Which mode should the app start in for new visitors?
+                            </p>
+                        </div>
+
                         {/* Dark Mode Overrides */}
                         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
                             <label style={{ display: 'block', marginBottom: '12px', fontWeight: 600, fontSize: '14px', color: 'var(--color-text-subtle)' }}>Dark Mode Overrides (Optional)</label>

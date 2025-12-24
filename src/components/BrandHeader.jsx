@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 
 const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) => {
@@ -14,27 +15,18 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '50%', // Circle
-                    backgroundColor: 'var(--color-primary)',
+                    height: '32px', // Matches approx height of language toggle
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--color-on-primary)',
-                    overflow: 'hidden'
                 }}>
                     <img
                         src={logoUrl || "/logo.png"}
                         alt="Logo"
                         style={{
-                            width: '100%',
                             height: '100%',
+                            width: 'auto',
                             objectFit: 'contain',
-                            // Invert logo color only if it's the default black logo and we are in dark mode
-                            // If user uploaded a custom logo, we probably shouldn't blindly invert it, 
-                            // BUT consistent behavior was requested. I'll keep the invert for now as a "feature"
-                            filter: isDark ? 'invert(1)' : 'none',
+                            // filter: isDark ? 'invert(1)' : 'none', // Removed per user request
                             transition: 'filter 0.3s'
                         }}
                     />
@@ -42,69 +34,57 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
-                {/* Language Toggle */}
+                {/* Language Toggle (Segmented with Liquid Animation) */}
                 <div style={{
                     display: 'flex',
                     background: 'var(--bg-surface-secondary)',
                     borderRadius: '100px', // Pill
-                    padding: '3px',
-                    border: '1px solid var(--border-color)'
+                    padding: '4px',
+                    border: '1px solid var(--border-color)',
+                    position: 'relative'
                 }}>
-                    <button
-                        onClick={() => setLanguage('mk')}
-                        style={{
-                            border: 'none',
-                            background: language === 'mk' ? 'var(--bg-surface)' : 'transparent',
-                            color: language === 'mk' ? 'var(--color-ink)' : 'var(--color-text-subtle)',
-                            boxShadow: language === 'mk' ? 'var(--shadow-sm)' : 'none',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            padding: '6px 12px',
-                            borderRadius: '100px', // Pill
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        MK
-                    </button>
-                    <button
-                        onClick={() => setLanguage('en')}
-                        style={{
-                            border: 'none',
-                            background: language === 'en' ? 'var(--bg-surface)' : 'transparent',
-                            color: language === 'en' ? 'var(--color-ink)' : 'var(--color-text-subtle)',
-                            boxShadow: language === 'en' ? 'var(--shadow-sm)' : 'none',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            padding: '6px 12px',
-                            borderRadius: '100px', // Pill
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        EN
-                    </button>
-                    <button
-                        onClick={() => setLanguage('sq')}
-                        style={{
-                            border: 'none',
-                            background: language === 'sq' ? 'var(--bg-surface)' : 'transparent',
-                            color: language === 'sq' ? 'var(--color-ink)' : 'var(--color-text-subtle)',
-                            boxShadow: language === 'sq' ? 'var(--shadow-sm)' : 'none',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            padding: '6px 12px',
-                            borderRadius: '100px', // Pill
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        AL
-                    </button>
+                    {['mk', 'en', 'sq'].map((lang) => (
+                        <button
+                            key={lang}
+                            onClick={() => setLanguage(lang)}
+                            style={{
+                                border: 'none',
+                                background: 'transparent',
+                                color: language === lang ? 'var(--color-ink)' : 'var(--color-text-subtle)', // Grey (Ink) color for active
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                padding: '6px 12px',
+                                borderRadius: '100px',
+                                cursor: 'pointer',
+                                position: 'relative',
+                                zIndex: 2,
+                                transition: 'color 0.2s',
+                                textTransform: 'uppercase'
+                            }}
+                        >
+                            {language === lang && (
+                                <motion.div
+                                    layoutId="language-pill"
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        backgroundColor: 'var(--bg-surface)',
+                                        borderRadius: '100px',
+                                        boxShadow: 'var(--shadow-sm)',
+                                        zIndex: -1
+                                    }}
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                />
+                            )}
+                            {lang.toUpperCase()}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Theme Toggle */}
-                <button
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
                     onClick={toggleTheme}
                     style={{
                         width: '40px',
@@ -120,7 +100,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                     }}
                 >
                     {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
+                </motion.button>
             </div>
         </div>
     );
