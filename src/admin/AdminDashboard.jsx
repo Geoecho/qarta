@@ -1131,7 +1131,7 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
             ingredients: formData.ingredients,
             allergens: formData.allergens,
             image: formData.image,
-            tag: formData.tag || undefined // Only include if set
+            tag: formData.tag || null // Use null for empty string to match DB consistency
         });
     };
     return (

@@ -31,11 +31,11 @@ const SearchBar = ({ value, onChange, onClear, language, bottomOffset = 24 }) =>
             <div style={{
                 backgroundColor: 'var(--bg-surface)',
                 borderRadius: '100px',
-                padding: '16px 24px', // Taller touch target
+                padding: '16px 20px', // Exact match to MenuAccordion
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                boxShadow: 'var(--shadow-sm)', // Matched to sections
+                boxShadow: 'var(--shadow-sm)',
                 border: '1px solid var(--border-color)',
                 backdropFilter: 'blur(10px)'
             }}>
