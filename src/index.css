@@ -11,41 +11,42 @@
   /* Animation */
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* Light Mode (Neumorphism) */
-  --bg-app: #EFEEEE;
-  --bg-surface: #EFEEEE;
-  --bg-surface-secondary: #EFEEEE;
+  /* Light Mode (Premium Clean) */
+  --bg-app: #F5F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-surface-secondary: #F0F0F2;
   /* Lighter, less gray */
-  --color-ink: #2D3A4B;
-  --color-text-subtle: #7D8CA3;
-  --border-color: rgba(0, 0, 0, 0.1);
+  --color-ink: #1D1D1F;
+  --color-text-subtle: #86868B;
+  --border-color: rgba(0, 0, 0, 0.08);
   /* Subtle highlight border */
   --color-primary: #FF5F1F;
   /* Keep brand color or make it pop */
   --color-on-primary: #FFFFFF;
 
-  /* Neumorphic Shadows (Light) - Soft & Subtle */
-  --shadow-sm: 3px 3px 6px rgba(163, 177, 198, 0.4), -3px -3px 6px rgba(255, 255, 255, 0.8);
-  --shadow-md: 6px 6px 12px rgba(163, 177, 198, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8);
-  --shadow-lg: 12px 12px 24px rgba(163, 177, 198, 0.4), -12px -12px 24px rgba(255, 255, 255, 0.8);
+  /* Premium Shadows (Light) - Clean & Modern */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
 }
 
 .dark {
-  /* Dark Mode Overrides (Neumorphism) */
-  --bg-app: #282C34;
-  --bg-surface: #282C34;
-  --bg-surface-secondary: #3B404C;
+  /* Dark Mode Overrides */
+  --bg-app: #121212;
+  /* True Black/Dark Gray for OLED feel */
+  --bg-surface: #1E1E1E;
+  --bg-surface-secondary: #2C2C2E;
   /* Match lighter button bg */
   --color-ink: #E0E6ED;
   --color-text-subtle: #9DA5B4;
-  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.1);
   /* --color-primary: #FF7D4F; REMOVED to allow injection */
   --color-on-primary: #1A1D23;
 
-  /* Neumorphic Shadows (Dark) - Soft & Subtle */
-  --shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
-  --shadow-md: 8px 8px 16px rgba(0, 0, 0, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.05);
-  --shadow-lg: 16px 16px 32px rgba(0, 0, 0, 0.4), -16px -16px 32px rgba(255, 255, 255, 0.05);
+  /* Premium Shadows (Dark) */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
 /* Typography - Outfit */

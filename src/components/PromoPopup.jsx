@@ -85,7 +85,7 @@ const PromoPopup = ({ promotion }) => {
 
                         {/* Image Header */}
                         {promotion.image ? (
-                            <div style={{ height: '240px', width: '100%', position: 'relative' }}>
+                            <div style={{ height: 'min(380px, 45vh)', width: '100%', position: 'relative' }}>
                                 <img
                                     src={promotion.image}
                                     alt="Promotion"
@@ -128,8 +128,8 @@ const PromoPopup = ({ promotion }) => {
                                     padding: '14px',
                                     borderRadius: '100px',
                                     border: 'none',
-                                    background: 'var(--color-ink)',
-                                    color: 'var(--bg-app)',
+                                    background: 'var(--color-primary)',
+                                    color: 'var(--color-on-primary)',
                                     fontSize: '16px',
                                     fontWeight: 700,
                                     cursor: 'pointer'

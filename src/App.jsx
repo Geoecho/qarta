@@ -156,7 +156,7 @@ const ClientApp = () => {
         if (themeMeta) themeMeta.content = theme.darkBackground;
       } else {
         root.style.removeProperty('--bg-app');
-        if (themeMeta) themeMeta.content = '#09090b';
+        if (themeMeta) themeMeta.content = '#121212';
       }
 
       if (theme.darkSurface) {
@@ -175,7 +175,7 @@ const ClientApp = () => {
       } else {
         // Default Light Background
         root.style.removeProperty('--bg-app');
-        if (themeMeta) themeMeta.content = '#FAFAFA';
+        if (themeMeta) themeMeta.content = '#F5F5F7';
       }
 
       // We generally don't override surface in light mode dynamically unless requested
