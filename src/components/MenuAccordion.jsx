@@ -90,7 +90,7 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
                         {/* Filter Chips (Only if section has filters) */}
                         {section.filters && (
                             <div style={{
-                                padding: '16px 20px 4px 20px', // Header(16) -> Filter(4) -> Item(12) = 16px gap
+                                padding: '16px 20px 8px 20px', // Header(16) -> Filter(8) -> Item(12) = 20px gap
                                 display: 'flex',
                                 gap: '8px',
                                 overflowX: 'auto',
@@ -123,7 +123,7 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
                             </div>
                         )}
 
-                        <div style={{ padding: section.filters && section.filters.length > 0 ? '0 20px 16px 20px' : '4px 20px 16px 20px' }}>
+                        <div style={{ padding: section.filters && section.filters.length > 0 ? '0 20px 16px 20px' : '8px 20px 16px 20px' }}>
                             {visibleItems.map((item, index) => (
                                 <MenuItem
                                     key={item.id}
