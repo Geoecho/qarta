@@ -14,6 +14,7 @@ import { ShoppingBag } from 'lucide-react';
 import { AdminDashboard } from './admin/AdminDashboard';
 import Login from './admin/Login';
 import CafeOrdersDashboard from './admin/CafeOrdersDashboard';
+import RemainingTime from './components/RemainingTime';
 
 /* 
    Protected Route Component 
@@ -22,44 +23,6 @@ const ProtectedAdminRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('isAdminAuthenticated') === 'true';
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
-};
-
-/* 
-   Timer Component 
-*/
-const RemainingTime = ({ activeOrder, t, language }) => {
-  const [timeLeft, setTimeLeft] = useState(null);
-
-  useEffect(() => {
-    if (!activeOrder?.acceptedAt || !activeOrder?.estimatedMinutes) {
-      setTimeLeft(activeOrder?.estimatedMinutes || 0); // Fallback to static
-      return;
-    }
-
-    const calculateTime = () => {
-      const acceptedTime = new Date(activeOrder.acceptedAt).getTime();
-      const durationMs = activeOrder.estimatedMinutes * 60 * 1000;
-      const targetTime = acceptedTime + durationMs;
-      const now = new Date().getTime();
-      const diff = targetTime - now;
-
-      // Convert to minutes, rounding up
-      const minutesLeft = Math.ceil(diff / 60000);
-
-      // If time is up but not marked complete, show 0 or "soon"
-      setTimeLeft(minutesLeft > 0 ? minutesLeft : 0);
-    };
-
-    calculateTime();
-    const interval = setInterval(calculateTime, 10000); // Update every 10s
-
-    return () => clearInterval(interval);
-  }, [activeOrder]);
-
-  if (timeLeft === null) return <span>...</span>;
-  if (timeLeft <= 0) return <span>{t.ready[language]}</span>; // Or "Almost ready"
-
-  return <span>{timeLeft} min {t.remaining[language]}</span>;
 };
 
 /* 

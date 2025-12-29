@@ -178,7 +178,7 @@ export const OrderProvider = ({ children }) => {
             }
 
             setCurrentOrderId(newId);
-            localStorage.setItem('activeOrderId', newId);
+            localStorage.setItem(`activeOrderId_${restaurantSlug}`, newId);
 
         } catch (error) {
             console.error("Critical Error placing order:", error);

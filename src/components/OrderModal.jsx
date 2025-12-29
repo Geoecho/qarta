@@ -4,6 +4,8 @@ import { X, Minus, Plus, CreditCard, MessageSquare, ArrowRight } from 'lucide-re
 import { useOrder } from '../contexts/OrderContext';
 import { formatPrice } from '../utils/currencyHelper';
 
+import RemainingTime from './RemainingTime';
+
 const translations = {
     orderTitle: { en: 'Your Order', mk: 'Твоја нарачка', sq: 'Porosia Juaj' },
     emptyCart: { en: 'Your cart is empty.', mk: 'Кошничката е празна.', sq: 'Shporta juaj është e zbrazët.' },
@@ -266,7 +268,7 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
                                     ) : activeOrder?.status === 'accepted' ? (
                                         <div style={{ margin: '24px 0' }}>
                                             <div style={{ fontSize: '56px', fontWeight: 700, lineHeight: 1, fontFamily: 'monospace' }}>
-                                                {activeOrder.estimatedMinutes}
+                                                <RemainingTime activeOrder={activeOrder} t={t} language={language} showLabel={false} />
                                             </div>
                                             <div style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, color: 'var(--color-text-subtle)', marginTop: '8px' }}>
                                                 {t.minsRemaining[language]}
