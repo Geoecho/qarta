@@ -159,6 +159,9 @@ export const OrderProvider = ({ children }) => {
 
                 if (res.ok) {
                     setIsLocalMode(false);
+                    // Immediately show confirmation screen
+                    setActiveOrder(payload);
+                    setOrderStatus('confirmed');
                 } else {
                     throw new Error("API Offline");
                 }

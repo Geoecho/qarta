@@ -258,6 +258,7 @@ const CafeOrdersDashboard = () => {
                                             color: 'white'
                                         }}>
                                             {order.status || 'pending'}
+                                            {order.status === 'accepted' && order.estimatedMinutes && ` (${order.estimatedMinutes}m)`}
                                         </div>
                                     </div>
                                 </div>
