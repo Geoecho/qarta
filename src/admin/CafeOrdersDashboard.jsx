@@ -16,6 +16,10 @@ const CafeOrdersDashboard = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
+    // State for managing acceptance flow
+    const [acceptingOrderId, setAcceptingOrderId] = useState(null);
+    const [customTime, setCustomTime] = useState('');
+
     // Check authentication
     useEffect(() => {
         const auth = localStorage.getItem(`cafe_${slug}_auth`);
@@ -274,48 +278,132 @@ const CafeOrdersDashboard = () => {
                                 </div>
 
                                 {/* Actions */}
+                                {/* Actions */}
                                 {order.status !== 'accepted' && order.status !== 'rejected' && (
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <button
-                                            onClick={() => updateOrderStatus(order.id, 'accepted', 15)}
-                                            style={{
-                                                flex: 1,
-                                                padding: '12px',
-                                                borderRadius: '8px',
-                                                border: 'none',
-                                                background: '#10b981',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontWeight: 600,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px'
-                                            }}
-                                        >
-                                            <Check size={16} />
-                                            Accept (15 min)
-                                        </button>
-                                        <button
-                                            onClick={() => updateOrderStatus(order.id, 'rejected')}
-                                            style={{
-                                                flex: 1,
-                                                padding: '12px',
-                                                borderRadius: '8px',
-                                                border: 'none',
-                                                background: '#ef4444',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                fontWeight: 600,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px'
-                                            }}
-                                        >
-                                            <X size={16} />
-                                            Reject
-                                        </button>
+                                    <div style={{ marginTop: '16px' }}>
+                                        {acceptingOrderId === order.id ? (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                style={{ overflow: 'hidden' }}
+                                            >
+                                                <div style={{ marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Select Preparation Time:</div>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '8px' }}>
+                                                    {[10, 15, 20, 30].map(mins => (
+                                                        <button
+                                                            key={mins}
+                                                            onClick={() => updateOrderStatus(order.id, 'accepted', mins)}
+                                                            style={{
+                                                                padding: '8px',
+                                                                borderRadius: '8px',
+                                                                border: '1px solid var(--color-primary)',
+                                                                background: 'rgba(255, 95, 31, 0.1)',
+                                                                color: 'var(--color-primary)',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 600
+                                                            }}
+                                                        >
+                                                            {mins} m
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Custom min"
+                                                        value={customTime}
+                                                        onChange={(e) => setCustomTime(e.target.value)}
+                                                        style={{
+                                                            flex: 1,
+                                                            padding: '8px',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid var(--border-color)',
+                                                            width: '100%'
+                                                        }}
+                                                    />
+                                                    <button
+                                                        onClick={() => {
+                                                            if (customTime) updateOrderStatus(order.id, 'accepted', parseInt(customTime));
+                                                        }}
+                                                        disabled={!customTime}
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            borderRadius: '8px',
+                                                            border: 'none',
+                                                            background: 'var(--color-ink)',
+                                                            color: 'var(--bg-app)',
+                                                            cursor: customTime ? 'pointer' : 'not-allowed',
+                                                            fontWeight: 600,
+                                                            opacity: customTime ? 1 : 0.5
+                                                        }}
+                                                    >
+                                                        Set
+                                                    </button>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        setAcceptingOrderId(null);
+                                                        setCustomTime('');
+                                                    }}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '8px',
+                                                        borderRadius: '8px',
+                                                        border: 'navajowhite',
+                                                        background: 'var(--bg-surface-secondary)',
+                                                        color: 'var(--color-text-subtle)',
+                                                        cursor: 'pointer',
+                                                        fontSize: '13px'
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </motion.div>
+                                        ) : (
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => setAcceptingOrderId(order.id)}
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: '12px',
+                                                        borderRadius: '8px',
+                                                        border: 'none',
+                                                        background: '#10b981',
+                                                        color: 'white',
+                                                        cursor: 'pointer',
+                                                        fontWeight: 600,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '8px'
+                                                    }}
+                                                >
+                                                    <Check size={16} />
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    onClick={() => updateOrderStatus(order.id, 'rejected')}
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: '12px',
+                                                        borderRadius: '8px',
+                                                        border: 'none',
+                                                        background: '#ef4444',
+                                                        color: 'white',
+                                                        cursor: 'pointer',
+                                                        fontWeight: 600,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '8px'
+                                                    }}
+                                                >
+                                                    <X size={16} />
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

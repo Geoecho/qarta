@@ -25,6 +25,44 @@ const ProtectedAdminRoute = ({ children }) => {
 };
 
 /* 
+   Timer Component 
+*/
+const RemainingTime = ({ activeOrder, t, language }) => {
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    if (!activeOrder?.acceptedAt || !activeOrder?.estimatedMinutes) {
+      setTimeLeft(activeOrder?.estimatedMinutes || 0); // Fallback to static
+      return;
+    }
+
+    const calculateTime = () => {
+      const acceptedTime = new Date(activeOrder.acceptedAt).getTime();
+      const durationMs = activeOrder.estimatedMinutes * 60 * 1000;
+      const targetTime = acceptedTime + durationMs;
+      const now = new Date().getTime();
+      const diff = targetTime - now;
+
+      // Convert to minutes, rounding up
+      const minutesLeft = Math.ceil(diff / 60000);
+
+      // If time is up but not marked complete, show 0 or "soon"
+      setTimeLeft(minutesLeft > 0 ? minutesLeft : 0);
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 10000); // Update every 10s
+
+    return () => clearInterval(interval);
+  }, [activeOrder]);
+
+  if (timeLeft === null) return <span>...</span>;
+  if (timeLeft <= 0) return <span>{t.ready[language]}</span>; // Or "Almost ready"
+
+  return <span>{timeLeft} min {t.remaining[language]}</span>;
+};
+
+/* 
    Main Client App (Home)
 */
 const ClientApp = () => {
@@ -348,10 +386,19 @@ const ClientApp = () => {
                 }} />
                 <span style={{ fontWeight: 600, fontSize: '14px' }}>
                   {activeOrder?.status === 'placed' && t.waiting[language]}
-                  {activeOrder?.status === 'accepted' && `${activeOrder.estimatedMinutes} min ${t.remaining[language]}`}
+                  {activeOrder?.status === 'accepted' && (
+                    <RemainingTime
+                      activeOrder={activeOrder}
+                      t={t}
+                      language={language}
+                    />
+                  )}
                   {activeOrder?.status === 'completed' && t.ready[language]}
                   {activeOrder?.status === 'rejected' && t.declined[language]}
                 </span>
+
+                {/* Timer Helper Component */}
+                {/* Defined inline for simplicity in this context, or could be moved out */}
               </div>
             </motion.div>
           )}

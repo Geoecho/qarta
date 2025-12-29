@@ -1084,9 +1084,7 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
         descMk: item.desc?.mk || item.description?.mk || '',
         descSq: item.desc?.sq || item.description?.sq || '',
         image: item.image || '',
-        descSq: item.desc?.sq || item.description?.sq || '',
-        image: item.image || '',
-        tag: item.tag || '', // Sub-category tag
+        tag: item.tag || '',
         ingredients: item.ingredients || '',
         allergens: item.allergens || []
     });
@@ -1099,8 +1097,6 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
             nameSq: item.name?.sq || '',
             descEn: item.desc?.en || item.description?.en || '',
             descMk: item.desc?.mk || item.description?.mk || '',
-            descSq: item.desc?.sq || item.description?.sq || '',
-            image: item.image || '',
             descSq: item.desc?.sq || item.description?.sq || '',
             image: item.image || '',
             tag: item.tag || '',
