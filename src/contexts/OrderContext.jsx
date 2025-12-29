@@ -150,12 +150,18 @@ export const OrderProvider = ({ children }) => {
             const payload = { ...orderDoc, id: newId };
 
             try {
-                // Try sending to Vercel API
+                // Try sending to Vercel API with 5s timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
                 const res = await fetch('/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 if (res.ok) {
                     setIsLocalMode(false);
