@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check, ChevronDown, ChevronUp, Instagram, Twitter, Facebook, Menu, X } from 'lucide-react';
+import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check, ChevronDown, ChevronUp, Instagram, Twitter, Facebook, Menu, X, Users, Share2, ArrowUp, QrCode } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import './landing.css';
 
 const translations = {
     en: {
         nav: {
             login: 'Log In',
-            getStarted: 'Get Started'
+            getStarted: 'Get Started',
+            features: 'Features',
+            howItWorks: 'How it Works',
+            pricing: 'Pricing',
+            faq: 'FAQ'
         },
         hero: {
             badge: 'Now with Real-time Order Tracking',
@@ -99,7 +103,11 @@ const translations = {
     mk: {
         nav: {
             login: 'Најава',
-            getStarted: 'Почни'
+            getStarted: 'Почни',
+            features: 'Карактеристики',
+            howItWorks: 'Како работи',
+            pricing: 'Цени',
+            faq: 'ЧПП'
         },
         hero: {
             badge: 'Сега со следење на нарачки во живо',
@@ -190,7 +198,11 @@ const translations = {
     sq: {
         nav: {
             login: 'Kyçu',
-            getStarted: 'Fillo Tani'
+            getStarted: 'Fillo Tani',
+            features: 'Veçoritë',
+            howItWorks: 'Si Punon',
+            pricing: 'Çmimet',
+            faq: 'FAQ'
         },
         hero: {
             badge: 'Tani me gjurmim të porosive në kohë reale',
@@ -293,15 +305,191 @@ const LandingPage = () => {
     // Close mobile menu when hash link clicked
     const closeMenu = () => setIsMobileMenuOpen(false);
 
+    // Custom Smooth Scroll Function (Guaranteed Animation)
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        let offset = 80;
+        if (id === 'pricing') {
+            offset = 20; // Scroll less for pricing (more space at top)
+        }
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const targetPosition = elementPosition - offset;
+        const startPosition = window.pageYOffset;
+        const distance = targetPosition - startPosition;
+        const duration = 800; // ms
+        let start = null;
+
+        // Easing function: easeInOutCubic
+        const ease = (t, b, c, d) => {
+            t /= d / 2;
+            if (t < 1) return c / 2 * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t + 2) + b;
+        };
+
+        const animation = (currentTime) => {
+            if (start === null) start = currentTime;
+            const timeElapsed = currentTime - start;
+            const run = ease(timeElapsed, startPosition, distance, duration);
+            window.scrollTo(0, run);
+            if (timeElapsed < duration) requestAnimationFrame(animation);
+        };
+
+        requestAnimationFrame(animation);
+        closeMenu();
+    };
+
+    // Back to Top Button Logic
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 400) {
+                setShowBackToTop(true);
+            } else {
+                setShowBackToTop(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        const startPosition = window.pageYOffset;
+        const targetPosition = 0;
+        const distance = targetPosition - startPosition;
+        const duration = 800; // ms
+        let start = null;
+
+        // Same cubic ease
+        const ease = (t, b, c, d) => {
+            t /= d / 2;
+            if (t < 1) return c / 2 * t * t * t + b;
+            t -= 2;
+            return c / 2 * (t * t * t + 2) + b;
+        };
+
+        const animation = (currentTime) => {
+            if (start === null) start = currentTime;
+            const timeElapsed = currentTime - start;
+            const run = ease(timeElapsed, startPosition, distance, duration);
+            window.scrollTo(0, run);
+            if (timeElapsed < duration) requestAnimationFrame(animation);
+        };
+
+        requestAnimationFrame(animation);
+    };
+
+    // Custom Cursor Logic - Instant Tracking
+    const cursorX = useMotionValue(-100);
+    const cursorY = useMotionValue(-100);
+
+    // Click Ripple State
+    const [clicks, setClicks] = useState([]);
+
+    // Hero Tilt Logic
+    const heroX = useMotionValue(0);
+    const heroY = useMotionValue(0);
+    const rotateX = useTransform(heroY, [-300, 300], [5, -5]); // Reverse Y for logical tilt
+    const rotateY = useTransform(heroX, [-300, 300], [-5, 5]);
+
+    const handleHeroMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        heroX.set(x);
+        heroY.set(y);
+    };
+
+    const handleHeroMouseLeave = () => {
+        heroX.set(0);
+        heroY.set(0);
+    };
+
+    useEffect(() => {
+        const handleClick = (e) => {
+            const newClick = { x: e.clientX, y: e.clientY, id: Date.now() };
+            setClicks(prev => [...prev, newClick]);
+            // Cleanup click after animation
+            setTimeout(() => {
+                setClicks(prev => prev.filter(c => c.id !== newClick.id));
+            }, 600);
+        };
+        window.addEventListener('click', handleClick);
+        return () => window.removeEventListener('click', handleClick);
+    }, []);
+
     return (
         <div className="landing-page">
+            {/* Click Animation Ripples */}
+            {clicks.map(click => (
+                <motion.div
+                    key={click.id}
+                    initial={{ opacity: 1, scale: 0 }}
+                    animate={{ opacity: 0, scale: 2 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                        position: 'fixed',
+                        left: click.x,
+                        top: click.y,
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        border: '2px solid #38bdf8',
+                        zIndex: 9999,
+                        pointerEvents: 'none',
+                        x: '-50%',
+                        y: '-50%'
+                    }}
+                />
+            ))}
+
+            {/* Custom Cursor Dot - Instant 1:1 Tracking */}
+            <motion.div
+                style={{
+                    x: cursorX,
+                    y: cursorY,
+                    position: 'fixed',
+                    left: 0,
+                    top: 0,
+                    zIndex: 99999, // Safe high Z-Index
+                    pointerEvents: 'none',
+                    marginTop: -6, // Center 12px dot
+                    marginLeft: -6
+                }}
+                className="custom-cursor-dot"
+            >
+                <div style={{
+                    width: '12px',
+                    height: '12px',
+                    background: '#38bdf8',
+                    borderRadius: '50%',
+                    border: '1px solid white', // Contrast ring
+                    boxShadow: '0 0 12px rgba(56, 189, 248, 0.6)'
+                }} />
+            </motion.div>
             {/* Nav */}
             <nav className="landing-nav">
                 <div className="landing-logo">Qarta.</div>
 
-                {/* Desktop Actions */}
+                {/* Desktop Styles for Lang Picker (Hidden on mobile if needed, but we keep it visible on mobile header now) */}
+                {/* Desktop Links - Strictly Centered */}
+                {/* Desktop Links - Strictly Centered */}
+                <div className="landing-nav-links">
+                    <a href="#how-it-works" onClick={(e) => scrollToSection(e, 'how-it-works')} className="nav-link-desktop">{t.nav.howItWorks}</a>
+                    <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="nav-link-desktop">{t.nav.features}</a>
+                    <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="nav-link-desktop">{t.nav.pricing}</a>
+                </div>
+
+                {/* Right Actions: Lang Picker + Login/Signup */}
                 <div className="landing-nav-actions">
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    {/* Language Picker */}
+                    <div style={{ display: 'flex', gap: '4px', marginRight: '8px' }}>
                         {['en', 'mk', 'sq'].map((l) => (
                             <button
                                 key={l}
@@ -313,7 +501,7 @@ const LandingPage = () => {
                         ))}
                     </div>
 
-                    <Link to="/login" style={{ color: '#a1a1aa', textDecoration: 'none', fontWeight: 500, fontSize: '14px', marginLeft: '12px' }}>
+                    <Link to="/login" style={{ color: '#a1a1aa', textDecoration: 'none', fontWeight: 500, fontSize: '14px' }}>
                         {t.nav.login}
                     </Link>
                     <Link to="/login?mode=signup" className="landing-btn landing-btn-primary" style={{ padding: '8px 20px', fontSize: '14px' }}>
@@ -321,50 +509,154 @@ const LandingPage = () => {
                     </Link>
                 </div>
 
-                {/* Mobile Menu Toggle */}
-                <button className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
+                {/* Mobile Controls (Lang + Toggle) */}
+                <div className="mobile-nav-controls" style={{ alignItems: 'center', gap: '12px' }}>
+                    {/* Language Picker on Mobile Header */}
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                        {['en', 'mk', 'sq'].map((l) => (
+                            <button
+                                key={l}
+                                onClick={() => setLang(l)}
+                                className={`landing-lang-btn ${lang === l ? 'active' : ''}`}
+                                style={{ padding: '4px 8px', fontSize: '11px' }}
+                            >
+                                {l.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(true)}>
+                        <Menu size={24} />
+                    </button>
+                </div>
             </nav>
 
             {/* Mobile Menu Overlay */}
-            <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`}>
-                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-                    {['en', 'mk', 'sq'].map((l) => (
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="mobile-menu-overlay open"
+                    >
+                        {/* Close Button */}
                         <button
-                            key={l}
-                            onClick={() => { setLang(l); }}
-                            className={`landing-lang-btn ${lang === l ? 'active' : ''}`}
-                            style={{ fontSize: '16px', padding: '10px 20px' }}
+                            onClick={closeMenu}
+                            style={{
+                                position: 'absolute',
+                                top: '24px',
+                                right: '24px',
+                                background: 'rgba(255,255,255,0.1)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '40px',
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                cursor: 'pointer'
+                            }}
                         >
-                            {l.toUpperCase()}
+                            <X size={24} />
                         </button>
-                    ))}
-                </div>
 
-                <Link
-                    to="/login"
-                    onClick={closeMenu}
-                    style={{ color: 'white', textDecoration: 'none', fontSize: '24px', fontWeight: 600 }}
-                >
-                    {t.nav.login}
-                </Link>
+                        <motion.div
+                            className="mobile-menu-content"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.1, staggerChildren: 0.1 }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}
+                        >
+                            <a href="#how-it-works" onClick={(e) => scrollToSection(e, 'how-it-works')} className="mobile-nav-link">{t.nav.howItWorks}</a>
+                            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="mobile-nav-link">{t.nav.features}</a>
+                            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="mobile-nav-link">{t.nav.pricing}</a>
+                            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="mobile-nav-link">{t.nav.faq}</a>
 
-                <Link
-                    to="/login?mode=signup"
-                    onClick={closeMenu}
-                    className="landing-btn landing-btn-primary"
-                    style={{ padding: '16px 48px', fontSize: '20px' }}
-                >
-                    {t.nav.getStarted}
-                </Link>
-            </div>
+                            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+
+                            <Link
+                                to="/login"
+                                onClick={closeMenu}
+                                style={{ color: 'white', textDecoration: 'none', fontSize: '20px', fontWeight: 600 }}
+                            >
+                                {t.nav.login}
+                            </Link>
+
+                            <Link
+                                to="/login?mode=signup"
+                                onClick={closeMenu}
+                                className="landing-btn landing-btn-primary"
+                                style={{ padding: '16px 48px', fontSize: '20px' }}
+                            >
+                                {t.nav.getStarted}
+                            </Link>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Hero */}
             <section className="hero-section">
                 <div className="hero-blob" />
 
                 <div className="hero-content">
+                    {/* Floating Icons - Positioned absolute relative to hero-content (which is centered), so use large negative values or percentage to push out */}
+                    <motion.div
+                        className="hero-floating-icon left"
+                        animate={{
+                            y: [0, -20, 0],
+                            rotate: [0, 5, 0]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        style={{
+                            position: 'absolute',
+                            left: '0', /* Stick to left edge */
+                            top: '30%', /* Move down past heading */
+                            opacity: 0.6,
+                            pointerEvents: 'none'
+                        }}
+                    >
+                        <div style={{
+                            padding: '16px',
+                            background: 'rgba(56, 189, 248, 0.03)',
+                            backdropFilter: 'blur(8px)',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(56, 189, 248, 0.1)',
+                            boxShadow: '0 8px 32px rgba(56, 189, 248, 0.1)'
+                        }}>
+                            <QrCode size={40} color="#38bdf8" />
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        className="hero-floating-icon right"
+                        animate={{
+                            y: [0, 20, 0],
+                            rotate: [0, -5, 0]
+                        }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        style={{
+                            position: 'absolute',
+                            right: '0', /* Stick to right edge */
+                            top: '40%', /* Move down past heading */
+                            opacity: 0.6,
+                            pointerEvents: 'none'
+                        }}
+                    >
+                        <div style={{
+                            padding: '16px',
+                            background: 'rgba(56, 189, 248, 0.03)',
+                            backdropFilter: 'blur(8px)',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(56, 189, 248, 0.1)',
+                            boxShadow: '0 8px 32px rgba(56, 189, 248, 0.1)'
+                        }}>
+                            <Smartphone size={40} color="#38bdf8" />
+                        </div>
+                    </motion.div>
+
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -409,49 +701,140 @@ const LandingPage = () => {
                     </motion.div>
                 </div>
 
-                {/* Abstract Mockup */}
+                {/* Abstract Mockup with Tilt & Animation */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95, y: 40 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                    className="app-mockup"
+                    style={{ perspective: 1000 }}
+                    className="app-mockup-container"
+                    onMouseMove={handleHeroMouseMove}
+                    onMouseLeave={handleHeroMouseLeave}
                 >
-                    <div className="mockup-frame">
-                        <div className="mockup-inner">
-                            {/* Simple UI Representation */}
-                            <div style={{ width: '100%', height: '100%', display: 'flex', gap: '2px' }}>
-                                <div style={{ flex: 1, background: '#0f172a', padding: '24px' }}>
-                                    <div style={{ width: '40%', height: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', marginBottom: '32px' }} />
-                                    <div style={{ display: 'flex', gap: '16px' }}>
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} style={{ flex: 1, aspectRatio: '3/4', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />
-                                        ))}
-                                    </div>
-                                    <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {[1, 2].map(i => (
-                                            <div key={i} style={{ height: '60px', width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', alignItems: 'center', padding: '0 16px', justifyContent: 'space-between' }}>
-                                                <div style={{ width: '30%', height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
-                                                <div style={{ width: '24px', height: '24px', background: '#0ea5e9', borderRadius: '50%' }} />
+                    <motion.div
+                        className="app-mockup"
+                        style={{
+                            rotateX: rotateX,
+                            rotateY: rotateY,
+                            transformStyle: "preserve-3d"
+                        }}
+                    >
+                        <div className="mockup-frame">
+                            <div className="mockup-inner">
+                                {/* Functional-style UI */}
+                                <div style={{ width: '100%', height: '100%', display: 'flex', gap: '2px' }}>
+
+                                    {/* Sidebar / Main Content */}
+                                    <div style={{ flex: 1, background: '#0f172a', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                                        {/* Header Area */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                                            <div style={{ width: '120px', height: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <motion.div
+                                                    animate={{ opacity: [1, 0.5, 1] }}
+                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                    style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%' }}
+                                                />
+                                                <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>Live Store</div>
                                             </div>
-                                        ))}
+                                        </div>
+
+                                        {/* Sales Notification Pop-up */}
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1, x: [0, 0, 0] }}
+                                            transition={{ delay: 2, duration: 0.5 }}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '80px',
+                                                right: '40px',
+                                                background: '#38bdf8',
+                                                color: 'black',
+                                                padding: '8px 12px',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 12px rgba(56,189,248,0.3)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                zIndex: 10
+                                            }}
+                                        >
+                                            <div style={{ width: '20px', height: '20px', background: 'rgba(0,0,0,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Check size={12} strokeWidth={3} />
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: '10px', fontWeight: 700 }}>New Order</div>
+                                                <div style={{ fontSize: '10px', opacity: 0.8 }}>Just now · $45.00</div>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Animated Charts / Stats */}
+                                        <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} style={{ flex: 1, aspectRatio: '3/4', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '8px' }}>
+                                                    <div style={{ fontSize: '10px', color: '#94a3b8' }}>Sales</div>
+                                                    <motion.div
+                                                        animate={{ height: ['30%', '60%', '40%', '70%', '30%'] }}
+                                                        transition={{ duration: 3 + i, repeat: Infinity, ease: "easeInOut" }}
+                                                        style={{ width: '100%', background: `rgba(56, 189, 248, ${0.3 + (i * 0.1)})`, borderRadius: '4px' }}
+                                                    />
+                                                    <div style={{ height: '4px', width: '40%', background: 'rgba(255,255,255,0.1)', borderRadius: '2px' }} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Menu Items List */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {[{ n: 'Burger Combo', p: '$14' }, { n: 'Cappuccino', p: '$5' }].map((item, i) => (
+                                                <div key={i} style={{ height: '48px', width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', display: 'flex', alignItems: 'center', padding: '0 16px', justifyContent: 'space-between', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                        <div style={{ width: '80px', height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }} />
+                                                        <div style={{ width: '40px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }} />
+                                                    </div>
+                                                    <div style={{ padding: '4px 8px', background: 'rgba(56, 189, 248, 0.1)', borderRadius: '4px', color: '#38bdf8', fontSize: '12px', fontWeight: 600 }}>
+                                                        {item.p}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                                <div style={{ width: '300px', background: '#020617', borderLeft: '1px solid rgba(255,255,255,0.05)', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                                    <div style={{ marginBottom: 'auto' }}>
-                                        <div style={{ width: '60%', height: '16px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginBottom: '16px' }} />
-                                        <div style={{ width: '100%', height: '100px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }} />
+
+                                    {/* Right Panel / Preview Phone */}
+                                    <div style={{ width: '280px', background: '#020617', borderLeft: '1px solid rgba(255,255,255,0.05)', padding: '24px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+                                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100px', background: 'linear-gradient(to bottom, rgba(56,189,248,0.05), transparent)', pointerEvents: 'none' }} />
+
+                                        <div style={{ marginBottom: 'auto', zIndex: 1 }}>
+                                            <div style={{ width: '60%', height: '16px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginBottom: '24px' }} />
+                                            {/* Product Card */}
+                                            <div style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                                <div style={{ width: '100%', aspectRatio: '16/9', background: 'rgba(56,189,248,0.1)', borderRadius: '8px', marginBottom: '12px' }} />
+                                                <div style={{ width: '80%', height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginBottom: '8px' }} />
+                                                <div style={{ width: '40%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+                                            </div>
+                                        </div>
+                                        {/* Add to Cart Button */}
+                                        <motion.div
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            style={{ width: '100%', height: '44px', background: '#0ea5e9', borderRadius: '12px', marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 600, fontSize: '14px', boxShadow: '0 4px 12px rgba(14, 165, 233, 0.4)' }}
+                                        >
+                                            Add to Order
+                                        </motion.div>
                                     </div>
-                                    <div style={{ width: '100%', height: '48px', background: '#0ea5e9', borderRadius: '12px', marginTop: '24px' }} />
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </motion.div>
             </section>
 
             {/* How It Works */}
-            <section className="how-section">
-                <div style={{ textAlign: 'center' }}>
+            <section id="how-it-works" className="how-section">
+                <div className="section-header align-left">
+                    <div className="hero-badge">
+                        <Share2 size={14} />
+                        <span>Workflow</span>
+                    </div>
                     <h2 className="section-title">{t.how.title}</h2>
                     <p className="section-subtitle">{t.how.subtitle}</p>
                 </div>
@@ -482,7 +865,7 @@ const LandingPage = () => {
             </section>
 
             {/* Features */}
-            <section className="features-section">
+            <section id="features" className="features-section">
                 <div className="features-grid">
                     <FeatureCard
                         icon={<Zap size={24} />}
@@ -519,30 +902,42 @@ const LandingPage = () => {
 
             {/* Testimonials */}
             <section className="testimonials-section">
-                <div style={{ textAlign: 'center' }}>
+                <div className="section-header align-right">
+                    <div className="hero-badge" style={{ justifyContent: 'flex-end', marginLeft: 'auto', marginRight: '0' }}>
+                        <Users size={14} />
+                        <span>Community</span>
+                    </div>
                     <h2 className="section-title">{t.testimonials.title}</h2>
                 </div>
-                <div className="testimonials-grid">
-                    <TestimonialCard
-                        quote={t.testimonials.t1}
-                        author={t.testimonials.a1}
-                        initials="S"
-                    />
-                    <TestimonialCard
-                        quote={t.testimonials.t2}
-                        author={t.testimonials.a2}
-                        initials="E"
-                    />
-                    <TestimonialCard
-                        quote={t.testimonials.t3}
-                        author={t.testimonials.a3}
-                        initials="A"
-                    />
+
+                <div className="testimonials-carousel-container">
+                    <div className="testimonials-track">
+                        {/* Render multiple sets for seamless loop */}
+                        {[...Array(3)].map((_, setIndex) => (
+                            <div key={setIndex} className="testimonials-set">
+                                <TestimonialCard
+                                    quote={t.testimonials.t1}
+                                    author={t.testimonials.a1}
+                                    initials="S"
+                                />
+                                <TestimonialCard
+                                    quote={t.testimonials.t2}
+                                    author={t.testimonials.a2}
+                                    initials="E"
+                                />
+                                <TestimonialCard
+                                    quote={t.testimonials.t3}
+                                    author={t.testimonials.a3}
+                                    initials="A"
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
             {/* Pricing Section */}
-            <section className="pricing-section">
+            <section id="pricing" className="pricing-section">
                 <h2 className="section-title">{t.pricing.title}</h2>
                 <p className="section-subtitle">{t.pricing.subtitle}</p>
 
@@ -595,8 +990,10 @@ const LandingPage = () => {
             </section>
 
             {/* FAQ */}
-            <section className="faq-section">
-                <h2 className="section-title" style={{ textAlign: 'center' }}>{t.faq.title}</h2>
+            <section id="faq" className="faq-section">
+                <div className="section-header align-left">
+                    <h2 className="section-title">{t.faq.title}</h2>
+                </div>
                 <div className="faq-container">
                     {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="faq-item">
@@ -653,6 +1050,38 @@ const LandingPage = () => {
                     <div>{t.footer.copyright}</div>
                 </div>
             </footer>
+
+            {/* Back to Top Button */}
+            <AnimatePresence>
+                {showBackToTop && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        onClick={scrollToTop}
+                        className="back-to-top-btn"
+                        style={{
+                            position: 'fixed',
+                            bottom: '32px',
+                            right: '32px',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            background: '#38bdf8',
+                            color: 'black',
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            zIndex: 90,
+                            boxShadow: '0 4px 12px rgba(56, 189, 248, 0.4)'
+                        }}
+                    >
+                        <ArrowUp size={24} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

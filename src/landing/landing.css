@@ -1,4 +1,17 @@
-/* src/landing/landing.css */
+/* Cursor rules removed to ensure visibility */
+html,
+body,
+a,
+button {
+  cursor: auto;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505 !important;
+}
 
 .landing-page {
   background-color: #050505;
@@ -7,6 +20,15 @@
   font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
   position: relative;
+  /* subtle global gradient mesh */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(14, 165, 233, 0.08) 0%, transparent 25%);
+}
+
+section[id] {
+  scroll-margin-top: 60px;
+  /* Reduced from 120px */
 }
 
 .landing-nav {
@@ -42,6 +64,75 @@
   gap: 16px;
 }
 
+/* Language Picker */
+.landing-lang-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  min-height: 44px;
+  /* Ensure 44px touch target on mobile */
+  min-width: 44px;
+  /* Ensure 44px touch target on mobile */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-link-desktop {
+  color: #a1a1aa;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 4px 8px;
+  pointer-events: auto;
+  /* Re-enable clicks */
+}
+
+.nav-link-desktop:hover {
+  color: white;
+}
+
+.landing-nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Ensure links are perfectly centered on desktop */
+.landing-nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 56px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  /* Let clicks pass through if wide */
+}
+
+.mobile-nav-link {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Base state: Hidden on Desktop */
+.mobile-nav-controls {
+  display: none;
+}
+
 /* Mobile Toggle */
 .mobile-menu-toggle {
   display: none;
@@ -53,6 +144,25 @@
   /* Above mobile menu */
   position: relative;
   padding: 8px;
+}
+
+/* Global Micro-Animations */
+.landing-btn,
+.feature-card,
+.pricing-card,
+.testimonial-card,
+.step-number {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.landing-btn:active {
+  transform: scale(0.96);
+}
+
+.feature-card:hover,
+.pricing-card:hover,
+.testimonial-card:hover {
+  transform: translateY(-4px);
 }
 
 /* Mobile Menu Overlay */
@@ -76,8 +186,14 @@
 
 .mobile-menu-overlay.open {
   opacity: 1;
-  pointer-events: auto;
+  pointer-events: all;
 }
+
+.mobile-nav-controls {
+  display: none;
+}
+
+
 
 .landing-lang-btn {
   background: transparent;
@@ -140,9 +256,11 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 120px 24px 120px;
+  padding: 120px 24px 80px;
   /* More top padding for mobile safety */
   position: relative;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll from blob */
 }
 
 .hero-blob {
@@ -168,14 +286,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px;
-  background: rgba(14, 165, 233, 0.1);
-  border: 1px solid rgba(14, 165, 233, 0.2);
-  border-radius: 100px;
-  font-size: 13px;
+  padding: 6px 0;
+  /* Remove background/border padding */
+  background: transparent;
+  /* Remove background */
+  border: none;
+  /* Remove border */
+  font-size: 14px;
   color: #38bdf8;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .hero-title {
@@ -247,7 +369,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 1200px;
+  max-width: 1000px;
+  /* Match mockup width */
   margin: 0 auto;
 }
 
@@ -311,11 +434,49 @@
   font-size: 18px;
 }
 
+/* Section Header Utilities */
+.section-header {
+  margin-bottom: 32px;
+  /* Reduced from 64px */
+  width: 100%;
+  max-width: 1000px;
+  /* Match mockup width */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 24px;
+  /* Ensure padding on mobile matches grids */
+}
+
+.section-header.align-left {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.section-header.align-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.section-header.align-left .section-subtitle {
+  margin: 0 0 32px 0;
+  /* Reduced from 64px */
+}
+
+.section-header.align-right .section-subtitle {
+  margin: 0 0 32px auto;
+  /* Reduced from 64px */
+}
+
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  max-width: 1100px;
+  max-width: 1000px;
+  /* Match mockup width */
   margin: 0 auto;
   align-items: stretch;
 }
@@ -418,46 +579,122 @@
   overflow: hidden;
 }
 
-.how-steps {
+.hero-section {
+  padding: 180px 32px 100px;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  justify-content: center;
-  gap: 48px;
-  max-width: 1000px;
-  margin: 64px auto 0;
-  position: relative;
-}
-
-.how-step {
-  flex: 1;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   position: relative;
   z-index: 10;
 }
 
+/* Floating Icons - Hide on small mobile to avoid clutter */
+@media (max-width: 768px) {
+  .hero-floating-icon {
+    display: none;
+  }
+}
+
+.app-mockup-container {
+  width: 100%;
+  max-width: 900px;
+  /* Limit max width */
+  margin-top: 60px;
+}
+
+.app-mockup {
+  width: 100%;
+}
+
+.mockup-inner {
+  overflow: hidden;
+  /* Prevent inner content spill */
+}
+
+/* Adjust mockup internals for responsiveness */
+@media (max-width: 768px) {
+  .app-mockup-container {
+    max-width: 100%;
+    margin-top: 40px;
+  }
+
+  /* Stack internal panels on mobile if needed, or scale down */
+  .mockup-inner>div {
+    /* If the inner structure uses flex row, we might need to adjust for very small screens, 
+           but horizontal scroll or scaling is often better for mockups */
+    transform-origin: top center;
+  }
+}
+
+.how-steps {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  max-width: 1000px;
+  margin: 32px auto 0;
+  position: relative;
+}
+
+.how-step {
+  flex: 1;
+  text-align: left;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Gradient line connecting steps on Desktop only */
+.how-steps::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      rgba(56, 189, 248, 0) 0%,
+      rgba(56, 189, 248, 0.3) 50%,
+      rgba(56, 189, 248, 0) 100%);
+  z-index: 0;
+}
+
 .step-number {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-  border-radius: 20px;
+  width: 48px;
+  height: 48px;
+  background: #050505;
+  /* Match bg to hide line behind */
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 auto 24px;
-  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.25);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  position: relative;
+  z-index: 1;
+  color: #38bdf8;
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.1);
 }
 
 .step-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 32px 24px;
-  border-radius: 24px;
+  background: transparent;
+  /* Remove card bg for cleaner look */
+  border: none;
+  padding: 0;
+  /* Remove padding */
 }
 
 .step-title {
   font-size: 20px;
   margin-bottom: 12px;
+  margin-top: 0;
+  /* Align with number */
   font-weight: 700;
 }
 
@@ -469,23 +706,56 @@
 
 /* Testimonials */
 .testimonials-section {
-  padding: 100px 24px;
+  padding: 100px 0;
+  /* Full width flow */
   background: #050505;
+  overflow: hidden;
 }
 
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.testimonials-carousel-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  /* Mask for fade effect on edges */
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.testimonials-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+
+.testimonials-set {
+  display: flex;
   gap: 24px;
-  max-width: 1200px;
-  margin: 64px auto 0;
+  padding-right: 24px;
 }
 
 .testimonial-card {
+  width: 350px;
+  flex-shrink: 0;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 32px;
   border-radius: 24px;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-33.33%);
+  }
+
+  /* Loop 1/3 if 3 sets */
+}
+
+.testimonials-track:hover {
+  animation-play-state: paused;
 }
 
 .testimonial-quote {
@@ -532,8 +802,11 @@
 }
 
 .faq-container {
-  max-width: 800px;
-  margin: 64px auto 0;
+  width: 100%;
+  max-width: 1000px;
+  /* Match mockup width */
+  margin: 24px auto 0;
+  /* Center container */
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -559,6 +832,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.faq-question svg {
+  flex-shrink: 0;
+  margin-left: 16px;
 }
 
 .faq-answer {
@@ -617,9 +895,10 @@
 }
 
 .footer-bottom {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding-top: 32px;
+  padding: 32px 24px 0;
+  /* Add horizontal padding matches others */
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
@@ -627,19 +906,128 @@
   font-size: 14px;
 }
 
+
+
+/* Nav Actions (Desktop) */
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-link-desktop {
+  color: #a1a1aa;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding: 4px 8px;
+}
+
+/* Switch to Mobile Nav earlier on laptops/tablets */
+@media (max-width: 1300px) {
+
+  .landing-nav-links,
+  .nav-link-desktop,
+  .landing-nav-actions {
+    display: none !important;
+  }
+
+  .mobile-nav-controls {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobile-menu-toggle {
+    display: block !important;
+    z-index: 60;
+  }
+
+  .landing-nav {
+    padding: 16px 24px;
+  }
+}
+
+/* Hide desktop links by default in global scope if using absolute centering elsewhere or ensure this media query is robust */
 @media (max-width: 768px) {
+  .landing-nav-links {
+    display: none !important;
+    /* Force hide desktop centered links on mobile */
+  }
+
+  /* Reduce Hero Padding on Mobile */
+  .hero-section {
+    padding-top: 80px;
+    padding-bottom: 60px;
+  }
+
+  /* Adjust scroll offset for mobile */
+  section[id] {
+    scroll-margin-top: 40px;
+  }
+
+  .nav-link-desktop {
+    display: none !important;
+  }
+
+
+
+  .mobile-nav-link {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
   .landing-nav {
     padding: 16px 20px;
   }
 
-  .landing-nav-actions {
+
+  .landing-nav-links {
     display: none;
-    /* Hide default nav on mobile */
+    /* Hide via flex/block toggle, but since we used absolute, ensure it's hidden */
+  }
+
+  .mobile-nav-controls {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
   }
 
   .mobile-menu-toggle {
     display: block;
     /* Show hamburger */
+    z-index: 60;
+    /* Ensure above overlay */
+  }
+
+  /* Nav Actions for mobile - HIDE DESKTOP ACTIONS */
+  .landing-nav-actions {
+    display: none !important;
+  }
+
+  /* Trusted/Community Badge Margin Fix */
+  .section-header.align-right .hero-badge {
+    margin-right: 0 !important;
+    /* Align to right edge of container */
+  }
+
+  /* Ensure container padding is respected so it's not "too close" to screen edge */
+  .testimonials-section,
+  .how-section,
+  .features-section,
+  .faq-section {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .testimonials-grid,
+  .how-steps,
+  .faq-container {
+    width: 100%;
+    /* Ensure it fits in padding */
   }
 
   /* When open, show items in overlay */
@@ -650,15 +1038,195 @@
   }
 
   .hero-title {
-    font-size: 40px;
+    font-size: 36px;
+    /* Decrease from 40px */
+  }
+
+  .section-title {
+    font-size: 32px;
+    /* Decrease from 48px/default */
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+    /* Decrease from 18px */
+    margin-bottom: 32px;
+  }
+
+  .section-header {
+    margin-bottom: 24px;
+    align-items: flex-start !important;
+    /* Force start */
+    text-align: left !important;
+    /* Force left */
+    padding: 0;
+  }
+
+  .section-header.align-left,
+  .section-header.align-left>* {
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+  }
+
+  .section-header.align-right {
+    align-items: flex-end !important;
+    text-align: right !important;
+  }
+
+  /* Fix How Steps container alignment */
+  .how-steps {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  /* Mobile Hero Buttons */
+  .hero-actions {
+    flex-direction: row;
+    gap: 12px;
+    margin-bottom: 48px;
+    width: 100%;
+    /* Ensure container is full width */
+  }
+
+  .hero-actions .landing-btn {
+    flex: 1;
+    /* Both buttons take equal full width space */
+    text-align: center;
+    justify-content: center;
+  }
+
+  .landing-btn {
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    white-space: nowrap;
+  }
+
+  /* Hide Blob on Mobile to reduce clutter */
+  .hero-blob {
+    display: none;
   }
 
   .features-grid,
-  .pricing-grid,
   .testimonials-grid,
-  .footer-content,
-  .how-steps {
+  .footer-content {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  /* Pricing Swipe on Mobile */
+  .pricing-grid {
+    display: flex;
+    /* Switch to flexrow */
+    overflow-x: auto;
+    /* Enable scroll */
+    scroll-snap-type: x mandatory;
+    /* Snap behavior */
+    gap: 16px;
+    padding-bottom: 24px;
+    /* Space for scrollbar/touch */
+    margin-left: -24px;
+    /* Pull into padding */
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 24px;
+    /* Fix top cut off */
+    /* Add end spacing */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+  }
+
+  .pricing-grid::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+  }
+
+  .pricing-card {
+    min-width: 75vw;
+    /* Show most of card, peek next */
+    scroll-snap-align: center;
+    /* Snap to center */
+    margin-bottom: 0;
+    /* Remove stack margin */
+  }
+
+  /* How It Works Mobile */
+  .how-steps {
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 24px;
+    position: relative;
+    /* Anchor for line */
+  }
+
+  .how-steps::before {
+    display: block;
+    /* Show line on mobile */
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 16px;
+    /* Center of 32px circle */
+    width: 1px;
+    height: auto;
+    right: auto;
+    background: linear-gradient(180deg,
+        rgba(56, 189, 248, 0) 0%,
+        rgba(56, 189, 248, 0.3) 15%,
+        rgba(56, 189, 248, 0.3) 85%,
+        rgba(56, 189, 248, 0) 100%);
+    z-index: 0;
+  }
+
+  .how-step {
+    flex-direction: row;
+    /* Horizontal step layout for mobile */
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    margin: 0;
+    /* Reset margin */
+    flex-shrink: 0;
+    margin-top: -2px;
+    /* Align with title */
+    background: #050505;
+    /* Cover line behind */
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-card {
+    padding: 0;
+    width: 100%;
+  }
+
+  .step-title {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+  }
+
+  /* Footer Mobile */
+  .footer-content {
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
   }
 }
