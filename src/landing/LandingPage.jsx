@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check } from 'lucide-react';
+import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check, ChevronDown, ChevronUp, Instagram, Twitter, Facebook } from 'lucide-react';
 import './landing.css';
 
 const translations = {
@@ -18,6 +18,16 @@ const translations = {
             createMenu: 'Create Menu',
             viewDemo: 'View Demo'
         },
+        how: {
+            title: 'How It Works',
+            subtitle: 'Setup takes less than 5 minutes.',
+            step1: 'Create Your Menu',
+            step1Desc: 'Upload your items, photos, and prices in our easy admin dashboard.',
+            step2: 'Print QR Codes',
+            step2Desc: 'Download your unique QR code and place it on tables.',
+            step3: 'Guests Order',
+            step3Desc: 'Customers scan, browse, and order directly from their phone.'
+        },
         features: {
             instantUpdates: 'Instant Updates',
             instantUpdatesDesc: 'Change prices, hide out-of-stock items, and update photos instantly. No re-printing.',
@@ -31,6 +41,15 @@ const translations = {
             waitersDesc: 'Special mode for staff to visually explain dishes to guests.',
             tracking: 'Order Tracking',
             trackingDesc: 'Real-time status updates and estimated prep times to keep guests informed.'
+        },
+        testimonials: {
+            title: 'Trusted by Venues',
+            t1: "Since switching to Qarta, our order volume increased by 20%. Customers love the photos!",
+            a1: "Stefan, Cafe Skopje",
+            t2: "The real-time updates are a lifesaver. We never have to explain 'sold out' items anymore.",
+            a2: "Elena, Bistro 5",
+            t3: "Setup was incredibly easy. We were up and running in 10 minutes.",
+            a3: "Arben, Lounge Bar"
         },
         pricing: {
             title: 'Simple, Transparent Pricing',
@@ -50,6 +69,31 @@ const translations = {
                 customDomain: 'Custom Domain Support'
             },
             cta: 'Start Now'
+        },
+        faq: {
+            title: 'Frequently Asked Questions',
+            q1: 'Do I need special hardware?',
+            a1: 'No! Qarta works on any smartphone, tablet, or computer. You just need a device to receive orders.',
+            q2: 'Can I change my menu anytime?',
+            a2: 'Yes, updates are instant. Add items, change prices, or hide sold-out dishes in seconds.',
+            q3: 'Is there a free trial?',
+            a3: 'Yes, you can try Qarta completely free for 14 days. No credit card required.',
+            q4: 'Do you support other languages?',
+            a4: 'We support English, Macedonian, and Albanian out of the box. Contact us for more.'
+        },
+        footer: {
+            made: 'Made for hospitality.',
+            product: 'Product',
+            features: 'Features',
+            pricing: 'Pricing',
+            login: 'Login',
+            company: 'Company',
+            about: 'About',
+            contact: 'Contact',
+            legal: 'Legal',
+            privacy: 'Privacy',
+            terms: 'Terms',
+            copyright: '© 2025 Qarta. All rights reserved.'
         }
     },
     mk: {
@@ -65,6 +109,16 @@ const translations = {
             createMenu: 'Креирај Мени',
             viewDemo: 'Види Демо'
         },
+        how: {
+            title: 'Како работи',
+            subtitle: 'Поставувањето трае помалку од 5 минути.',
+            step1: 'Креирај Мени',
+            step1Desc: 'Внесете артикли, слики и цени во нашиот административен панел.',
+            step2: 'Испечати QR',
+            step2Desc: 'Симнете го вашиот QR код и ставете го на масите.',
+            step3: 'Нарачки',
+            step3Desc: 'Гостите скенираат, разгледуваат и нарачуваат од нивниот телефон.'
+        },
         features: {
             instantUpdates: 'Инстант Ажурирање',
             instantUpdatesDesc: 'Менувајте цени и достапност веднаш. Нема потреба од препечатување.',
@@ -78,6 +132,15 @@ const translations = {
             waitersDesc: 'Специјален поглед за персоналот за презентација на храната.',
             tracking: 'Следење Нарачки',
             trackingDesc: 'Статус на нарачка и време на подготовка во реално време.'
+        },
+        testimonials: {
+            title: 'Доверба од Рестораните',
+            t1: "Откако го користиме Qarta, нарачките се зголемија за 20%. Гостите ги обожаваат сликите!",
+            a1: "Стефан, Кафе Скопје",
+            t2: "Ажурирањето во реално време е спас. Не мора да објаснуваме што немаме на залиха.",
+            a2: "Елена, Бистро 5",
+            t3: "Поставувањето беше прелесно. Бевме спремни за 10 минути.",
+            a3: "Арбен, Lounge Bar"
         },
         pricing: {
             title: 'Едноставни Цени',
@@ -97,6 +160,31 @@ const translations = {
                 customDomain: 'Сопствен Домен'
             },
             cta: 'Избери План'
+        },
+        faq: {
+            title: 'Често Поставувани Прашања',
+            q1: 'Дали ми треба специјален хардвер?',
+            a1: 'Не! Qarta работи на секој телефон, таблет или компјутер.',
+            q2: 'Можам ли да го менувам менито било кога?',
+            a2: 'Да, промените се моментални. Додадете јадења или сменете цени за секунда.',
+            q3: 'Има ли бесплатен период?',
+            a3: 'Да, можете да го пробате Qarta бесплатно 14 дена.',
+            q4: 'Кои јазици се поддржани?',
+            a4: 'Поддржуваме Англиски, Македонски и Албански.'
+        },
+        footer: {
+            made: 'Направено за угостителство.',
+            product: 'Продукт',
+            features: 'Карактеристики',
+            pricing: 'Цени',
+            login: 'Најава',
+            company: 'Компанија',
+            about: 'За нас',
+            contact: 'Контакт',
+            legal: 'Правно',
+            privacy: 'Приватност',
+            terms: 'Услови',
+            copyright: '© 2025 Qarta. Сите права задржани.'
         }
     },
     sq: {
@@ -112,6 +200,16 @@ const translations = {
             createMenu: 'Krijo Menu',
             viewDemo: 'Shiko Demo'
         },
+        how: {
+            title: 'Si Punon',
+            subtitle: 'Konfigurimi zgjat më pak se 5 minuta.',
+            step1: 'Krijo Menunë',
+            step1Desc: 'Ngarko artikujt, fotot dhe çmimet në panelin tonë.',
+            step2: 'Printo QR',
+            step2Desc: 'Shkarko kodin unik QR dhe vendose në tavolina.',
+            step3: 'Mysafirët Porosisin',
+            step3Desc: 'Klientët skanojnë, shfletojnë dhe porosisin nga telefoni.'
+        },
         features: {
             instantUpdates: 'Përditësime të Çastit',
             instantUpdatesDesc: 'Ndryshoni çmimet dhe disponueshmërinë menjëherë.',
@@ -125,6 +223,15 @@ const translations = {
             waitersDesc: 'Pamje speciale për stafin për të shpjeguar ushqimet.',
             tracking: 'Gjurmimi i Porosisë',
             trackingDesc: 'Statusi në kohë reale dhe koha e përgatitjes.'
+        },
+        testimonials: {
+            title: 'Besuar nga Bizneset',
+            t1: "Që kur përdorim Qarta, porositë u rritën me 20%. Klientët i pëlqejnë fotot!",
+            a1: "Stefan, Cafe Skopje",
+            t2: "Përditësimet në kohë reale janë shpëtim. Nuk ka më 'mbaroi'.",
+            a2: "Elena, Bistro 5",
+            t3: "Konfigurimi ishte shumë i lehtë. Ishim gati në 10 minuta.",
+            a3: "Arben, Lounge Bar"
         },
         pricing: {
             title: 'Çmime Transparente',
@@ -144,13 +251,43 @@ const translations = {
                 customDomain: 'Domen i Personalizuar'
             },
             cta: 'Fillo Tani'
+        },
+        faq: {
+            title: 'Pyetjet e Shpeshta',
+            q1: 'A më duhet pajisje speciale?',
+            a1: 'Jo! Qarta punon në çdo telefon, tablet ose kompjuter.',
+            q2: 'A mund të ndryshoj menunë?',
+            a2: 'Po, ndryshimet janë të menjëhershme. Shtoni artikuj ose ndryshoni çmimet.',
+            q3: 'A ka provë falas?',
+            a3: 'Po, mund ta provoni Qarta falas për 14 ditë.',
+            q4: 'Çfarë gjuhësh mbështesni?',
+            a4: 'Ne mbështesim Anglisht, Maqedonisht dhe Shqip.'
+        },
+        footer: {
+            made: 'Ndërtuar për mikpritjen.',
+            product: 'Produkti',
+            features: 'Veçoritë',
+            pricing: 'Çmimet',
+            login: 'Kyçu',
+            company: 'Kompania',
+            about: 'Rreth Nesh',
+            contact: 'Kontakt',
+            legal: 'Ligjore',
+            privacy: 'Privatësia',
+            terms: 'Kushtet',
+            copyright: '© 2025 Qarta. Të gjitha të drejtat e rezervuara.'
         }
     }
 };
 
 const LandingPage = () => {
     const [lang, setLang] = useState('en');
+    const [openFaq, setOpenFaq] = useState(null);
     const t = translations[lang];
+
+    const toggleFaq = (index) => {
+        setOpenFaq(openFaq === index ? null : index);
+    };
 
     return (
         <div className="landing-page">
@@ -238,7 +375,7 @@ const LandingPage = () => {
                 >
                     <div className="mockup-frame">
                         <div className="mockup-inner">
-                            {/* Simple UI Representation - Keeping neutral colors */}
+                            {/* Simple UI Representation */}
                             <div style={{ width: '100%', height: '100%', display: 'flex', gap: '2px' }}>
                                 <div style={{ flex: 1, background: '#0f172a', padding: '24px' }}>
                                     <div style={{ width: '40%', height: '24px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', marginBottom: '32px' }} />
@@ -267,6 +404,38 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </motion.div>
+            </section>
+
+            {/* How It Works */}
+            <section className="how-section">
+                <div style={{ textAlign: 'center' }}>
+                    <h2 className="section-title">{t.how.title}</h2>
+                    <p className="section-subtitle">{t.how.subtitle}</p>
+                </div>
+
+                <div className="how-steps">
+                    <div className="how-step">
+                        <div className="step-number">1</div>
+                        <div className="step-card">
+                            <h3 className="step-title">{t.how.step1}</h3>
+                            <p className="step-desc">{t.how.step1Desc}</p>
+                        </div>
+                    </div>
+                    <div className="how-step">
+                        <div className="step-number">2</div>
+                        <div className="step-card">
+                            <h3 className="step-title">{t.how.step2}</h3>
+                            <p className="step-desc">{t.how.step2Desc}</p>
+                        </div>
+                    </div>
+                    <div className="how-step">
+                        <div className="step-number">3</div>
+                        <div className="step-card">
+                            <h3 className="step-title">{t.how.step3}</h3>
+                            <p className="step-desc">{t.how.step3Desc}</p>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             {/* Features */}
@@ -301,6 +470,30 @@ const LandingPage = () => {
                         icon={<CheckCircle size={24} />}
                         title={t.features.tracking}
                         desc={t.features.trackingDesc}
+                    />
+                </div>
+            </section>
+
+            {/* Testimonials */}
+            <section className="testimonials-section">
+                <div style={{ textAlign: 'center' }}>
+                    <h2 className="section-title">{t.testimonials.title}</h2>
+                </div>
+                <div className="testimonials-grid">
+                    <TestimonialCard
+                        quote={t.testimonials.t1}
+                        author={t.testimonials.a1}
+                        initials="S"
+                    />
+                    <TestimonialCard
+                        quote={t.testimonials.t2}
+                        author={t.testimonials.a2}
+                        initials="E"
+                    />
+                    <TestimonialCard
+                        quote={t.testimonials.t3}
+                        author={t.testimonials.a3}
+                        initials="A"
                     />
                 </div>
             </section>
@@ -357,6 +550,66 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* FAQ */}
+            <section className="faq-section">
+                <h2 className="section-title" style={{ textAlign: 'center' }}>{t.faq.title}</h2>
+                <div className="faq-container">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="faq-item">
+                            <button className="faq-question" onClick={() => toggleFaq(i)}>
+                                {t.faq[`q${i}`]}
+                                {openFaq === i ? <ChevronUp /> : <ChevronDown />}
+                            </button>
+                            {openFaq === i && (
+                                <div className="faq-answer">
+                                    {t.faq[`a${i}`]}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="landing-footer">
+                <div className="footer-content">
+                    <div className="footer-brand">
+                        <h2>Qarta.</h2>
+                        <p>{t.footer.made}</p>
+                        <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                            <Instagram size={20} />
+                            <Twitter size={20} />
+                            <Facebook size={20} />
+                        </div>
+                    </div>
+                    <div className="footer-col">
+                        <h3>{t.footer.product}</h3>
+                        <ul>
+                            <li><Link to="/">{t.footer.features}</Link></li>
+                            <li><Link to="/">{t.footer.pricing}</Link></li>
+                            <li><Link to="/login">{t.footer.login}</Link></li>
+                        </ul>
+                    </div>
+                    <div className="footer-col">
+                        <h3>{t.footer.company}</h3>
+                        <ul>
+                            <li><a href="#">{t.footer.about}</a></li>
+                            <li><a href="#">{t.footer.contact}</a></li>
+                        </ul>
+                    </div>
+                    <div className="footer-col">
+                        <h3>{t.footer.legal}</h3>
+                        <ul>
+                            <li><a href="#">{t.footer.privacy}</a></li>
+                            <li><a href="#">{t.footer.terms}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="footer-bottom">
+                    <div>{t.footer.copyright}</div>
+                </div>
+            </footer>
         </div>
     );
 };
@@ -366,6 +619,18 @@ const FeatureCard = ({ icon, title, desc }) => (
         <div className="feature-icon">{icon}</div>
         <h3 className="feature-title">{title}</h3>
         <p className="feature-desc">{desc}</p>
+    </div>
+);
+
+const TestimonialCard = ({ quote, author, initials }) => (
+    <div className="testimonial-card">
+        <div className="testimonial-quote">"{quote}"</div>
+        <div className="testimonial-author">
+            <div className="author-avatar">{initials}</div>
+            <div className="author-info">
+                <div>{author}</div>
+            </div>
+        </div>
     </div>
 );
 
