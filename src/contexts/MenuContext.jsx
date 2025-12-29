@@ -160,7 +160,7 @@ export const MenuProvider = ({ children }) => {
             status: 'Active',
             logo: '/logo.png',
             theme: {
-                primary: '#ff5f1f',
+                primary: '#0ea5e9',
                 background: '#ffffff',
                 surface: '#f8f8f8'
             },

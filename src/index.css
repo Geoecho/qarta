@@ -15,16 +15,16 @@
   --bg-app: #F5F5F7;
   --bg-surface: #FFFFFF;
   --bg-surface-secondary: #F0F0F2;
-  /* Lighter, less gray */
+
   --color-ink: #1D1D1F;
   --color-text-subtle: #86868B;
   --border-color: rgba(0, 0, 0, 0.08);
-  /* Subtle highlight border */
-  --color-primary: #FF5F1F;
-  /* Keep brand color or make it pop */
+
+  /* Primary Brand Color - Sky Blue */
+  --color-primary: #0ea5e9;
   --color-on-primary: #FFFFFF;
 
-  /* Premium Shadows (Light) - Clean & Modern */
+  /* Premium Shadows (Light) */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
@@ -32,16 +32,18 @@
 
 .dark {
   /* Dark Mode Overrides */
-  --bg-app: #121212;
-  /* True Black/Dark Gray for OLED feel */
-  --bg-surface: #1E1E1E;
-  --bg-surface-secondary: #2C2C2E;
-  /* Match lighter button bg */
+  --bg-app: #050505;
+  /* Blacker background for Landing consistency */
+  --bg-surface: #121212;
+  --bg-surface-secondary: #1E1E1E;
+
   --color-ink: #E0E6ED;
   --color-text-subtle: #9DA5B4;
   --border-color: rgba(255, 255, 255, 0.1);
-  /* --color-primary: #FF7D4F; REMOVED to allow injection */
-  --color-on-primary: #1A1D23;
+
+  /* Primary Brand Color - Sky Blue (Lighter for Dark Mode) */
+  --color-primary: #38bdf8;
+  --color-on-primary: #0f172a;
 
   /* Premium Shadows (Dark) */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);

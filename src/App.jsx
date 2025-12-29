@@ -227,7 +227,7 @@ const ClientApp = () => {
         href="/admin"
         style={{
           padding: '12px 24px',
-          background: '#ff5f1f',
+          background: '#0ea5e9',
           color: 'white',
           borderRadius: '100px',
           textDecoration: 'none',

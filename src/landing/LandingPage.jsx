@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check, ChevronDown, ChevronUp, Instagram, Twitter, Facebook } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Smartphone, Zap, Globe, LayoutTemplate, Coffee, CheckCircle, Check, ChevronDown, ChevronUp, Instagram, Twitter, Facebook, Menu, X } from 'lucide-react';
 import './landing.css';
 
 const translations = {
@@ -283,11 +283,15 @@ const translations = {
 const LandingPage = () => {
     const [lang, setLang] = useState('en');
     const [openFaq, setOpenFaq] = useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const t = translations[lang];
 
     const toggleFaq = (index) => {
         setOpenFaq(openFaq === index ? null : index);
     };
+
+    // Close mobile menu when hash link clicked
+    const closeMenu = () => setIsMobileMenuOpen(false);
 
     return (
         <div className="landing-page">
@@ -295,6 +299,7 @@ const LandingPage = () => {
             <nav className="landing-nav">
                 <div className="landing-logo">Qarta.</div>
 
+                {/* Desktop Actions */}
                 <div className="landing-nav-actions">
                     <div style={{ display: 'flex', gap: '8px' }}>
                         {['en', 'mk', 'sq'].map((l) => (
@@ -315,7 +320,45 @@ const LandingPage = () => {
                         {t.nav.getStarted}
                     </Link>
                 </div>
+
+                {/* Mobile Menu Toggle */}
+                <button className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
             </nav>
+
+            {/* Mobile Menu Overlay */}
+            <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`}>
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                    {['en', 'mk', 'sq'].map((l) => (
+                        <button
+                            key={l}
+                            onClick={() => { setLang(l); }}
+                            className={`landing-lang-btn ${lang === l ? 'active' : ''}`}
+                            style={{ fontSize: '16px', padding: '10px 20px' }}
+                        >
+                            {l.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
+
+                <Link
+                    to="/login"
+                    onClick={closeMenu}
+                    style={{ color: 'white', textDecoration: 'none', fontSize: '24px', fontWeight: 600 }}
+                >
+                    {t.nav.login}
+                </Link>
+
+                <Link
+                    to="/login?mode=signup"
+                    onClick={closeMenu}
+                    className="landing-btn landing-btn-primary"
+                    style={{ padding: '16px 48px', fontSize: '20px' }}
+                >
+                    {t.nav.getStarted}
+                </Link>
+            </div>
 
             {/* Hero */}
             <section className="hero-section">
