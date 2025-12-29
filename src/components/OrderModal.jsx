@@ -327,6 +327,29 @@ const OrderModal = ({ isOpen, onClose, language = 'en', restaurantSlug = 'defaul
                                 >
                                     {t.close[language]}
                                 </button>
+
+                                {(activeOrder?.status === 'accepted' || activeOrder?.status === 'rejected' || activeOrder?.status === 'completed') && (
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('Start a new order? This will clear the current view.')) {
+                                                cancelOrder(); // Actually resetOrder via context alias if mapped, or direct call
+                                                onClose();
+                                            }
+                                        }}
+                                        style={{
+                                            marginTop: '12px',
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: 'var(--color-text-subtle)',
+                                            fontSize: '13px',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            textDecoration: 'underline'
+                                        }}
+                                    >
+                                        Start New Order
+                                    </button>
+                                )}
                             </motion.div>
                         )}
                     </motion.div>

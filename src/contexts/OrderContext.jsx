@@ -201,7 +201,12 @@ export const OrderProvider = ({ children }) => {
         setOrderStatus('idle');
         setCurrentOrderId(null);
         setActiveOrder(null);
-        localStorage.removeItem('activeOrderId');
+        if (currentSlug) {
+            localStorage.removeItem(`activeOrderId_${currentSlug}`);
+        } else {
+            // Fallback for safety
+            localStorage.removeItem('activeOrderId');
+        }
         clearCart();
     };
 
