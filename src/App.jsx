@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrowserRouter, Routes, Route, useParams, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { OrderProvider, useOrder } from './contexts/OrderContext';
 import { MenuProvider, usePlatform } from './contexts/MenuContext';
 import BrandHeader from './components/BrandHeader';
@@ -14,6 +14,7 @@ import { ShoppingBag } from 'lucide-react';
 import { AdminDashboard } from './admin/AdminDashboard';
 import Login from './admin/Login';
 import CafeOrdersDashboard from './admin/CafeOrdersDashboard';
+import LandingPage from './landing/LandingPage';
 import RemainingTime from './components/RemainingTime';
 
 /* 
@@ -359,9 +360,6 @@ const ClientApp = () => {
                   {activeOrder?.status === 'completed' && t.ready[language]}
                   {activeOrder?.status === 'rejected' && t.declined[language]}
                 </span>
-
-                {/* Timer Helper Component */}
-                {/* Defined inline for simplicity in this context, or could be moved out */}
               </div>
             </motion.div>
           )}
@@ -501,12 +499,15 @@ const ClientApp = () => {
 /* 
    App Routing 
 */
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
+    <Router>
       <MenuProvider>
         <OrderProvider>
           <Routes>
+            {/* Landing Page at Root */}
+            <Route path="/" element={<LandingPage />} />
+
             {/* Admin Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={
@@ -516,19 +517,16 @@ function App() {
             } />
 
             {/* Client Routes */}
-            {/* Default Route (no slug) -> Load default restaurant */}
-            <Route path="/" element={<ClientApp />} />
-            {/* Cafe Orders Dashboard */}
-            <Route path="/:slug/orders" element={<CafeOrdersDashboard />} />
-            {/* Dynamic Route (slug) -> Load specific restaurant */}
             <Route path="/:slug" element={<ClientApp />} />
+            <Route path="/:slug/orders" element={<CafeOrdersDashboard />} />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </OrderProvider>
       </MenuProvider>
-    </BrowserRouter>
+    </Router>
   );
-}
+};
 
 export default App;
-
-
