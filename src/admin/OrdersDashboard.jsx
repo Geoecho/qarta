@@ -40,11 +40,6 @@ export const OrdersDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // No legacy useEffect for realtime necessary
-    /* 
-    Legacy Firestore code removed
-    */
-
     // Foolproof Backup: Polling every 15s to force sync if socket fails
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -100,7 +95,7 @@ export const OrdersDashboard = () => {
     };
 
     if (loading) return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px', color: 'var(--text-muted)' }}>
             <div>Loading orders...</div>
         </div>
     );
@@ -109,38 +104,38 @@ export const OrdersDashboard = () => {
     const completedOrders = orders.filter(o => ['completed', 'rejected'].includes(o.status));
 
     const sendTestOrder = async () => {
-        // ... removed test order logic as it's complex to replicate with API easily without auth context issues
-        // Simplified: use real flow.
         alert("Please test by making an order on the home page.");
     };
 
-    /* TICKET MODE REMOVED - FULL DB ACTIVE */
     if (error === 'TICKET_MODE') return null;
 
     return (
         <div className="orders-dashboard">
-            <div style={{ padding: '16px', background: '#eff6ff', borderRadius: '12px', marginBottom: '24px', border: '1px dashed #3b82f6' }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#1e40af' }}>⚠️ Troubleshooting</h4>
-                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1e3a8a' }}>
+            <div style={{ padding: '16px', background: 'rgba(56, 189, 248, 0.1)', borderRadius: '12px', marginBottom: '24px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertCircle size={16} /> Troubleshooting
+                </h4>
+                <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#bae6fd' }}>
                     If orders don't show, ensure Firebase Rules are public.
                 </p>
-                <button onClick={sendTestOrder} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                <button onClick={sendTestOrder} className="admin-btn admin-btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
                     Send Test Order
                 </button>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Incoming Orders</h2>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>Incoming Orders</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button
                         onClick={manualRefresh}
-                        style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600 }}
+                        className="admin-btn admin-btn-ghost"
+                        style={{ padding: '8px 12px', fontSize: '12px' }}
                     >
                         <RefreshCw size={14} /> Refresh
                     </button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', boxShadow: '0 0 10px #22c55e' }}></div>
-                        <span style={{ fontSize: '14px', fontWeight: 600 }}>Live Feed</span>
+                        <div style={{ width: '8px', height: '8px', background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 10px #4ade80' }}></div>
+                        <span style={{ fontSize: '14px', fontWeight: 600, color: '#4ade80' }}>Live Feed</span>
                     </div>
                 </div>
             </div>
@@ -156,31 +151,54 @@ export const OrdersDashboard = () => {
             </div>
 
             {activeOrders.length === 0 && (
-                <div style={{ padding: '40px', textAlign: 'center', background: 'var(--bg-surface)', borderRadius: '16px', border: '1px dashed var(--border-color)' }}>
-                    <ShoppingBag size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
-                    <p style={{ opacity: 0.6 }}>No active orders right now.</p>
+                <div className="admin-card" style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShoppingBag size={48} style={{ opacity: 0.2, margin: '0 auto 16px', color: 'white' }} />
+                    <p style={{ opacity: 0.6, color: 'var(--text-muted)' }}>No active orders right now.</p>
                 </div>
             )}
 
             <h2 style={{ marginTop: '60px', fontSize: '20px', fontWeight: 700, marginBottom: '20px' }}>Past Orders</h2>
-            <div className="orders-list">
-                {completedOrders.length === 0 && <p style={{ opacity: 0.5 }}>No past orders.</p>}
-                {completedOrders.map(order => (
-                    <div key={order.id} className="admin-card" style={{ padding: '16px', opacity: 0.7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                            <span style={{ fontFamily: 'monospace', background: 'var(--bg-app)', padding: '4px 8px', borderRadius: '4px' }}>#{order.id.slice(-4)}</span>
-                            <span>{new Date(order.createdAt?.seconds * 1000).toLocaleTimeString()}</span>
-                            <span>{order.items?.length} items</span>
-                        </div>
-                        <span style={{
-                            textTransform: 'capitalize',
-                            fontWeight: 600,
-                            color: order.status === 'completed' ? 'var(--color-primary)' : '#ef4444'
-                        }}>
-                            {order.status}
-                        </span>
-                    </div>
-                ))}
+
+            <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+                <table className="order-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Time</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {completedOrders.length === 0 && (
+                            <tr>
+                                <td colSpan="5" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No past orders found.</td>
+                            </tr>
+                        )}
+                        {completedOrders.map(order => (
+                            <tr key={order.id}>
+                                <td style={{ fontFamily: 'monospace', color: '#38bdf8' }}>#{order.id.slice(-4)}</td>
+                                <td>{new Date(order.createdAt?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                <td>{order.items?.length} items</td>
+                                <td style={{ fontWeight: 600 }}>${order.total?.toFixed(2)}</td>
+                                <td>
+                                    <span style={{
+                                        textTransform: 'capitalize',
+                                        fontWeight: 600,
+                                        fontSize: '13px',
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        background: order.status === 'completed' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                        color: order.status === 'completed' ? '#4ade80' : '#f87171'
+                                    }}>
+                                        {order.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
@@ -209,23 +227,25 @@ const OrderCard = ({ order, onUpdate }) => {
 
     return (
         <div className="admin-card" style={{
-            borderLeft: order.status === 'placed' ? '6px solid #f59e0b' : '6px solid #10b981',
+            borderLeft: order.status === 'placed' ? '4px solid #f59e0b' : '4px solid #10b981',
+            background: 'var(--glass-surface)',
             animation: order.status === 'placed' ? 'pulse-border 2s infinite' : 'none'
         }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', alignItems: 'flex-start' }}>
                 <div>
-                    <div style={{ fontWeight: 800, fontSize: '18px' }}>Order #{order.id.slice(-4)}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                    <div style={{ fontWeight: 800, fontSize: '18px', color: 'white' }}>Order #{order.id.slice(-4)}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
                         {elapsed} mins ago
                     </div>
                 </div>
                 <span style={{
                     padding: '6px 12px',
                     borderRadius: '100px',
-                    background: order.status === 'placed' ? '#fef3c7' : '#d1fae5',
-                    color: order.status === 'placed' ? '#b45309' : '#065f46',
+                    background: order.status === 'placed' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                    color: order.status === 'placed' ? '#fbbf24' : '#34d399',
                     fontSize: '12px',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    border: '1px solid currentColor'
                 }}>
                     {order.status.toUpperCase()}
                 </span>
@@ -234,16 +254,16 @@ const OrderCard = ({ order, onUpdate }) => {
             <div style={{ marginBottom: '20px', maxHeight: '200px', overflowY: 'auto' }}>
                 {order.items && order.items.map((item, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '15px' }}>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            <span style={{ fontWeight: 700 }}>{item.quantity}x</span>
+                        <div style={{ display: 'flex', gap: '8px', color: 'var(--text-muted)' }}>
+                            <span style={{ fontWeight: 700, color: 'white' }}>{item.quantity}x</span>
                             <span>{item.name}</span>
                         </div>
                         <span style={{ opacity: 0.7 }}>${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                 ))}
-                <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '12px', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '16px' }}>
+                <div style={{ borderTop: '1px solid var(--glass-border)', marginTop: '12px', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '16px' }}>
                     <span>Total</span>
-                    <span>${order.total?.toFixed(2)}</span>
+                    <span style={{ color: '#38bdf8' }}>${order.total?.toFixed(2)}</span>
                 </div>
             </div>
 
@@ -253,37 +273,22 @@ const OrderCard = ({ order, onUpdate }) => {
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button
                                 onClick={() => setIsAccepting(true)}
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    background: 'var(--color-primary)',
-                                    color: 'white',
-                                    borderRadius: '12px',
-                                    border: 'none',
-                                    fontWeight: 600,
-                                    cursor: 'pointer'
-                                }}
+                                className="admin-btn admin-btn-primary"
+                                style={{ flex: 1, justifyContent: 'center' }}
                             >
                                 Accept Order
                             </button>
                             <button
                                 onClick={() => onUpdate(order.id, 'rejected')}
-                                style={{
-                                    padding: '12px 16px',
-                                    background: '#fee2e2',
-                                    color: '#991b1b',
-                                    borderRadius: '12px',
-                                    border: 'none',
-                                    fontWeight: 600,
-                                    cursor: 'pointer'
-                                }}
+                                className="admin-btn admin-btn-danger"
+                                style={{ padding: '12px 16px' }}
                             >
                                 Reject
                             </button>
                         </div>
                     ) : (
-                        <div style={{ background: 'var(--bg-app)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>Estimated Time (minutes)</label>
+                        <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-muted)' }}>Estimated Time (minutes)</label>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <input
                                     type="number"
@@ -294,19 +299,17 @@ const OrderCard = ({ order, onUpdate }) => {
                                 />
                                 <button
                                     onClick={handleAccept}
+                                    className="admin-btn"
                                     style={{
                                         flex: 1,
                                         background: '#10b981',
                                         color: 'white',
-                                        borderRadius: '8px',
-                                        border: 'none',
-                                        fontWeight: 600,
-                                        cursor: 'pointer'
+                                        justifyContent: 'center'
                                     }}
                                 >
                                     Confirm
                                 </button>
-                                <button onClick={() => setIsAccepting(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 8px' }}>
+                                <button onClick={() => setIsAccepting(false)} className="admin-btn admin-btn-ghost" style={{ padding: '0 8px' }}>
                                     <X size={20} />
                                 </button>
                             </div>
@@ -317,25 +320,18 @@ const OrderCard = ({ order, onUpdate }) => {
 
             {order.status === 'accepted' && (
                 <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontSize: '15px', color: '#64748b', background: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontSize: '15px', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
                         <Clock size={18} />
-                        <span style={{ fontWeight: 500 }}>Ready in <strong>~{order.estimatedMinutes} mins</strong></span>
+                        <span style={{ fontWeight: 500 }}>Ready in <strong style={{ color: 'white' }}>~{order.estimatedMinutes} mins</strong></span>
                     </div>
                     <button
                         onClick={() => onUpdate(order.id, 'completed')}
+                        className="admin-btn admin-btn-ghost"
                         style={{
                             width: '100%',
-                            padding: '12px',
-                            background: 'white',
-                            border: '2px solid #e2e8f0',
-                            borderRadius: '12px',
-                            fontWeight: 600,
-                            color: '#475569',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '8px'
+                            borderColor: '#38bdf8',
+                            color: '#38bdf8'
                         }}
                     >
                         <Check size={18} />

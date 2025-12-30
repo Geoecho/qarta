@@ -10,6 +10,42 @@ import { OrdersDashboard } from './OrdersDashboard';
 import { ALLERGENS, getAllergenDetails } from '../utils/allergenHelper';
 import CloudinaryUploadButton from '../components/CloudinaryUploadButton';
 
+// --- Main Controller Component ---
+
+export const AdminDashboard = () => {
+    const [view, setView] = useState('restaurants');
+    const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
+    const { restaurants } = usePlatform();
+
+    const selectedRestaurant = restaurants.find(r => r.id === selectedRestaurantId);
+
+    // If we are in menu-editor but no restaurant is selected (e.g. reload or bug), go back
+    useEffect(() => {
+        if (view === 'menu-editor' && !selectedRestaurant) {
+            setView('restaurants');
+        }
+    }, [view, selectedRestaurant]);
+
+    return (
+        <AdminLayout
+            view={view}
+            setView={setView}
+            onBack={view !== 'restaurants' ? () => setView('restaurants') : null}
+        >
+            {view === 'restaurants' && (
+                <RestaurantList onSelect={(id) => {
+                    setSelectedRestaurantId(id);
+                    setView('menu-editor');
+                }} />
+            )}
+
+            {view === 'menu-editor' && selectedRestaurant && (
+                <MenuEditor restaurant={selectedRestaurant} />
+            )}
+        </AdminLayout>
+    );
+};
+
 // --- Components ---
 
 const AdminLayout = ({ children, onBack, view, setView }) => {
@@ -30,8 +66,8 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
         <div className="admin-container">
             {/* Mobile Header */}
             <div className="admin-mobile-header">
-                <div style={{ fontWeight: 700, fontSize: '18px' }}>Admin Panel</div>
-                <button onClick={() => setSidebarOpen(true)} style={{ background: 'transparent', border: 'none', color: 'var(--color-ink)' }}>
+                <div style={{ fontWeight: 700, fontSize: '18px', color: 'white' }}>Admin Panel</div>
+                <button onClick={() => setSidebarOpen(true)} style={{ background: 'transparent', border: 'none', color: 'white' }}>
                     <MenuIcon size={24} />
                 </button>
             </div>
@@ -44,20 +80,13 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
 
             {/* Sidebar */}
             <div className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '40px', height: '40px', borderRadius: '8px',
-                            backgroundColor: 'var(--color-primary)', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center',
-                            color: 'var(--color-on-primary)', fontWeight: 700
-                        }}>A</div>
-                        <span style={{ fontSize: '18px', fontWeight: 700 }}>Admin Panel</span>
-                    </div>
+                <div className="admin-sidebar-header">
+                    <div className="admin-logo-mark">Q</div>
+                    <span style={{ fontSize: '20px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>Qarta.</span>
                     <button
                         className="mobile-only"
                         onClick={() => setSidebarOpen(false)}
-                        style={{ display: window.innerWidth > 768 ? 'none' : 'block', background: 'transparent', border: 'none', color: 'var(--color-ink)' }}
+                        style={{ marginLeft: 'auto', display: window.innerWidth > 768 ? 'none' : 'block', background: 'transparent', border: 'none', color: 'white' }}
                     >
                         <X size={24} />
                     </button>
@@ -83,11 +112,8 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
 
                 <button
                     onClick={handleLogout}
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px',
-                        border: 'none', background: 'transparent', color: 'var(--color-text-subtle)',
-                        cursor: 'pointer', fontSize: '14px', fontWeight: 600, marginTop: 'auto'
-                    }}
+                    className="sidebar-nav-item"
+                    style={{ marginTop: 'auto', color: '#64748b', background: 'rgba(0,0,0,0.3)' }}
                 >
                     <LogOut size={20} />
                     Logout
@@ -97,7 +123,7 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
             {/* Main Content */}
             <div className="admin-content">
                 {onBack && (
-                    <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', border: 'none', background: 'transparent', cursor: 'pointer', marginBottom: '24px', fontWeight: 600, color: 'var(--color-text-subtle)' }}>
+                    <button onClick={onBack} className="admin-btn admin-btn-ghost" style={{ marginBottom: '24px' }}>
                         <ArrowLeft size={16} /> Back to Restaurants
                     </button>
                 )}
@@ -108,14 +134,11 @@ const AdminLayout = ({ children, onBack, view, setView }) => {
 };
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-    <div onClick={onClick} style={{
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '12px 16px', borderRadius: '12px',
-        backgroundColor: active ? 'var(--bg-surface-secondary)' : 'transparent',
-        color: active ? 'var(--color-ink)' : 'var(--color-text-subtle)',
-        cursor: 'pointer', fontSize: '14px', fontWeight: 600, transition: 'all 0.2s'
-    }}>
-        <Icon size={20} />
+    <div
+        onClick={onClick}
+        className={`sidebar-nav-item ${active ? 'active' : ''}`}
+    >
+        <Icon size={20} color={active ? '#38bdf8' : 'currentColor'} />
         {label}
     </div>
 );
@@ -125,39 +148,38 @@ const StatusBadge = () => {
 
     if (saveStatus === 'idle') return null;
 
-    let bg = '#f3f4f6';
-    let color = '#374151';
+    let bg = 'rgba(255,255,255,0.05)';
+    let color = '#94a3b8';
     let text = 'Ready';
 
     if (saveStatus === 'saving') {
-        bg = '#bfdbfe'; color = '#1e3a8a'; text = 'Saving...';
+        bg = 'rgba(56, 189, 248, 0.1)'; color = '#38bdf8'; text = 'Saving...';
     } else if (saveStatus === 'success') {
-        bg = '#bbf7d0'; color = '#14532d'; text = 'Saved!';
+        bg = 'rgba(34, 197, 94, 0.1)'; color = '#4ade80'; text = 'Saved!';
     } else if (saveStatus === 'error') {
-        bg = '#fecaca'; color = '#7f1d1d'; text = 'Error!';
+        bg = 'rgba(239, 68, 68, 0.1)'; color = '#f87171'; text = 'Error!';
     }
 
     return (
         <div style={{
-            margin: '0 0 16px 0',
-            padding: '8px 12px',
-            borderRadius: '8px',
+            margin: '0 0 24px 0',
+            padding: '10px 16px',
+            borderRadius: '12px',
             backgroundColor: bg,
             color: color,
-            fontSize: '12px',
-            fontWeight: 700,
+            fontSize: '13px',
+            fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '10px',
+            border: '1px solid rgba(255,255,255,0.05)'
         }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 10px ${color}` }} />
             <div style={{ flex: 1 }}>{text}</div>
             {serverError && <div style={{ fontSize: 10 }}>{serverError.slice(0, 10)}...</div>}
         </div>
     );
 };
-
-// --- Sub-Views ---
 
 // --- Sub-Views ---
 
@@ -177,19 +199,14 @@ const RestaurantList = ({ onSelect }) => {
 
     return (
         <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '40px', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                    <h1 style={{ margin: '0 0 8px 0', fontFamily: 'var(--font-sans)', fontSize: '32px' }}>Restaurants</h1>
-                    <p style={{ margin: 0, color: 'var(--color-text-subtle)' }}>Manage all live client instances.</p>
+                    <h1 style={{ margin: '0 0 8px 0', fontSize: '36px', fontWeight: 800, letterSpacing: '-1px' }}>Restaurants</h1>
+                    <p style={{ margin: 0, color: 'var(--text-muted)' }}>Manage all live client instances.</p>
                 </div>
                 <button
                     onClick={() => setIsAddMode(true)}
-                    style={{
-                        backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                        border: 'none', padding: '12px 24px', borderRadius: '100px',
-                        fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: '8px'
-                    }}>
+                    className="admin-btn admin-btn-primary">
                     <Plus size={20} />
                     New Client
                 </button>
@@ -197,36 +214,31 @@ const RestaurantList = ({ onSelect }) => {
 
             {isAddMode && (
                 <form onSubmit={handleAdd} className="admin-card">
-                    <h3 style={{ margin: '0 0 16px 0' }}>Add New Restaurant</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <h3 style={{ margin: '0 0 24px 0' }}>Add New Restaurant</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
                         <input className="admin-input" placeholder="Restaurant Name" value={newRes.name} onChange={e => setNewRes({ ...newRes, name: e.target.value })} required />
                         <input className="admin-input" placeholder="Slug (URL path, e.g. 'netaville')" value={newRes.slug} onChange={e => setNewRes({ ...newRes, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })} required />
                     </div>
-                    <div style={{ fontSize: '13px', color: 'var(--color-text-subtle)', marginBottom: '16px' }}>
-                        Your restaurant will be available at: <strong>qarta.xyz/{newRes.slug || 'your-slug'}</strong>
+                    <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '24px' }}>
+                        Your restaurant will be available at: <strong style={{ color: '#38bdf8' }}>qarta.xyz/{newRes.slug || 'your-slug'}</strong>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <button type="submit" style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', cursor: 'pointer', fontWeight: 600 }}>Create</button>
-                        <button type="button" onClick={() => setIsAddMode(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
+                        <button type="submit" className="admin-btn admin-btn-primary">Create</button>
+                        <button type="button" onClick={() => setIsAddMode(false)} className="admin-btn admin-btn-ghost">Cancel</button>
                     </div>
                 </form>
             )}
 
             {!isAddMode && restaurants.length === 0 && (
-                <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏪</div>
-                    <h3 style={{ margin: '0 0 8px 0' }}>No Restaurants Yet</h3>
-                    <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)' }}>
+                <div className="admin-card" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '24px' }}>🏪</div>
+                    <h3 style={{ margin: '0 0 12px 0' }}>No Restaurants Yet</h3>
+                    <p style={{ margin: '0 0 32px 0', color: 'var(--text-muted)' }}>
                         Create your first restaurant to get started.
                     </p>
                     <button
                         onClick={() => setIsAddMode(true)}
-                        style={{
-                            backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                            border: 'none', padding: '12px 24px', borderRadius: '100px',
-                            fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-                            display: 'inline-flex', alignItems: 'center', gap: '8px'
-                        }}
+                        className="admin-btn admin-btn-primary"
                     >
                         <Plus size={20} />
                         Create First Restaurant
@@ -234,35 +246,35 @@ const RestaurantList = ({ onSelect }) => {
                 </div>
             )}
 
-            <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ display: 'grid', gap: '20px' }}>
                 {restaurants.map(r => (
                     <div key={r.id} className="admin-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                             <div style={{
-                                width: '50px', height: '50px', borderRadius: '12px',
-                                background: 'var(--bg-surface-secondary)',
+                                width: '64px', height: '64px', borderRadius: '16px',
+                                background: 'rgba(255,255,255,0.05)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontWeight: 700, fontSize: '20px'
+                                fontWeight: 700, fontSize: '24px', color: '#38bdf8'
                             }}>
                                 {r.name[0]}
                             </div>
                             <div>
-                                <h3 style={{ margin: '0 0 4px 0', fontSize: '18px' }}>{r.name}</h3>
-                                <div style={{ fontSize: '14px', color: 'var(--color-text-subtle)' }}>
+                                <h3 style={{ margin: '0 0 6px 0', fontSize: '20px' }}>{r.name}</h3>
+                                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
                                     /{r.slug} • {r.menu.length} Categories
                                 </div>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <button onClick={() => window.open(`/${r.slug}`, '_blank')} style={{ padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '13px' }}>
+                            <button onClick={() => window.open(`/${r.slug}`, '_blank')} className="admin-btn admin-btn-ghost" style={{ padding: '10px 20px' }}>
                                 View Live
                             </button>
-                            <button onClick={() => onSelect(r.id)} style={{ padding: '8px 16px', borderRadius: '100px', background: 'var(--color-primary)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <Edit2 size={14} /> Manage
+                            <button onClick={() => onSelect(r.id)} className="admin-btn admin-btn-primary">
+                                <Edit2 size={16} /> Manage
                             </button>
                             {r.slug !== 'default' && (
-                                <button onClick={() => { if (confirm('Delete ' + r.name + '?')) removeRestaurant(r.id) }} style={{ padding: '8px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Trash2 size={16} />
+                                <button onClick={() => { if (confirm('Delete ' + r.name + '?')) removeRestaurant(r.id) }} className="admin-btn admin-btn-danger" style={{ padding: '10px' }}>
+                                    <Trash2 size={18} />
                                 </button>
                             )}
                         </div>
@@ -296,39 +308,39 @@ const CategoryForm = ({ onSave, onCancel, initialData = null }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>ID (optional, auto-generated)</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>ID (optional)</label>
                 <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="drinks" />
             </div>
 
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English) *</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (English) *</label>
                 <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Drinks" required />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (MK)</label>
                     <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Пијалоци" />
                 </div>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (SQ)</label>
                     <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Pije" />
                 </div>
             </div>
 
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Icon</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Icon</label>
                 <IconPicker
                     selectedIcon={formData.icon}
                     onSelect={(iconId) => setFormData({ ...formData, icon: iconId })}
                 />
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>{initialData ? 'Save Changes' : 'Create Category'}</button>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                <button type="button" onClick={onCancel} className="admin-btn admin-btn-ghost" style={{ flex: 1 }}>Cancel</button>
+                <button type="submit" className="admin-btn admin-btn-primary" style={{ flex: 1 }}>{initialData ? 'Save Changes' : 'Create Category'}</button>
             </div>
         </form>
     );
@@ -341,7 +353,7 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
         nameMk: initialData?.title?.mk || '',
         nameSq: initialData?.title?.sq || '',
         icon: initialData?.icon || 'Utensils',
-        filters: initialData?.filters || [] // Sub-categories like Red/White for Wine
+        filters: initialData?.filters || []
     });
 
     const addFilter = () => {
@@ -387,39 +399,39 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>ID (optional, auto-generated)</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>ID (optional)</label>
                 <input className="admin-input" name="id" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} placeholder="wine" />
             </div>
 
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English) *</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (English) *</label>
                 <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} placeholder="Wine" required />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (MK)</label>
                     <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={(e) => setFormData({ ...formData, nameMk: e.target.value })} placeholder="Вино" />
                 </div>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (SQ)</label>
                     <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={(e) => setFormData({ ...formData, nameSq: e.target.value })} placeholder="Verë" />
                 </div>
             </div>
 
             {/* Sub-Categories (Filters) */}
-            <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-surface-secondary)', borderRadius: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600 }}>Sub-Categories (e.g., Red, White)</label>
-                    <button type="button" onClick={addFilter} style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            <div style={{ marginTop: '20px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 600, color: 'white' }}>Sub-Categories (e.g., Red, White)</label>
+                    <button type="button" onClick={addFilter} className="admin-btn admin-btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>
                         + Add
                     </button>
                 </div>
                 {formData.filters.map((filter, index) => (
-                    <div key={index} style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                    <div key={index} style={{ marginBottom: '12px', padding: '16px', background: 'rgba(0,0,0,0.3)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                             <input
                                 className="admin-input"
                                 placeholder="English (e.g., Red)"
@@ -430,47 +442,46 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
                             <button
                                 type="button"
                                 onClick={() => removeFilter(index)}
-                                style={{ padding: '8px', borderRadius: '8px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer' }}
+                                className="admin-btn admin-btn-danger"
+                                style={{ padding: '0 12px', width: 'auto' }}
                             >
                                 ×
                             </button>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             <input
                                 className="admin-input"
                                 placeholder="MK"
                                 value={filter.labelMk}
                                 onChange={(e) => updateFilter(index, 'labelMk', e.target.value)}
-                                style={{ fontSize: '12px' }}
                             />
                             <input
                                 className="admin-input"
                                 placeholder="SQ"
                                 value={filter.labelSq}
                                 onChange={(e) => updateFilter(index, 'labelSq', e.target.value)}
-                                style={{ fontSize: '12px' }}
                             />
                         </div>
                     </div>
                 ))}
                 {formData.filters.length === 0 && (
-                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-subtle)', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
                         No sub-categories yet. Click "+ Add" to create filters.
                     </p>
                 )}
             </div>
 
             <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Icon</label>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Icon</label>
                 <IconPicker
                     selectedIcon={formData.icon}
                     onSelect={(iconId) => setFormData({ ...formData, icon: iconId })}
                 />
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>{initialData ? 'Save Changes' : 'Create Section'}</button>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                <button type="button" onClick={onCancel} className="admin-btn admin-btn-ghost" style={{ flex: 1 }}>Cancel</button>
+                <button type="submit" className="admin-btn admin-btn-primary" style={{ flex: 1 }}>{initialData ? 'Save Changes' : 'Create Section'}</button>
             </div>
         </form>
     );
@@ -478,18 +489,16 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
 
 const MenuEditor = ({ restaurant }) => {
     const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, updateCategory, deleteCategory, addSection, updateSection, deleteSection } = usePlatform();
-    const [editingItem, setEditingItem] = useState(null); // { categoryId, sectionId, item, isNew: boolean }
-    const [editingCategory, setEditingCategory] = useState(null); // For editing categories
-    const [editingSection, setEditingSection] = useState(null); // For editing sections
+    const [editingItem, setEditingItem] = useState(null);
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [editingSection, setEditingSection] = useState(null);
     const [activeTab, setActiveTab] = useState('menu');
     const [showCategoryForm, setShowCategoryForm] = useState(false);
-    const [showSectionForm, setShowSectionForm] = useState(null); // categoryId when showing form
+    const [showSectionForm, setShowSectionForm] = useState(null);
 
-    // Draft State for Settings
     const [draftValues, setDraftValues] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
 
-    // Initialize Draft Settings
     useEffect(() => {
         setDraftValues({
             name: restaurant.name,
@@ -519,7 +528,6 @@ const MenuEditor = ({ restaurant }) => {
         });
     };
 
-    // Auto-save settings when draftValues change (with debounce)
     useEffect(() => {
         if (!hasChanges) return;
 
@@ -530,21 +538,11 @@ const MenuEditor = ({ restaurant }) => {
             } catch (error) {
                 console.error('Auto-save failed:', error);
             }
-        }, 1000); // Save 1 second after user stops typing
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, [draftValues, hasChanges, restaurant.id, updateRestaurantDetails]);
 
-
-    const saveSettings = async () => {
-        try {
-            await updateRestaurantDetails(restaurant.id, draftValues);
-            setHasChanges(false);
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            alert('Failed to save settings. Please try again.');
-        }
-    };
 
     const handleSaveMenu = (data) => {
         if (!editingItem) return;
@@ -560,39 +558,39 @@ const MenuEditor = ({ restaurant }) => {
     return (
         <div>
             {/* Header / Tabs */}
-            <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ margin: '0 0 8px 0', fontFamily: 'var(--font-sans)', fontSize: '32px' }}>{restaurant.name}</h1>
-                <p style={{ margin: 0, color: 'var(--color-text-subtle)' }}>
+            <div style={{ marginBottom: '40px' }}>
+                <h1 style={{ margin: '0 0 8px 0', fontSize: '36px', fontWeight: 800 }}>{restaurant.name}</h1>
+                <p style={{ margin: 0, color: 'var(--text-muted)' }}>
                     Editing /{restaurant.slug}
                 </p>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '32px', overflowX: 'auto', paddingBottom: '4px' }}>
                     <button
                         onClick={() => setActiveTab('menu')}
-                        style={{
-                            padding: '8px 16px', borderRadius: '100px',
-                            background: activeTab === 'menu' ? 'var(--color-ink)' : 'transparent',
-                            color: activeTab === 'menu' ? 'var(--bg-app)' : 'var(--color-ink)',
-                            border: '1px solid var(--color-ink)',
-                            cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap'
-                        }}>
+                        className={`admin-btn ${activeTab === 'menu' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
+                    >
                         Menu
                     </button>
                     <button
                         onClick={() => setActiveTab('settings')}
-                        style={{
-                            padding: '8px 16px', borderRadius: '100px',
-                            background: activeTab === 'settings' ? 'var(--color-ink)' : 'transparent',
-                            color: activeTab === 'settings' ? 'var(--bg-app)' : 'var(--color-ink)',
-                            border: '1px solid var(--color-ink)',
-                            cursor: 'pointer', fontWeight: 600, whiteSpace: 'nowrap'
-                        }}>
+                        className={`admin-btn ${activeTab === 'settings' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
+                    >
                         Settings & Branding
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('orders')}
+                        className={`admin-btn ${activeTab === 'orders' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
+                    >
+                        Orders
                     </button>
                 </div>
             </div>
 
             {/* CONTENT: MENU EDITOR */}
+            {activeTab === 'orders' && (
+                <OrdersDashboard />
+            )}
+
             {activeTab === 'menu' && (
                 <>
                     <AnimatePresence>
@@ -601,13 +599,12 @@ const MenuEditor = ({ restaurant }) => {
                                 <motion.div
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setEditingItem(null)}
-                                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1000 }}
+                                    className="modal-overlay"
                                 />
                                 <motion.div
                                     initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                     className="modal-content"
-                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>{editingItem.isNew ? 'New Item' : 'Edit Item'}</h2>
                                     <EditItemForm
@@ -632,13 +629,11 @@ const MenuEditor = ({ restaurant }) => {
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setShowCategoryForm(false)}
                                     className="modal-overlay"
-                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                     className="modal-content"
-                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>New Category</h2>
                                     <CategoryForm
@@ -661,13 +656,11 @@ const MenuEditor = ({ restaurant }) => {
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setShowSectionForm(null)}
                                     className="modal-overlay"
-                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                     className="modal-content"
-                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>New Section</h2>
                                     <SectionForm
@@ -690,13 +683,11 @@ const MenuEditor = ({ restaurant }) => {
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setEditingCategory(null)}
                                     className="modal-overlay"
-                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                     className="modal-content"
-                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>Edit Category</h2>
                                     <CategoryForm
@@ -720,13 +711,11 @@ const MenuEditor = ({ restaurant }) => {
                                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                                     onClick={() => setEditingSection(null)}
                                     className="modal-overlay"
-                                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
                                 />
                                 <motion.div
                                     initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                     className="modal-content"
-                                    style={{ color: 'var(--color-ink)' }}
                                 >
                                     <h2 style={{ marginTop: 0 }}>Edit Section</h2>
                                     <SectionForm
@@ -743,20 +732,15 @@ const MenuEditor = ({ restaurant }) => {
                     </AnimatePresence>
 
                     {restaurant.menu.length === 0 && (
-                        <div className="admin-card" style={{ padding: '64px 24px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-                            <h3 style={{ margin: '0 0 8px 0' }}>Empty Menu</h3>
-                            <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-subtle)' }}>
+                        <div className="admin-card" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '24px' }}>📋</div>
+                            <h3 style={{ margin: '0 0 12px 0' }}>Empty Menu</h3>
+                            <p style={{ margin: '0 0 32px 0', color: 'var(--text-muted)' }}>
                                 Start building your menu by creating a category (e.g., "Drinks", "Food").
                             </p>
                             <button
                                 onClick={() => setShowCategoryForm(true)}
-                                style={{
-                                    backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
-                                    border: 'none', padding: '12px 24px', borderRadius: '100px',
-                                    fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-                                    display: 'inline-flex', alignItems: 'center', gap: '8px'
-                                }}
+                                className="admin-btn admin-btn-primary"
                             >
                                 <Plus size={20} />
                                 Create First Category
@@ -764,27 +748,33 @@ const MenuEditor = ({ restaurant }) => {
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                         {restaurant.menu.map(category => (
                             <div key={category.id}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                    <h2 style={{ fontSize: '20px', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', flex: 1 }}>{category.label.en}</h2>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <h2 style={{ fontSize: '24px', margin: 0, flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        {category.label.en}
+                                        <div style={{ width: '20px', height: '2px', background: 'var(--glass-border)' }} />
+                                    </h2>
                                     <div style={{ display: 'flex', gap: '8px' }}>
                                         <button
                                             onClick={() => setShowSectionForm(category.id)}
-                                            style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                            className="admin-btn admin-btn-ghost"
+                                            style={{ padding: '8px 16px', fontSize: '12px' }}
                                         >
                                             <Plus size={14} /> Add Section
                                         </button>
                                         <button
                                             onClick={() => setEditingCategory(category)}
-                                            style={{ padding: '6px 12px', borderRadius: '100px', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                            className="admin-btn admin-btn-ghost"
+                                            style={{ padding: '8px 16px', fontSize: '12px' }}
                                         >
                                             <Edit2 size={14} /> Edit
                                         </button>
                                         <button
                                             onClick={() => { if (confirm('Delete category?')) deleteCategory(restaurant.id, category.id) }}
-                                            style={{ padding: '6px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                            className="admin-btn admin-btn-danger"
+                                            style={{ padding: '8px' }}
                                         >
                                             <Trash2 size={14} />
                                         </button>
@@ -792,54 +782,69 @@ const MenuEditor = ({ restaurant }) => {
                                 </div>
                                 <div style={{ display: 'grid', gap: '24px' }}>
                                     {category.sections.map(section => (
-                                        <div key={section.id} className="admin-card" style={{ marginBottom: 0, padding: 0, overflow: 'hidden' }}>
-                                            <div style={{ padding: '16px 20px', background: 'var(--bg-surface-secondary)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span>{section.title.en}</span>
+                                        <div key={section.id} className="admin-card" style={{ marginBottom: 0, padding: 0, overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                                            <div style={{ padding: '20px 24px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--glass-border)', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '18px' }}>{section.title.en}</span>
                                                 <div style={{ display: 'flex', gap: '8px' }}>
                                                     <button
                                                         onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item: { name: {}, price: 0 }, isNew: true })}
-                                                        style={{ border: 'none', background: 'var(--color-primary)', color: 'white', borderRadius: '100px', padding: '4px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                        className="admin-btn admin-btn-primary"
+                                                        style={{ padding: '6px 12px', fontSize: '12px' }}
                                                     >
                                                         <Plus size={14} /> Add Item
                                                     </button>
                                                     <button
-                                                        onClick={() => setEditingSection({ categoryId: category.id, section })}
-                                                        style={{ padding: '4px 12px', borderRadius: '100px', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                        onClick={() => setEditingSection({ categoryId: category.id, section: section })}
+                                                        className="admin-btn admin-btn-ghost"
+                                                        style={{ padding: '6px 12px', fontSize: '12px' }}
                                                     >
-                                                        <Edit2 size={14} /> Edit
+                                                        <Edit2 size={14} />
                                                     </button>
                                                     <button
-                                                        onClick={() => { if (confirm('Delete section "' + section.title.en + '"?')) deleteSection(restaurant.id, category.id, section.id) }}
-                                                        style={{ padding: '6px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                        onClick={() => { if (confirm('Delete section?')) deleteSection(restaurant.id, category.id, section.id) }}
+                                                        className="admin-btn admin-btn-danger"
+                                                        style={{ padding: '6px' }}
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div style={{ padding: '0 20px' }}>
-                                                {section.items.map(item => (
-                                                    <div key={item.id} style={{ padding: '16px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ padding: '8px' }}>
+                                                {section.items.map((item, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item, isNew: false })}
+                                                        style={{
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                            padding: '16px',
+                                                            borderRadius: '12px',
+                                                            cursor: 'pointer',
+                                                            transition: 'background 0.2s',
+                                                            borderBottom: idx < section.items.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none'
+                                                        }}
+                                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                                                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                                    >
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                            <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundColor: '#eee' }} />
+                                                            {item.image ? (
+                                                                <img src={item.image} alt="" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
+                                                            ) : (
+                                                                <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)' }} />
+                                                                </div>
+                                                            )}
                                                             <div>
-                                                                <div style={{ fontWeight: 600 }}>{item.name.en}</div>
-                                                                <div style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>${item.price.toFixed(2)}</div>
+                                                                <div style={{ fontWeight: 600, fontSize: '15px' }}>{item.name.en}</div>
+                                                                <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{item.desc?.en?.slice(0, 40) || ''}...</div>
                                                             </div>
                                                         </div>
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <button onClick={() => setEditingItem({ categoryId: category.id, sectionId: section.id, item, isNew: false })} style={{ padding: '8px 16px', borderRadius: '100px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-ink)' }}>
-                                                                <Edit2 size={14} /> Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() => { if (confirm("Delete item?")) deleteMenuItem(restaurant.id, category.id, section.id, item.id) }}
-                                                                style={{ padding: '8px', borderRadius: '50%', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
+                                                        <div style={{ fontWeight: 600, color: '#38bdf8' }}>{item.price} mkd</div>
                                                     </div>
                                                 ))}
                                                 {section.items.length === 0 && (
-                                                    <div style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-subtle)', fontSize: '14px' }}>
+                                                    <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
                                                         No items in this section.
                                                     </div>
                                                 )}
@@ -849,457 +854,201 @@ const MenuEditor = ({ restaurant }) => {
                                 </div>
                             </div>
                         ))}
-
-                        {/* Add Category Button (shows when categories exist) */}
-                        {restaurant.menu.length > 0 && (
-                            <button
-                                onClick={() => setShowCategoryForm(true)}
-                                style={{
-                                    padding: '12px 24px', borderRadius: '100px',
-                                    border: '2px dashed var(--border-color)', background: 'transparent',
-                                    cursor: 'pointer', fontSize: '14px', fontWeight: 600,
-                                    display: 'flex', alignItems: 'center', gap: '8px',
-                                    justifyContent: 'center', color: 'var(--color-text-subtle)',
-                                    transition: 'all 0.2s', width: '100%'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
-                                    e.currentTarget.style.color = 'var(--color-primary)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.borderColor = 'var(--border-color)';
-                                    e.currentTarget.style.color = 'var(--color-text-subtle)';
-                                }}
-                            >
-                                <Plus size={20} />
-                                Add Another Category
-                            </button>
-                        )}
                     </div>
                 </>
             )}
 
-            {/* CONTENT: SETTINGS (With Save Logic) */}
             {activeTab === 'settings' && (
-                <div style={{ display: 'grid', gap: '32px', maxWidth: '600px' }}>
-
-                    {/* General Settings */}
+                <div style={{ maxWidth: '800px' }}>
                     <div className="admin-card">
-                        <h3 style={{ marginTop: 0 }}>General Branding</h3>
-
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Restaurant Name</label>
-                            <input
-                                className="admin-input"
-                                value={draftValues.name || ''}
-                                onChange={(e) => handleDraftChange('name', e.target.value)}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Logo URL</label>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Branding & Basic Info</h3>
+                        <div style={{ display: 'grid', gap: '24px' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Restaurant Name</label>
                                 <input
                                     className="admin-input"
-                                    value={draftValues.logo || ''}
-                                    onChange={(e) => handleDraftChange('logo', e.target.value)}
-                                    placeholder="https://"
-                                    style={{ flex: 1 }}
+                                    value={draftValues.name || ''}
+                                    onChange={(e) => handleDraftChange('name', e.target.value)}
                                 />
-                                <CloudinaryUploadButton
-                                    onUpload={(url) => handleDraftChange('logo', url)}
-                                    small
-                                />
-                                <div style={{ width: '42px', height: '42px', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#eee', flexShrink: 0 }}>
-                                    {draftValues.logo ? <img src={draftValues.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <Store size={20} />}
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Logo URL</label>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <input
+                                        className="admin-input"
+                                        value={draftValues.logo || ''}
+                                        onChange={(e) => handleDraftChange('logo', e.target.value)}
+                                        placeholder="https://..."
+                                    />
+                                    {draftValues.logo && (
+                                        <img src={draftValues.logo} alt="Logo Preview" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', background: 'white' }} />
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Theme Colors */}
                     <div className="admin-card">
-                        <h3 style={{ marginTop: 0 }}>Theme & Colors</h3>
-
-                        {/* Light Mode */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Primary Color</label>
-                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <input
-                                        type="color"
-                                        value={draftValues.theme?.primary || '#000000'}
-                                        onChange={(e) => handleDeepDraftChange('theme', 'primary', e.target.value)}
-                                        style={{ width: '40px', height: '40px', border: 'none', borderRadius: '8px', padding: 0, cursor: 'pointer' }}
-                                    />
-                                    <span style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>{draftValues.theme?.primary}</span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Background (Light)</label>
-                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                    <input
-                                        type="color"
-                                        value={draftValues.theme?.background || '#ffffff'}
-                                        onChange={(e) => handleDeepDraftChange('theme', 'background', e.target.value)}
-                                        style={{ width: '40px', height: '40px', border: 'none', borderRadius: '8px', padding: 0, cursor: 'pointer' }}
-                                    />
-                                    <span style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>{draftValues.theme?.background}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Default Appearance Setting */}
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Default Appearance</label>
-                            <div style={{ display: 'flex', gap: '16px' }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input
-                                        type="radio"
-                                        name="defaultMode"
-                                        checked={draftValues.theme?.defaultMode !== 'dark'}
-                                        onChange={() => handleDeepDraftChange('theme', 'defaultMode', 'light')}
-                                    />
-                                    <span>Light Mode</span>
-                                </label>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input
-                                        type="radio"
-                                        name="defaultMode"
-                                        checked={draftValues.theme?.defaultMode === 'dark'}
-                                        onChange={() => handleDeepDraftChange('theme', 'defaultMode', 'dark')}
-                                    />
-                                    <span>Dark Mode</span>
-                                </label>
-                            </div>
-                            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--color-text-subtle)' }}>
-                                Which mode should the app start in for new visitors?
-                            </p>
-                        </div>
-
-                        {/* Dark Mode Overrides */}
-                        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '12px', fontWeight: 600, fontSize: '14px', color: 'var(--color-text-subtle)' }}>Dark Mode Overrides (Optional)</label>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>Dark Background</label>
-                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                        <input
-                                            type="color"
-                                            value={draftValues.theme?.darkBackground || '#09090b'}
-                                            onChange={(e) => handleDeepDraftChange('theme', 'darkBackground', e.target.value)}
-                                            style={{ width: '40px', height: '40px', border: 'none', borderRadius: '8px', padding: 0, cursor: 'pointer' }}
-                                        />
-                                        <span style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>{draftValues.theme?.darkBackground}</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>Dark Surface</label>
-                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                        <input
-                                            type="color"
-                                            value={draftValues.theme?.darkSurface || '#18181b'}
-                                            onChange={(e) => handleDeepDraftChange('theme', 'darkSurface', e.target.value)}
-                                            style={{ width: '40px', height: '40px', border: 'none', borderRadius: '8px', padding: 0, cursor: 'pointer' }}
-                                        />
-                                        <span style={{ fontSize: '13px', color: 'var(--color-text-subtle)' }}>{draftValues.theme?.darkSurface}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Promotion Popup */}
-                    <div className="admin-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ margin: 0 }}>Popup Promotion</h3>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Promotion Banner</h3>
+                        <div style={{ display: 'grid', gap: '24px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <input
                                     type="checkbox"
                                     checked={draftValues.promotion?.active || false}
                                     onChange={(e) => handleDeepDraftChange('promotion', 'active', e.target.checked)}
+                                    style={{ width: '20px', height: '20px' }}
                                 />
-                                <span style={{ fontWeight: 600 }}>Active</span>
-                            </label>
-                        </div>
-
-                        <div style={{ opacity: draftValues.promotion?.active ? 1 : 0.5, pointerEvents: draftValues.promotion?.active ? 'auto' : 'none', transition: 'opacity 0.2s' }}>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Title</label>
-                                <input
-                                    className="admin-input"
-                                    value={draftValues.promotion?.title || ''}
-                                    onChange={(e) => handleDeepDraftChange('promotion', 'title', e.target.value)}
-                                />
+                                <label style={{ fontWeight: 600 }}>Enable Promotion Banner</label>
                             </div>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Message</label>
-                                <textarea
-                                    className="admin-input"
-                                    value={draftValues.promotion?.message || ''}
-                                    onChange={(e) => handleDeepDraftChange('promotion', 'message', e.target.value)}
-                                    rows={3}
-                                />
-                            </div>
-                            <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px' }}>Banner Image URL</label>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                    <input
-                                        className="admin-input"
-                                        value={draftValues.promotion?.image || ''}
-                                        onChange={(e) => handleDeepDraftChange('promotion', 'image', e.target.value)}
-                                        placeholder="https://"
-                                        style={{ flex: 1 }}
-                                    />
-                                    <CloudinaryUploadButton
-                                        onUpload={(url) => handleDeepDraftChange('promotion', 'image', url)}
-                                        small
-                                    />
-                                </div>
-                                <div style={{ fontSize: '12px', color: 'var(--color-text-subtle)', marginTop: '4px' }}>
-                                    Recommended Size: 800x600 (4:3 aspect ratio) or larger.
-                                </div>
-                            </div>
+                            {draftValues.promotion?.active && (
+                                <>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Title</label>
+                                        <input
+                                            className="admin-input"
+                                            value={draftValues.promotion?.title || ''}
+                                            onChange={(e) => handleDeepDraftChange('promotion', 'title', e.target.value)}
+                                            placeholder="Happy Hour!"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Message</label>
+                                        <textarea
+                                            className="admin-input"
+                                            value={draftValues.promotion?.message || ''}
+                                            onChange={(e) => handleDeepDraftChange('promotion', 'message', e.target.value)}
+                                            placeholder="50% off all cocktails..."
+                                            rows={3}
+                                            style={{ resize: 'vertical' }}
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
-
-                    {/* Auto-save is active - no manual save button needed */}
                 </div>
             )}
-
-            <div style={{ height: '100px' }} />
         </div>
     );
 };
 
 const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
-    // Should initialize with default values if new, or item values if editing.
+    // If it's a new item, start empty. If editing, use item data.
     const [formData, setFormData] = useState({
-        price: item.price || 0,
-        nameEn: item.name?.en || '',
-        nameMk: item.name?.mk || '',
-        nameSq: item.name?.sq || '',
-        descEn: item.desc?.en || item.description?.en || '',
-        descMk: item.desc?.mk || item.description?.mk || '',
-        descSq: item.desc?.sq || item.description?.sq || '',
-        image: item.image || '',
-        tag: item.tag || '',
-        ingredients: item.ingredients || '',
-        allergens: item.allergens || []
+        nameEn: item?.name?.en || '',
+        nameMk: item?.name?.mk || '',
+        nameSq: item?.name?.sq || '',
+        descEn: item?.desc?.en || '',
+        descMk: item?.desc?.mk || '',
+        descSq: item?.desc?.sq || '',
+        price: item?.price || '', // Start empty string to allow typing 0 comfortably
+        image: item?.image || '',
+        filterId: item?.filterId || '' // Sub-category ID
     });
 
-    useEffect(() => {
-        setFormData({
-            price: item.price || 0,
-            nameEn: item.name?.en || '',
-            nameMk: item.name?.mk || '',
-            nameSq: item.name?.sq || '',
-            descEn: item.desc?.en || item.description?.en || '',
-            descMk: item.desc?.mk || item.description?.mk || '',
-            descSq: item.desc?.sq || item.description?.sq || '',
-            image: item.image || '',
-            tag: item.tag || '',
-            ingredients: item.ingredients || '',
-            allergens: item.allergens || []
-        });
-    }, [item]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+    // Cloudinary Upload Logic
+    const handleImageUpload = (url) => {
+        setFormData(prev => ({ ...prev, image: url }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSave = (e) => {
         e.preventDefault();
         onSave({
-            price: parseFloat(formData.price),
-            name: {
-                en: formData.nameEn,
-                mk: formData.nameMk,
-                sq: formData.nameSq
-            },
-            desc: {
-                en: formData.descEn,
-                mk: formData.descMk,
-                sq: formData.descSq
-            },
-            ingredients: formData.ingredients,
-            allergens: formData.allergens,
+            name: { en: formData.nameEn, mk: formData.nameMk, sq: formData.nameSq },
+            desc: { en: formData.descEn, mk: formData.descMk, sq: formData.descSq },
+            price: Number(formData.price),
             image: formData.image,
-            tag: formData.tag || null // Use null for empty string to match DB consistency
+            filterId: formData.filterId
         });
     };
+
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Price</label>
-                <input className="admin-input" type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} placeholder="0.00" />
-            </div>
-
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (English)</label>
-                <input className="admin-input" name="nameEn" value={formData.nameEn} onChange={handleChange} placeholder="Burger..." />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (MK)</label>
-                    <input className="admin-input" name="nameMk" value={formData.nameMk} onChange={handleChange} placeholder="..." />
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (English) *</label>
+                    <input className="admin-input" value={formData.nameEn} onChange={e => setFormData({ ...formData, nameEn: e.target.value })} required />
                 </div>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Name (SQ)</label>
-                    <input className="admin-input" name="nameSq" value={formData.nameSq} onChange={handleChange} placeholder="..." />
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Price (MKD) *</label>
+                    <input className="admin-input" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
                 </div>
             </div>
 
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (English)</label>
-                <textarea className="admin-input" name="descEn" value={formData.descEn || ''} onChange={handleChange} placeholder="Describe what's in this item..." rows="2" style={{ resize: 'vertical' }} />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (MK)</label>
-                    <textarea className="admin-input" name="descMk" value={formData.descMk || ''} onChange={handleChange} placeholder="..." rows="2" style={{ resize: 'vertical' }} />
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (MK)</label>
+                    <input className="admin-input" value={formData.nameMk} onChange={e => setFormData({ ...formData, nameMk: e.target.value })} />
                 </div>
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Description (SQ)</label>
-                    <textarea className="admin-input" name="descSq" value={formData.descSq || ''} onChange={handleChange} placeholder="..." rows="2" style={{ resize: 'vertical' }} />
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Name (SQ)</label>
+                    <input className="admin-input" value={formData.nameSq} onChange={e => setFormData({ ...formData, nameSq: e.target.value })} />
                 </div>
             </div>
 
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Image URL</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <input
-                        className="admin-input"
-                        name="image"
-                        value={formData.image}
-                        onChange={handleChange}
-                        placeholder="https://..."
-                        style={{ flex: 1 }}
-                    />
-                    <CloudinaryUploadButton
-                        onUpload={(url) => setFormData(prev => ({ ...prev, image: url }))}
-                    />
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--color-text-subtle)', marginTop: '4px' }}>
-                    Click "Upload" to select an image from your device, or paste a URL above.
-                </div>
-            </div>
-
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Ingredients (English/Primary)</label>
-                <textarea
-                    className="admin-input"
-                    name="ingredients"
-                    value={formData.ingredients}
-                    onChange={handleChange}
-                    placeholder="Tomato, Mozzarella, Basil..."
-                    rows={2}
-                />
-            </div>
-
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Allergens</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {ALLERGENS.map(alg => {
-                        const isSelected = formData.allergens.includes(alg);
-                        const { icon: Icon, color } = getAllergenDetails(alg);
-                        return (
-                            <button
-                                key={alg}
-                                type="button"
-                                onClick={() => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        allergens: isSelected
-                                            ? prev.allergens.filter(a => a !== alg)
-                                            : [...prev.allergens, alg]
-                                    }));
-                                }}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '6px 12px',
-                                    borderRadius: '100px',
-                                    border: `1px solid ${isSelected ? color : 'var(--border-color)'}`,
-                                    backgroundColor: isSelected ? `${color}15` : 'transparent',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <Icon size={14} color={isSelected ? color : 'var(--color-text-subtle)'} />
-                                <span style={{
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                    color: isSelected ? color : 'var(--color-text-subtle)'
-                                }}>
-                                    {alg}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Sub-Category Tag Selector */}
+            {/* Sub-Category Selector */}
             {section?.filters && section.filters.length > 0 && (
                 <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: 600 }}>Sub-Category</label>
-                    <select
-                        className="admin-input"
-                        name="tag"
-                        value={formData.tag}
-                        onChange={handleChange}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <option value="">All (No filter)</option>
-                        {section.filters.map(filter => (
-                            <option key={filter.id} value={filter.id}>
-                                {filter.label.en}
-                            </option>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Sub-Category</label>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        {section.filters.map(f => (
+                            <button
+                                key={f.id}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, filterId: formData.filterId === f.id ? '' : f.id })}
+                                className={`sub-category-chip ${formData.filterId === f.id ? 'active' : ''}`}
+                                style={{
+                                    border: formData.filterId === f.id ? '1px solid #38bdf8' : '1px solid var(--glass-border)',
+                                    color: formData.filterId === f.id ? '#38bdf8' : 'white',
+                                    background: formData.filterId === f.id ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255,255,255,0.05)',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {f.label.en}
+                            </button>
                         ))}
-                    </select>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--color-text-subtle)' }}>
-                        Assign this item to a sub-category (e.g., Red wine, White wine)
-                    </p>
+                    </div>
                 </div>
             )}
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button type="button" onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'transparent', cursor: 'pointer', color: 'var(--color-ink)' }}>Cancel</button>
-                <button type="submit" style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-primary)', cursor: 'pointer', fontWeight: 600 }}>{isNew ? 'Create Item' : 'Save Changes'}</button>
+            <div>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Description (English)</label>
+                <textarea className="admin-input" rows={2} value={formData.descEn} onChange={e => setFormData({ ...formData, descEn: e.target.value })} />
+            </div>
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Image</label>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    {formData.image ? (
+                        <div style={{ position: 'relative' }}>
+                            <img src={formData.image} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '12px', objectFit: 'cover' }} />
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, image: '' })}
+                                style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', padding: '4px', cursor: 'pointer' }}
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ) : (
+                        <CloudinaryUploadButton onUpload={handleImageUpload} />
+                    )}
+                    <input
+                        className="admin-input"
+                        placeholder="Or paste image URL..."
+                        value={formData.image}
+                        onChange={e => setFormData({ ...formData, image: e.target.value })}
+                        style={{ flex: 1 }}
+                    />
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
+                <button type="button" onClick={onCancel} className="admin-btn admin-btn-ghost" style={{ flex: 1 }}>Cancel</button>
+                <button type="submit" className="admin-btn admin-btn-primary" style={{ flex: 1 }}>{isNew ? 'Add Item' : 'Save Changes'}</button>
             </div>
         </form>
     );
 };
 
-export const AdminDashboard = () => {
-    const { restaurants } = usePlatform();
-    const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
-    const [view, setView] = useState('restaurants');
-
-    // Derive object from ID so it updates when Context updates
-    const selectedRestaurant = restaurants.find(r => r.id === selectedRestaurantId);
-
-    const handleBack = selectedRestaurantId ? () => setSelectedRestaurantId(null) : null;
-
-    return (
-        <AdminLayout
-            onBack={handleBack}
-            view={view}
-            setView={setView}
-        >
-            {selectedRestaurant ? (
-                <MenuEditor restaurant={selectedRestaurant} />
-            ) : view === 'orders' ? (
-                <OrdersDashboard />
-            ) : (
-                <RestaurantList onSelect={setSelectedRestaurantId} />
-            )}
-        </AdminLayout>
-    );
-};
+export { RestaurantList, MenuEditor };
