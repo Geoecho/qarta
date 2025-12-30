@@ -17,6 +17,9 @@ import CafeOrdersDashboard from './admin/CafeOrdersDashboard';
 import LandingPage from './landing/LandingPage';
 import RemainingTime from './components/RemainingTime';
 
+import InfoPage from './components/InfoPage';
+import MenuItem from './components/MenuItem';
+
 /* 
    Protected Route Component 
 */
@@ -152,41 +155,75 @@ const ClientApp = () => {
     if (isDark) {
       root.classList.add('dark');
 
-      // Apply Dark Mode Custom Theme if exists
-      if (theme.darkBackground) {
-        root.style.setProperty('--bg-app', theme.darkBackground);
-        if (themeMeta) themeMeta.content = theme.darkBackground;
-      } else {
-        root.style.removeProperty('--bg-app');
-        if (themeMeta) themeMeta.content = '#121212';
-      }
+      // Apply Dark Mode Custom Theme
+      const darkVars = {
+        // Premium Dark Mode Defaults (Matches index.css)
+        '--bg-app': theme.darkBackground || '#050505',
+        '--bg-surface': theme.darkSurface || '#121212',
+        '--color-ink': theme.darkText || '#E0E6ED',
+        '--color-text-subtle': theme.darkTextMuted || '#9DA5B4',
+        '--border-color': theme.darkBorder || 'rgba(255, 255, 255, 0.1)',
+        '--overlay-bg': theme.darkOverlay || 'rgba(0,0,0,0.8)',
 
-      if (theme.darkSurface) {
-        root.style.setProperty('--bg-surface', theme.darkSurface);
-      } else {
-        root.style.removeProperty('--bg-surface');
-      }
+        // New Buttons & Icons (Default to Surface Secondary #1E1E1E)
+        '--bg-header-control': theme.darkHeaderControlBg || '#1E1E1E',
+        '--color-header-icon': theme.darkHeaderControlIcon || '#E0E6ED',
+        '--bg-menu-icon': theme.darkMenuIconBg || 'transparent',
+        '--color-menu-icon': theme.darkMenuIconColor || '#E0E6ED',
+
+        // Menu Item Styling
+        '--color-item-title': theme.darkItemTitleColor || '#E0E6ED',
+        '--color-item-price': theme.darkItemPriceColor || (theme.darkPrimary || theme.primary || '#38bdf8'),
+        '--color-item-desc': theme.darkItemDescColor || '#9DA5B4',
+        '--bg-item-btn': theme.darkItemBtnBg || (theme.darkPrimary || theme.primary || '#38bdf8'),
+        '--color-item-btn-icon': theme.darkItemBtnIcon || '#050505' // Dark text on bright button
+      };
+
+      Object.entries(darkVars).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+      if (themeMeta) themeMeta.content = darkVars['--bg-app'];
+      document.body.style.backgroundColor = darkVars['--bg-app'];
 
     } else {
       root.classList.remove('dark');
 
       // Apply Light Mode Custom Theme
-      if (theme.background) {
-        root.style.setProperty('--bg-app', theme.background);
-        if (themeMeta) themeMeta.content = theme.background;
-      } else {
-        // Default Light Background
-        root.style.removeProperty('--bg-app');
-        if (themeMeta) themeMeta.content = '#F5F5F7';
-      }
+      const lightVars = {
+        '--bg-app': theme.background || '#F5F5F7',
+        '--bg-surface': theme.surface || '#FFFFFF',
+        '--color-ink': theme.text || '#1D1D1F',
+        '--color-text-subtle': theme.textMuted || '#86868B',
+        '--border-color': theme.border || 'rgba(0, 0, 0, 0.08)',
+        '--overlay-bg': theme.overlay || 'rgba(0,0,0,0.5)',
 
-      // We generally don't override surface in light mode dynamically unless requested
-      root.style.removeProperty('--bg-surface');
+        // New Buttons & Icons
+        '--bg-header-control': theme.headerControlBg || '#F0F0F2', // Default to surface-secondary
+        '--color-header-icon': theme.headerControlIcon || '#1D1D1F', // Default to ink
+        '--bg-menu-icon': theme.menuIconBg || 'transparent',
+        '--color-menu-icon': theme.menuIconColor || '#1D1D1F',
+
+        // Menu Item Styling
+        '--color-item-title': theme.itemTitleColor || '#1D1D1F',
+        '--color-item-price': theme.itemPriceColor || (theme.primary || '#0ea5e9'),
+        '--color-item-desc': theme.itemDescColor || '#86868B',
+        '--bg-item-btn': theme.itemBtnBg || (theme.primary || '#0ea5e9'),
+        '--color-item-btn-icon': theme.itemBtnIcon || '#FFFFFF'
+      };
+
+      Object.entries(lightVars).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+      if (themeMeta) themeMeta.content = lightVars['--bg-app'];
+      document.body.style.backgroundColor = lightVars['--bg-app'];
     }
 
     // Always apply Brand Primary Color
-    if (theme.primary) {
-      root.style.setProperty('--color-primary', theme.primary);
+    // Priority: Dark Primary (if dark mode) > Global Primary > Default
+    const effectivePrimary = (isDark && theme.darkPrimary) ? theme.darkPrimary : theme.primary;
+
+    if (effectivePrimary) {
+      root.style.setProperty('--color-primary', effectivePrimary);
     } else {
       root.style.removeProperty('--color-primary');
     }
@@ -196,6 +233,7 @@ const ClientApp = () => {
       root.style.removeProperty('--color-primary');
       root.style.removeProperty('--bg-app');
       root.style.removeProperty('--bg-surface');
+      document.body.style.removeProperty('background-color');
     };
   }, [isDark, restaurant]);
 
@@ -307,6 +345,8 @@ const ClientApp = () => {
             />
           ))}
         </div>
+
+
 
         {/* Floating Action Button (Cart OR Track) */}
         <AnimatePresence>
@@ -518,6 +558,7 @@ const App = () => {
 
             {/* Client Routes */}
             <Route path="/:slug" element={<ClientApp />} />
+            <Route path="/:slug/info" element={<InfoPage />} />
             <Route path="/:slug/orders" element={<CafeOrdersDashboard />} />
 
             {/* Fallback */}

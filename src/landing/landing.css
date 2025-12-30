@@ -162,6 +162,16 @@ section[id] {
   transform: scale(0.96);
 }
 
+.hero-btn {
+  padding: 14px 32px;
+  min-height: 48px;
+  /* Ensure 44px min */
+  font-size: 18px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
 .feature-card:hover,
 .pricing-card:hover,
 .testimonial-card:hover {
@@ -401,6 +411,11 @@ section[id] {
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover .feature-icon {
+  transform: rotate(-5deg) scale(1.1);
 }
 
 .feature-title {
@@ -580,6 +595,94 @@ section[id] {
 .pricing-cta {
   margin-top: auto;
   width: 100%;
+}
+
+/* Contact Section (Replaces Pricing) */
+.contact-section {
+  padding: 100px 24px;
+  background: #050505;
+  text-align: center;
+}
+
+.contact-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-input {
+  width: 100%;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  line-height: normal;
+  /* Fix iOS cursor alignment */
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
+  backdrop-filter: blur(10px);
+}
+
+/* Specific fix for text inputs to center vertically on mobile */
+input.contact-input {
+  line-height: normal;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  height: auto;
+}
+
+.contact-input:focus {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.1);
+}
+
+.contact-input::placeholder {
+  color: #64748b;
+  font-weight: 500;
+}
+
+textarea.contact-input {
+  min-height: 160px;
+  resize: none;
+}
+
+.contact-submit-btn {
+  width: 100%;
+  padding: 14px 32px;
+  min-height: 48px;
+  /* Ensure > 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 20px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+}
+
+.contact-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
 }
 
 /* How It Works */
@@ -794,6 +897,8 @@ section[id] {
   display: flex;
   gap: 24px;
   padding-right: 24px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .testimonial-card {

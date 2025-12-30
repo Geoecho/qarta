@@ -1,8 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Info } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) => {
+    const navigate = useNavigate();
+    const { slug } = useParams();
+
     return (
         <div style={{
             padding: '24px',
@@ -26,7 +30,6 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                             height: '100%',
                             width: 'auto',
                             objectFit: 'contain',
-                            // filter: isDark ? 'invert(1)' : 'none', // Removed per user request
                             transition: 'filter 0.3s'
                         }}
                     />
@@ -34,10 +37,31 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
+                {/* Info Button */}
+                <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={() => navigate(`/${slug}/info`)}
+                    style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%', // Circle
+                        border: '1px solid var(--border-color)',
+                        background: 'var(--bg-header-control)',
+                        color: 'var(--color-header-icon)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <Info size={20} />
+                </motion.button>
+
                 {/* Language Toggle (Segmented with Liquid Animation) */}
                 <div style={{
                     display: 'flex',
-                    background: 'var(--bg-surface-secondary)',
+                    background: 'var(--bg-header-control)',
                     borderRadius: '100px', // Pill
                     padding: '4px',
                     border: '1px solid var(--border-color)',
@@ -50,7 +74,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                             style={{
                                 border: 'none',
                                 background: 'transparent',
-                                color: language === lang ? 'var(--color-ink)' : 'var(--color-text-subtle)', // Grey (Ink) color for active
+                                color: language === lang ? 'var(--color-header-icon)' : 'var(--color-text-subtle)',
                                 fontSize: '12px',
                                 fontWeight: 700,
                                 padding: '6px 12px',
@@ -68,7 +92,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                                     style={{
                                         position: 'absolute',
                                         inset: 0,
-                                        backgroundColor: 'var(--bg-surface)',
+                                        backgroundColor: 'var(--bg-surface)', // Active pill remains surface color for contrast
                                         borderRadius: '100px',
                                         boxShadow: 'var(--shadow-sm)',
                                         zIndex: -1
@@ -91,8 +115,8 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl }) =>
                         height: '40px',
                         borderRadius: '50%', // Circle
                         border: '1px solid var(--border-color)',
-                        background: 'var(--bg-surface-secondary)',
-                        color: 'var(--color-ink)',
+                        background: 'var(--bg-header-control)',
+                        color: 'var(--color-header-icon)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

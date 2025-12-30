@@ -230,28 +230,49 @@ h6 {
 }
 
 /* Modals */
+/* Modals */
 .modal-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    backdrop-filter: blur(8px) !important;
-    z-index: 1000 !important;
-    display: flex !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    /* Darker, simple overlay */
+    z-index: 9999;
+    /* Highest priority */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    /* Gentle blur */
 }
 
 .modal-content {
-    width: 100% !important;
-    max-width: 650px !important;
-    background: #0f172a !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 32px 32px 0 0 !important;
-    padding: 32px !important;
-    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5) !important;
-    color: white !important;
-    max-height: 90vh !important;
-    overflow-y: auto !important;
+    background: #0f172a;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    position: relative;
+    color: white;
+    animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .sub-category-chip {

@@ -43,10 +43,17 @@ const MenuAccordion = ({ section, isOpen, onToggle, onAddToCart, language }) => 
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
-                        color: isOpen ? 'var(--color-ink)' : 'var(--color-text-subtle)',
-                        transition: 'color 0.2s'
+                        color: 'var(--color-menu-icon)',
+                        backgroundColor: 'var(--bg-menu-icon)',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s'
                     }}>
-                        <IconComponent size={20} />
+                        <IconComponent size={18} />
                     </div>
                     <span style={{
                         fontSize: '16px',

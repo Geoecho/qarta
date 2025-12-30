@@ -11,15 +11,15 @@ const translations = {
             getStarted: 'Get Started',
             features: 'Features',
             howItWorks: 'How it Works',
-            pricing: 'Pricing',
+            contact: 'Contact',
             faq: 'FAQ'
         },
         hero: {
-            badge: 'Now with Real-time Order Tracking',
+            badge: 'Real-time Order Tracking',
             title: 'The Digital Menu for',
-            titleHighlight: 'Forward-Thinking Venues',
+            titleHighlight: ['Restaurants', 'Cafes', 'Bars', 'Hotels'],
             subtitle: 'Ditch the PDF. Give your customers a beautiful, interactive menu that syncs in real-time. No downloads, no hardware, just scan and order.',
-            createMenu: 'Create Menu',
+            createMenu: 'Contact Us',
             viewDemo: 'View Demo'
         },
         how: {
@@ -63,24 +63,13 @@ const translations = {
             t6: "Our waiters love the dedicated mode. Great user experience.",
             a6: "Michael, Urban Bistro"
         },
-        pricing: {
-            title: 'Simple, Transparent Pricing',
-            subtitle: 'Choose the plan that fits your business needs.',
-            monthly: 'Monthly',
-            sixMonths: '6 Months',
-            annual: 'Annually',
-            month: '/mo',
-            save: 'Save',
-            bestValue: 'Best Value',
-            features: {
-                menu: 'Unlimited Menu Items',
-                qr: 'QR Code Generation',
-                analytics: 'Basic Analytics',
-                support: 'Email Support',
-                priority: 'Priority Support',
-                customDomain: 'Custom Domain Support'
-            },
-            cta: 'Start Now'
+        contact: {
+            title: 'Get in Touch',
+            subtitle: 'Ready to modernize your venue? a customized package.',
+            name: 'Enter your name',
+            email: 'Your email, please',
+            message: 'Your message',
+            cta: 'Send'
         },
         faq: {
             title: 'Frequently Asked Questions',
@@ -114,15 +103,15 @@ const translations = {
             getStarted: 'Почни',
             features: 'Карактеристики',
             howItWorks: 'Како работи',
-            pricing: 'Цени',
+            contact: 'Контакт',
             faq: 'ЧПП'
         },
         hero: {
-            badge: 'Сега со следење на нарачки во живо',
+            badge: 'Следење во Живо',
             title: 'Дигитално мени за',
-            titleHighlight: 'Модерни Ресторани',
+            titleHighlight: ['Ресторани', 'Кафулиња', 'Барови', 'Хотели'],
             subtitle: 'Заборавете на PDF. Овозможете им на вашите гости преубаво, интерактивно мени кое се синхронизира во реално време. Без симнување апликации.',
-            createMenu: 'Креирај Мени',
+            createMenu: 'Контактирајте не',
             viewDemo: 'Види Демо'
         },
         how: {
@@ -166,24 +155,13 @@ const translations = {
             t6: "Нашите келнери го обожаваат посебниот мод. Одлично искуство.",
             a6: "Мајкл, Urban Bistro"
         },
-        pricing: {
-            title: 'Едноставни Цени',
-            subtitle: 'Изберете го планот кој најмногу ви одговара.',
-            monthly: 'Месечно',
-            sixMonths: '6 Месеци',
-            annual: 'Годишно',
-            month: '/мес',
-            save: 'Заштеди',
-            bestValue: 'Најпопуларно',
-            features: {
-                menu: 'Неограничени Артикли',
-                qr: 'QR Код Генератор',
-                analytics: 'Основна Аналитика',
-                support: 'Емаил Поддршка',
-                priority: 'Приоритетна Поддршка',
-                customDomain: 'Сопствен Домен'
-            },
-            cta: 'Избери План'
+        contact: {
+            title: 'Контакт',
+            subtitle: 'Спремни за модернизација? Контактирајте не',
+            name: 'Име',
+            email: 'Емаил',
+            message: 'Порака',
+            cta: 'Испрати Порака'
         },
         faq: {
             title: 'Често Поставувани Прашања',
@@ -217,15 +195,15 @@ const translations = {
             getStarted: 'Fillo Tani',
             features: 'Veçoritë',
             howItWorks: 'Si Punon',
-            pricing: 'Çmimet',
+            contact: 'Kontakt',
             faq: 'FAQ'
         },
         hero: {
-            badge: 'Tani me gjurmim të porosive në kohë reale',
+            badge: 'Gjurmim Live',
             title: 'Menu Dixhitale për',
-            titleHighlight: 'Vendi Moderne',
+            titleHighlight: ['Restorante', 'Kafe', 'Bare', 'Hotele'],
             subtitle: 'Harrojeni PDF-në. Jepuni klientëve tuaj një menu të bukur dhe interaktive. Pa shkarkime, pa pajisje shtesë.',
-            createMenu: 'Krijo Menu',
+            createMenu: 'Na Kontaktoni',
             viewDemo: 'Shiko Demo'
         },
         how: {
@@ -269,24 +247,13 @@ const translations = {
             t6: "Kamarierët tanë e pëlqejnë modin e dedikuar. Përvojë e shkëlqyer.",
             a6: "Michael, Urban Bistro"
         },
-        pricing: {
-            title: 'Çmime Transparente',
-            subtitle: 'Zgjidhni planin që i përshtatet biznesit tuaj.',
-            monthly: 'Mujore',
-            sixMonths: '6 Muaj',
-            annual: 'Vjetore',
-            month: '/muaj',
-            save: 'Kurse',
-            bestValue: 'Vlera më e mirë',
-            features: {
-                menu: 'Artikuj pa limit',
-                qr: 'Gjenerim i kodit QR',
-                analytics: 'Analitikë Bazë',
-                support: 'Mbështetje me Email',
-                priority: 'Mbështetje Prioritare',
-                customDomain: 'Domen i Personalizuar'
-            },
-            cta: 'Fillo Tani'
+        contact: {
+            title: 'Kontakt',
+            subtitle: 'Gati për të modernizuar vendin tuaj? Na kontaktoni për ofertë.',
+            name: 'Emri',
+            email: 'Email',
+            message: 'Mesazhi',
+            cta: 'Dërgo Mesazh'
         },
         faq: {
             title: 'Pyetjet e Shpeshta',
@@ -323,6 +290,15 @@ const LandingPage = () => {
     const [mockupCartCount, setMockupCartCount] = useState(2); // Start with 2 items for visual demo
     const [hoveredNav, setHoveredNav] = useState(null); // For nav pill animation
     const t = translations[lang];
+
+    // Rotating Text Logic
+    const [rotateIndex, setRotateIndex] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRotateIndex((prev) => (prev + 1) % 4); // 4 words
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const toggleFaq = (index) => {
         setOpenFaq(openFaq === index ? null : index);
@@ -517,7 +493,7 @@ const LandingPage = () => {
                     {[
                         { id: 'how-it-works', label: t.nav.howItWorks },
                         { id: 'features', label: t.nav.features },
-                        { id: 'pricing', label: t.nav.pricing }
+                        { id: 'contact', label: t.nav.contact }
                     ].map((item) => (
                         <a
                             key={item.id}
@@ -630,7 +606,7 @@ const LandingPage = () => {
                         >
                             <a href="#how-it-works" onClick={(e) => scrollToSection(e, 'how-it-works')} className="mobile-nav-link">{t.nav.howItWorks}</a>
                             <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="mobile-nav-link">{t.nav.features}</a>
-                            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="mobile-nav-link">{t.nav.pricing}</a>
+                            <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="mobile-nav-link">{t.nav.contact}</a>
                             <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="mobile-nav-link">{t.nav.faq}</a>
 
                             <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
@@ -734,7 +710,18 @@ const LandingPage = () => {
                         className="hero-title"
                     >
                         {t.hero.title} <br />
-                        <span>{t.hero.titleHighlight}</span>
+                        <AnimatePresence mode="wait">
+                            <motion.span
+                                key={rotateIndex}
+                                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 0, scale: 0.95 }}
+                                transition={{ duration: 0.4 }}
+                                style={{ display: 'inline-block' }}
+                            >
+                                {t.hero.titleHighlight[rotateIndex]}
+                            </motion.span>
+                        </AnimatePresence>
                     </motion.h1>
 
                     <motion.p
@@ -752,10 +739,10 @@ const LandingPage = () => {
                         transition={{ duration: 0.5, delay: 0.3 }}
                         className="hero-actions"
                     >
-                        <Link to="/login?mode=signup" className="landing-btn landing-btn-primary" style={{ padding: '14px 32px', fontSize: '18px' }}>
+                        <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="landing-btn landing-btn-primary hero-btn">
                             {t.hero.createMenu}
-                        </Link>
-                        <Link to="/netaville" className="landing-btn landing-btn-glass" style={{ padding: '14px 32px', fontSize: '18px' }}>
+                        </a>
+                        <Link to="/netaville" className="landing-btn landing-btn-glass hero-btn">
                             {t.hero.viewDemo} <ArrowRight size={18} style={{ marginLeft: 8 }} />
                         </Link>
                     </motion.div>
@@ -1073,38 +1060,53 @@ const LandingPage = () => {
                     <p className="section-subtitle">{t.features.subtitle}</p>
                 </div>
 
-                <div className="features-grid">
+                <motion.div
+                    className="features-grid"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: false, amount: 0.2 }}
+                    variants={{
+                        visible: { transition: { staggerChildren: 0.1 } },
+                        hidden: {}
+                    }}
+                >
                     <FeatureCard
                         icon={<Zap size={24} />}
                         title={t.features.instantUpdates}
                         desc={t.features.instantUpdatesDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
                     <FeatureCard
                         icon={<Globe size={24} />}
                         title={t.features.multiLang}
                         desc={t.features.multiLangDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
                     <FeatureCard
                         icon={<LayoutTemplate size={24} />}
                         title={t.features.design}
                         desc={t.features.designDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
                     <FeatureCard
                         icon={<Smartphone size={24} />}
                         title={t.features.noApp}
                         desc={t.features.noAppDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
                     <FeatureCard
                         icon={<Coffee size={24} />}
                         title={t.features.waiters}
                         desc={t.features.waitersDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
                     <FeatureCard
                         icon={<CheckCircle size={24} />}
                         title={t.features.tracking}
                         desc={t.features.trackingDesc}
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     />
-                </div>
+                </motion.div>
             </motion.section>
 
             {/* Testimonials */}
@@ -1165,62 +1167,33 @@ const LandingPage = () => {
             </motion.section>
 
             {/* Pricing Section */}
+            {/* Contact Section */}
             <motion.section
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.8 }}
-                id="pricing"
-                className="pricing-section"
+                id="contact"
+                className="contact-section"
             >
-                <h2 className="section-title">{t.pricing.title}</h2>
-                <p className="section-subtitle">{t.pricing.subtitle}</p>
+                <h2 className="section-title">{t.contact.title}</h2>
+                <p className="section-subtitle">{t.contact.subtitle}</p>
 
-                <div className="pricing-grid">
-                    {/* Monthly */}
-                    <div className="pricing-card">
-                        <div className="pricing-plan">{t.pricing.monthly}</div>
-                        <div className="pricing-price">{lang === 'en' ? '20' : '1200'}<span> {t.pricing.month}</span></div>
-                        <div className="pricing-period">{lang === 'en' ? 'EUR' : 'MKD'}</div>
-                        <ul className="pricing-features">
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.menu}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.qr}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.analytics}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.support}</li>
-                        </ul>
-                        <Link to="/login?mode=signup" className="landing-btn landing-btn-glass pricing-cta">{t.pricing.cta}</Link>
-                    </div>
-
-                    {/* 6 Months */}
-                    <div className="pricing-card">
-                        <div className="popular-badge">{t.pricing.save} 17%</div>
-                        <div className="pricing-plan">{t.pricing.sixMonths}</div>
-                        <div className="pricing-price">{lang === 'en' ? '100' : '6000'}<span> / 6 mo</span></div>
-                        <div className="pricing-period">{lang === 'en' ? 'EUR' : 'MKD'}</div>
-                        <ul className="pricing-features">
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.menu}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.qr}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.analytics}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.support}</li>
-                        </ul>
-                        <Link to="/login?mode=signup" className="landing-btn landing-btn-glass pricing-cta">{t.pricing.cta}</Link>
-                    </div>
-
-                    {/* Annual */}
-                    <div className="pricing-card popular">
-                        <div className="popular-badge">{t.pricing.bestValue}</div>
-                        <div className="pricing-plan">{t.pricing.annual}</div>
-                        <div className="pricing-price">{lang === 'en' ? '180' : '10800'}<span> / yr</span></div>
-                        <div className="pricing-period">{lang === 'en' ? 'EUR (15/mo)' : 'MKD (900/mo)'}</div>
-                        <ul className="pricing-features">
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.menu}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.qr}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.analytics}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.priority}</li>
-                            <li><Check size={16} className="pricing-check" /> {t.pricing.features.customDomain}</li>
-                        </ul>
-                        <Link to="/login?mode=signup" className="landing-btn landing-btn-primary pricing-cta">{t.pricing.cta}</Link>
-                    </div>
+                <div className="contact-container">
+                    <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+                        <div className="form-group">
+                            <input type="text" className="contact-input" placeholder={t.contact.name} />
+                        </div>
+                        <div className="form-group">
+                            <input type="email" className="contact-input" placeholder={t.contact.email} />
+                        </div>
+                        <div className="form-group">
+                            <textarea className="contact-input" placeholder={t.contact.message} />
+                        </div>
+                        <button type="submit" className="landing-btn landing-btn-primary contact-submit-btn">
+                            {t.contact.cta} <ArrowRight size={20} />
+                        </button>
+                    </form>
                 </div>
             </motion.section>
 
@@ -1363,12 +1336,12 @@ const LandingPage = () => {
     );
 };
 
-const FeatureCard = ({ icon, title, desc }) => (
-    <div className="feature-card">
+const FeatureCard = ({ icon, title, desc, variants }) => (
+    <motion.div className="feature-card" variants={variants}>
         <div className="feature-icon">{icon}</div>
         <h3 className="feature-title">{title}</h3>
         <p className="feature-desc">{desc}</p>
-    </div>
+    </motion.div>
 );
 
 const TestimonialCard = ({ quote, author, initials }) => (

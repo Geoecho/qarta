@@ -60,7 +60,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     margin: 0,
                     fontSize: '15px',
                     fontWeight: 600,
-                    color: 'var(--color-ink)',
+                    color: 'var(--color-item-title, var(--color-ink))',
                     lineHeight: 1.3
                 }}>
                     {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
@@ -70,7 +70,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                 <div style={{
                     fontSize: '14px',
                     fontWeight: 600,
-                    color: 'var(--color-primary)'
+                    color: 'var(--color-item-price, var(--color-primary))'
                 }}>
                     {formatPrice((item.price + (selectedOption?.price || 0)), currency)}
                 </div>
@@ -80,7 +80,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                     <p style={{
                         margin: 0,
                         fontSize: '12px',
-                        color: 'var(--color-text-subtle)',
+                        color: 'var(--color-item-desc, var(--color-text-subtle))',
                         lineHeight: 1.5,
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
@@ -97,7 +97,7 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                         margin: 0,
                         fontSize: '11px',
                         fontStyle: 'italic',
-                        color: 'var(--color-text-subtle)',
+                        color: 'var(--color-item-desc, var(--color-text-subtle))', // Use same desc color
                         lineHeight: 1.4
                     }}>
                         {typeof displayIngredients === 'object'
@@ -208,8 +208,8 @@ const MenuItem = ({ item, index, onAdd, isLast, language }) => {
                         width: '32px',
                         height: '32px',
                         borderRadius: '50%',
-                        backgroundColor: 'var(--color-primary)',
-                        color: 'var(--color-on-primary)',
+                        backgroundColor: 'var(--bg-item-btn, var(--color-primary))',
+                        color: 'var(--color-item-btn-icon, var(--color-on-primary))',
                         border: '2px solid var(--bg-surface)',
                         display: 'flex',
                         alignItems: 'center',

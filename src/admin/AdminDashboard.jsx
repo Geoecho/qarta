@@ -10,6 +10,25 @@ import { OrdersDashboard } from './OrdersDashboard';
 import { ALLERGENS, getAllergenDetails } from '../utils/allergenHelper';
 import CloudinaryUploadButton from '../components/CloudinaryUploadButton';
 
+// --- Shared Components ---
+const Modal = ({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h2 style={{ margin: 0, fontSize: '24px' }}>{title}</h2>
+                    <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
+                        <X size={24} />
+                    </button>
+                </div>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+
 // --- Main Controller Component ---
 
 export const AdminDashboard = () => {
@@ -30,13 +49,15 @@ export const AdminDashboard = () => {
         <AdminLayout
             view={view}
             setView={setView}
-            onBack={view !== 'restaurants' ? () => setView('restaurants') : null}
+            onBack={view === 'restaurants' ? null : () => setView('restaurants')}
         >
             {view === 'restaurants' && (
-                <RestaurantList onSelect={(id) => {
-                    setSelectedRestaurantId(id);
-                    setView('menu-editor');
-                }} />
+                <RestaurantList
+                    onSelect={(id) => {
+                        setSelectedRestaurantId(id);
+                        setView('menu-editor');
+                    }}
+                />
             )}
 
             {view === 'menu-editor' && selectedRestaurant && (
@@ -45,6 +66,302 @@ export const AdminDashboard = () => {
         </AdminLayout>
     );
 };
+
+const ThemeEditor = ({ theme, onChange }) => {
+    const [activeTab, setActiveTab] = useState('brand'); // 'brand' | 'light' | 'dark'
+
+    // Simplified structure: 3 Main Tabs
+    const tabs = [
+        { id: 'brand', label: 'Brand Identity', icon: '🎨' },
+        { id: 'light', label: 'Light Mode', icon: '☀️' },
+        { id: 'dark', label: 'Dark Mode', icon: '🌙' }
+    ];
+
+    // Groups for Light/Dark tabs
+    const colorGroups = {
+        light: [
+            {
+                title: 'Core Colors',
+                colors: [
+                    { key: 'background', label: 'Background', desc: 'Main Page Background' },
+                    { key: 'surface', label: 'Surface', desc: 'Cards & Containers' },
+                    { key: 'text', label: 'Heading Text', desc: 'Primary Text Color' },
+                    { key: 'textMuted', label: 'Body Text', desc: 'Secondary Details' },
+                ]
+            },
+            {
+                title: 'Interface Elements',
+                colors: [
+                    { key: 'border', label: 'Borders', desc: 'Dividers & Outlines' },
+                    { key: 'headerControlBg', label: 'Buttons Bg', desc: 'Top Bar Buttons' },
+                    { key: 'headerControlIcon', label: 'Buttons Icon', desc: 'Top Bar Icons' },
+                    { key: 'menuIconColor', label: 'Category Icons', desc: 'Menu Section Icons' },
+                ]
+            },
+            {
+                title: 'Menu Items',
+                colors: [
+                    { key: 'itemPriceColor', label: 'Price', desc: 'Price Tag Color' },
+                    { key: 'itemBtnBg', label: 'Action Button', desc: 'Add to Cart Background' },
+                    { key: 'itemBtnIcon', label: 'Action Icon', desc: 'Add to Cart Icon' },
+                ]
+            }
+        ],
+        dark: [
+            {
+                title: 'Core Colors',
+                colors: [
+                    { key: 'darkBackground', label: 'Background', desc: 'Main Page Background' },
+                    { key: 'darkSurface', label: 'Surface', desc: 'Cards & Containers' },
+                    { key: 'darkText', label: 'Heading Text', desc: 'Primary Text Color' },
+                    { key: 'darkTextMuted', label: 'Body Text', desc: 'Secondary Details' },
+                ]
+            },
+            {
+                title: 'Interface Elements',
+                colors: [
+                    { key: 'darkBorder', label: 'Borders', desc: 'Dividers & Outlines' },
+                    { key: 'darkHeaderControlBg', label: 'Buttons Bg', desc: 'Top Bar Buttons' },
+                    { key: 'darkHeaderControlIcon', label: 'Buttons Icon', desc: 'Top Bar Icons' },
+                    { key: 'darkMenuIconColor', label: 'Category Icons', desc: 'Menu Section Icons' },
+                ]
+            },
+            {
+                title: 'Menu Items',
+                colors: [
+                    { key: 'darkItemPriceColor', label: 'Price', desc: 'Price Tag Color' },
+                    { key: 'darkItemBtnBg', label: 'Action Button', desc: 'Add to Cart Background' },
+                    { key: 'darkItemBtnIcon', label: 'Action Icon', desc: 'Add to Cart Icon' },
+                ]
+            }
+        ]
+    };
+
+    // Defaults matching App.jsx and index.css
+    const defaults = {
+        light: {
+            background: '#F5F5F7', surface: '#FFFFFF', overlay: '#00000080',
+            text: '#1D1D1F', textMuted: '#86868B', border: '#e5e7eb',
+            headerControlBg: '#F0F0F2', headerControlIcon: '#1D1D1F',
+            menuIconBg: '#ffffff00', menuIconColor: '#1D1D1F',
+            itemTitleColor: '#1D1D1F', itemDescColor: '#86868B',
+            itemPriceColor: theme?.primary || '#0ea5e9',
+            itemBtnBg: theme?.primary || '#0ea5e9', itemBtnIcon: '#FFFFFF'
+        },
+        dark: {
+            darkBackground: '#050505', darkSurface: '#121212', darkOverlay: '#000000CC',
+            darkText: '#E0E6ED', darkTextMuted: '#9DA5B4', darkBorder: '#ffffff1a',
+            darkHeaderControlBg: '#1E1E1E', darkHeaderControlIcon: '#E0E6ED',
+            darkMenuIconBg: '#ffffff00', darkMenuIconColor: '#E0E6ED',
+            darkItemTitleColor: '#E0E6ED', darkItemDescColor: '#9DA5B4',
+            darkItemPriceColor: theme?.darkPrimary || theme?.primary || '#38bdf8',
+            darkItemBtnBg: theme?.darkPrimary || theme?.primary || '#38bdf8', darkItemBtnIcon: '#050505'
+        }
+    };
+
+    return (
+        <div className="admin-card">
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '20px' }}>Theme Customization</h3>
+            <p style={{ margin: '0 0 24px 0', color: 'var(--text-muted)', fontSize: '14px' }}>
+                Control the look and feel of your digital menu.
+            </p>
+
+            {/* Top Level Tabs */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', borderBottom: '1px solid var(--border)', paddingBottom: '1px' }}>
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        style={{
+                            padding: '12px 20px',
+                            background: 'transparent',
+                            border: 'none',
+                            borderBottom: activeTab === tab.id ? '2px solid #38bdf8' : '2px solid transparent',
+                            color: activeTab === tab.id ? '#38bdf8' : 'var(--text-muted)',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.2s',
+                            fontSize: '14px'
+                        }}
+                    >
+                        <span>{tab.icon}</span>
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* BRAND TAB CONTENT */}
+            {activeTab === 'brand' && (
+                <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                    <div style={{ marginBottom: '32px' }}>
+                        <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>Core Identity</h4>
+
+                        <div style={{ display: 'grid', gap: '24px' }}>
+                            {/* Global Primary */}
+                            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>Primary Brand Color</label>
+                                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
+                                            The main color used for buttons, links, and highlights.
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                                            <input
+                                                type="color"
+                                                value={theme?.primary || '#0ea5e9'}
+                                                onChange={(e) => onChange('primary', e.target.value)}
+                                                style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', cursor: 'pointer' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <input
+                                    className="admin-input"
+                                    value={theme?.primary || ''}
+                                    onChange={(e) => onChange('primary', e.target.value)}
+                                    placeholder="#0ea5e9"
+                                    style={{ fontFamily: 'monospace', width: '100%' }}
+                                />
+                            </div>
+
+                            {/* Dark Mode Override */}
+                            <div style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: theme?.darkPrimary ? '16px' : '0' }}>
+                                    <input
+                                        type="checkbox"
+                                        id="darkModeOverride"
+                                        checked={!!theme?.darkPrimary}
+                                        onChange={(e) => {
+                                            if (e.target.checked) onChange('darkPrimary', theme?.primary || '#38bdf8');
+                                            else onChange('darkPrimary', '');
+                                        }}
+                                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#38bdf8' }}
+                                    />
+                                    <div>
+                                        <label htmlFor="darkModeOverride" style={{ fontSize: '15px', fontWeight: 600, cursor: 'pointer', display: 'block' }}>
+                                            Dark Mode Specific Color
+                                        </label>
+                                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>
+                                            Use a different primary color when in dark mode (optional).
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {theme?.darkPrimary && (
+                                    <div style={{ paddingLeft: '30px', animation: 'slideDown 0.2s ease' }}>
+                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                            <div style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                                <input
+                                                    type="color"
+                                                    value={theme?.darkPrimary || '#38bdf8'}
+                                                    onChange={(e) => onChange('darkPrimary', e.target.value)}
+                                                    style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', cursor: 'pointer' }}
+                                                />
+                                            </div>
+                                            <input
+                                                className="admin-input"
+                                                value={theme?.darkPrimary || ''}
+                                                onChange={(e) => onChange('darkPrimary', e.target.value)}
+                                                placeholder="#38bdf8"
+                                                style={{ width: '120px', fontFamily: 'monospace' }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Default Appearance */}
+                            <div style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '12px' }}>Default Appearance for New Users</div>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        onClick={() => onChange('defaultMode', 'light')}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            border: theme.defaultMode === 'light' ? '2px solid #38bdf8' : '1px solid var(--border)',
+                                            background: '#ffffff', color: '#000000', cursor: 'pointer', fontWeight: 600,
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                        }}
+                                    >
+                                        ☀️ Light Mode
+                                    </button>
+                                    <button
+                                        onClick={() => onChange('defaultMode', 'dark')}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            border: theme.defaultMode === 'dark' ? '2px solid #38bdf8' : '1px solid var(--border)',
+                                            background: '#0f172a', color: '#ffffff', cursor: 'pointer', fontWeight: 600,
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                        }}
+                                    >
+                                        🌙 Dark Mode
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+
+
+
+            {/* LIGHT / DARK TAB CONTENT */}
+            {(activeTab === 'light' || activeTab === 'dark') && (
+                <div style={{ animation: 'fadeIn 0.3s ease', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                    {colorGroups[activeTab].map(group => (
+                        <div key={group.title}>
+                            <h4 style={{
+                                margin: '0 0 20px 0',
+                                fontSize: '13px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                color: '#38bdf8', // Accent color for headers
+                                fontWeight: 700
+                            }}>
+                                {group.title}
+                            </h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '24px' }}>
+                                {group.colors.map(color => (
+                                    <div key={color.key} style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid transparent', transition: 'border 0.2s', ':hover': { borderColor: 'var(--border)' } }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600 }}>{color.label}</label>
+                                            <div style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                                <input
+                                                    type="color"
+                                                    value={theme?.[color.key] || defaults[activeTab][color.key] || '#000000'}
+                                                    onChange={(e) => onChange(color.key, e.target.value)}
+                                                    style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', padding: 0, margin: 0, border: 'none', cursor: 'pointer' }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px', minHeight: '16px' }}>
+                                            {color.desc}
+                                        </div>
+                                        <input
+                                            className="admin-input"
+                                            value={theme?.[color.key] || ''}
+                                            onChange={(e) => onChange(color.key, e.target.value)}
+                                            placeholder={defaults[activeTab][color.key]} // Use correct default
+                                            style={{ width: '100%', fontFamily: 'monospace', fontSize: '12px', padding: '6px 8px' }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div >
+    );
+};
+
 
 // --- Components ---
 
@@ -488,7 +805,7 @@ const SectionForm = ({ onSave, onCancel, initialData = null }) => {
 };
 
 const MenuEditor = ({ restaurant }) => {
-    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, updateCategory, deleteCategory, addSection, updateSection, deleteSection } = usePlatform();
+    const { updateMenuItem, addMenuItem, updateRestaurantDetails, deleteMenuItem, addCategory, updateCategory, deleteCategory, addSection, updateSection, deleteSection, saveStatus } = usePlatform();
     const [editingItem, setEditingItem] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
     const [editingSection, setEditingSection] = useState(null);
@@ -499,15 +816,37 @@ const MenuEditor = ({ restaurant }) => {
     const [draftValues, setDraftValues] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
 
+    // ... (rest of state and effects)
+
+    const lastRestaurantId = React.useRef(restaurant.id);
+
     useEffect(() => {
-        setDraftValues({
-            name: restaurant.name,
-            logo: restaurant.logo,
-            theme: restaurant.theme || {},
-            promotion: { active: false, title: '', message: '', image: '', ...restaurant.promotion }
-        });
-        setHasChanges(false);
-    }, [restaurant]);
+        // Only reset draft values if the restaurant ID actually changes
+        if (restaurant.id !== lastRestaurantId.current) {
+            setDraftValues({
+                name: restaurant.name,
+                logo: restaurant.logo,
+                theme: restaurant.theme || {},
+                info: { hours: '', address: '', phone: '', ...restaurant.info },
+                promotion: { active: false, title: '', message: '', image: '', ...restaurant.promotion }
+            });
+            setHasChanges(false);
+            lastRestaurantId.current = restaurant.id;
+        }
+    }, [restaurant.id]);
+
+    // Initial load fallback
+    useEffect(() => {
+        if (!draftValues.name && !draftValues.info) {
+            setDraftValues({
+                name: restaurant.name,
+                logo: restaurant.logo,
+                theme: restaurant.theme || {},
+                info: { hours: '', address: '', phone: '', ...restaurant.info },
+                promotion: { active: false, title: '', message: '', image: '', ...restaurant.promotion }
+            });
+        }
+    }, []);
 
     const handleDraftChange = (field, value) => {
         setDraftValues(prev => {
@@ -538,7 +877,7 @@ const MenuEditor = ({ restaurant }) => {
             } catch (error) {
                 console.error('Auto-save failed:', error);
             }
-        }, 1000);
+        }, 500); // Faster bounce (500ms)
 
         return () => clearTimeout(timer);
     }, [draftValues, hasChanges, restaurant.id, updateRestaurantDetails]);
@@ -559,10 +898,21 @@ const MenuEditor = ({ restaurant }) => {
         <div>
             {/* Header / Tabs */}
             <div style={{ marginBottom: '40px' }}>
-                <h1 style={{ margin: '0 0 8px 0', fontSize: '36px', fontWeight: 800 }}>{restaurant.name}</h1>
-                <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-                    Editing /{restaurant.slug}
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                        <h1 style={{ margin: '0 0 8px 0', fontSize: '36px', fontWeight: 800 }}>{restaurant.name}</h1>
+                        <p style={{ margin: 0, color: 'var(--text-muted)' }}>
+                            Editing /{restaurant.slug}
+                        </p>
+                    </div>
+                    {/* Status Indicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', fontSize: '13px', fontWeight: 600 }}>
+                        {saveStatus === 'saving' && <span style={{ color: '#fbbf24' }}>Saving...</span>}
+                        {saveStatus === 'success' && <span style={{ color: '#34d399' }}>Synced</span>}
+                        {saveStatus === 'idle' && <span style={{ color: 'var(--text-muted)' }}>Ready</span>}
+                        {saveStatus === 'error' && <span style={{ color: '#ef4444' }}>Sync Error</span>}
+                    </div>
+                </div>
 
                 <div style={{ display: 'flex', gap: '12px', marginTop: '32px', overflowX: 'auto', paddingBottom: '4px' }}>
                     <button
@@ -602,8 +952,8 @@ const MenuEditor = ({ restaurant }) => {
                                     className="modal-overlay"
                                 />
                                 <motion.div
-                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.2 }}
                                     className="modal-content"
                                 >
                                     <h2 style={{ marginTop: 0 }}>{editingItem.isNew ? 'New Item' : 'Edit Item'}</h2>
@@ -620,135 +970,121 @@ const MenuEditor = ({ restaurant }) => {
                             </>
                         )}
                     </AnimatePresence>
+                    {/* Edit Item Modal */}
+                    <Modal
+                        isOpen={!!editingItem}
+                        onClose={() => setEditingItem(null)}
+                        title={editingItem?.isNew ? 'New Item' : 'Edit Item'}
+                    >
+                        {editingItem && (
+                            <EditItemForm
+                                item={editingItem.item}
+                                section={restaurant.menu
+                                    .find(c => c.id === editingItem.categoryId)?.sections
+                                    .find(s => s.id === editingItem.sectionId)}
+                                onSave={handleSaveMenu}
+                                onCancel={() => setEditingItem(null)}
+                                isNew={editingItem.isNew}
+                            />
+                        )}
+                    </Modal>
 
                     {/* Category Form Modal */}
-                    <AnimatePresence>
-                        {showCategoryForm && (
-                            <>
-                                <motion.div
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                    onClick={() => setShowCategoryForm(false)}
-                                    className="modal-overlay"
-                                />
-                                <motion.div
-                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="modal-content"
-                                >
-                                    <h2 style={{ marginTop: 0 }}>New Category</h2>
-                                    <CategoryForm
-                                        onSave={(data) => {
-                                            addCategory(restaurant.id, data);
-                                            setShowCategoryForm(false);
-                                        }}
-                                        onCancel={() => setShowCategoryForm(false)}
-                                    />
-                                </motion.div>
-                            </>
-                        )}
-                    </AnimatePresence>
+                    <Modal
+                        isOpen={showCategoryForm}
+                        onClose={() => setShowCategoryForm(false)}
+                        title="New Category"
+                    >
+                        <CategoryForm
+                            onSave={(data) => {
+                                addCategory(restaurant.id, data);
+                                setShowCategoryForm(false);
+                            }}
+                            onCancel={() => setShowCategoryForm(false)}
+                        />
+                    </Modal>
+
 
                     {/* Section Form Modal */}
-                    <AnimatePresence>
-                        {showSectionForm && (
-                            <>
-                                <motion.div
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                    onClick={() => setShowSectionForm(null)}
-                                    className="modal-overlay"
-                                />
-                                <motion.div
-                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="modal-content"
-                                >
-                                    <h2 style={{ marginTop: 0 }}>New Section</h2>
-                                    <SectionForm
-                                        onSave={(data) => {
-                                            addSection(restaurant.id, showSectionForm, data);
-                                            setShowSectionForm(null);
-                                        }}
-                                        onCancel={() => setShowSectionForm(null)}
-                                    />
-                                </motion.div>
-                            </>
-                        )}
-                    </AnimatePresence>
+                    <Modal
+                        isOpen={!!showSectionForm}
+                        onClose={() => setShowSectionForm(null)}
+                        title="New Section"
+                    >
+                        <SectionForm
+                            onSave={(data) => {
+                                addSection(restaurant.id, showSectionForm, data);
+                                setShowSectionForm(null);
+                            }}
+                            onCancel={() => setShowSectionForm(null)}
+                        />
+                    </Modal>
 
                     {/* Edit Category Modal */}
-                    <AnimatePresence>
+                    <Modal
+                        isOpen={!!editingCategory}
+                        onClose={() => setEditingCategory(null)}
+                        title="Edit Category"
+                    >
                         {editingCategory && (
-                            <>
-                                <motion.div
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                    onClick={() => setEditingCategory(null)}
-                                    className="modal-overlay"
-                                />
-                                <motion.div
-                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="modal-content"
-                                >
-                                    <h2 style={{ marginTop: 0 }}>Edit Category</h2>
-                                    <CategoryForm
-                                        initialData={editingCategory}
-                                        onSave={(data) => {
-                                            updateCategory(restaurant.id, editingCategory.id, data);
-                                            setEditingCategory(null);
-                                        }}
-                                        onCancel={() => setEditingCategory(null)}
-                                    />
-                                </motion.div>
-                            </>
+                            <CategoryForm
+                                initialData={editingCategory}
+                                onSave={(data) => {
+                                    updateCategory(restaurant.id, editingCategory.id, data);
+                                    setEditingCategory(null);
+                                }}
+                                onCancel={() => setEditingCategory(null)}
+                            />
                         )}
-                    </AnimatePresence>
-
+                    </Modal>
                     {/* Edit Section Modal */}
-                    <AnimatePresence>
+                    <Modal
+                        isOpen={!!editingSection}
+                        onClose={() => setEditingSection(null)}
+                        title="Edit Section"
+                    >
                         {editingSection && (
-                            <>
-                                <motion.div
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                    onClick={() => setEditingSection(null)}
-                                    className="modal-overlay"
-                                />
-                                <motion.div
-                                    initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                    className="modal-content"
-                                >
-                                    <h2 style={{ marginTop: 0 }}>Edit Section</h2>
-                                    <SectionForm
-                                        initialData={editingSection.section}
-                                        onSave={(data) => {
-                                            updateSection(restaurant.id, editingSection.categoryId, editingSection.section.id, data);
-                                            setEditingSection(null);
-                                        }}
-                                        onCancel={() => setEditingSection(null)}
-                                    />
-                                </motion.div>
-                            </>
+                            <SectionForm
+                                initialData={editingSection.section}
+                                onSave={(data) => {
+                                    updateSection(restaurant.id, editingSection.categoryId, editingSection.section.id, data);
+                                    setEditingSection(null);
+                                }}
+                                onCancel={() => setEditingSection(null)}
+                            />
                         )}
-                    </AnimatePresence>
+                    </Modal>
 
-                    {restaurant.menu.length === 0 && (
-                        <div className="admin-card" style={{ padding: '80px 24px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '24px' }}>📋</div>
-                            <h3 style={{ margin: '0 0 12px 0' }}>Empty Menu</h3>
-                            <p style={{ margin: '0 0 32px 0', color: 'var(--text-muted)' }}>
-                                Start building your menu by creating a category (e.g., "Drinks", "Food").
-                            </p>
-                            <button
-                                onClick={() => setShowCategoryForm(true)}
-                                className="admin-btn admin-btn-primary"
-                            >
-                                <Plus size={20} />
-                                Create First Category
-                            </button>
-                        </div>
-                    )}
+                    {
+                        restaurant.menu.length === 0 && (
+                            <div className="admin-card" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '24px' }}>📋</div>
+                                <h3 style={{ margin: '0 0 12px 0' }}>Empty Menu</h3>
+                                <p style={{ margin: '0 0 32px 0', color: 'var(--text-muted)' }}>
+                                    Start building your menu by creating a category (e.g., "Drinks", "Food").
+                                </p>
+                                <button
+                                    onClick={() => setShowCategoryForm(true)}
+                                    className="admin-btn admin-btn-primary"
+                                >
+                                    <Plus size={20} />
+                                    Create First Category
+                                </button>
+                            </div>
+                        )
+                    }
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                        {restaurant.menu.length > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-20px' }}>
+                                <button
+                                    onClick={() => setShowCategoryForm(true)}
+                                    className="admin-btn admin-btn-primary"
+                                >
+                                    <Plus size={20} /> New Category
+                                </button>
+                            </div>
+                        )}
                         {restaurant.menu.map(category => (
                             <div key={category.id}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -858,77 +1194,145 @@ const MenuEditor = ({ restaurant }) => {
                 </>
             )}
 
-            {activeTab === 'settings' && (
-                <div style={{ maxWidth: '800px' }}>
-                    <div className="admin-card">
-                        <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Branding & Basic Info</h3>
-                        <div style={{ display: 'grid', gap: '24px' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Restaurant Name</label>
-                                <input
-                                    className="admin-input"
-                                    value={draftValues.name || ''}
-                                    onChange={(e) => handleDraftChange('name', e.target.value)}
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Logo URL</label>
-                                <div style={{ display: 'flex', gap: '12px' }}>
+            {
+                activeTab === 'settings' && (
+                    <div style={{ maxWidth: '800px' }}>
+                        <div className="admin-card">
+                            <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Branding & Basic Info</h3>
+                            <div style={{ display: 'grid', gap: '24px' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Restaurant Name</label>
                                     <input
                                         className="admin-input"
-                                        value={draftValues.logo || ''}
-                                        onChange={(e) => handleDraftChange('logo', e.target.value)}
-                                        placeholder="https://..."
+                                        value={draftValues.name || ''}
+                                        onChange={(e) => handleDraftChange('name', e.target.value)}
                                     />
-                                    {draftValues.logo && (
-                                        <img src={draftValues.logo} alt="Logo Preview" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', background: 'white' }} />
-                                    )}
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Logo URL</label>
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <input
+                                            className="admin-input"
+                                            value={draftValues.logo || ''}
+                                            onChange={(e) => handleDraftChange('logo', e.target.value)}
+                                            placeholder="https://..."
+                                        />
+                                        {draftValues.logo && (
+                                            <img src={draftValues.logo} alt="Logo Preview" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', background: 'white' }} />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="admin-card">
-                        <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Promotion Banner</h3>
-                        <div style={{ display: 'grid', gap: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={draftValues.promotion?.active || false}
-                                    onChange={(e) => handleDeepDraftChange('promotion', 'active', e.target.checked)}
-                                    style={{ width: '20px', height: '20px' }}
-                                />
-                                <label style={{ fontWeight: 600 }}>Enable Promotion Banner</label>
+                        {/* Business Info Section */}
+                        <div className="admin-card">
+                            <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Business Info</h3>
+                            <div style={{ display: 'grid', gap: '24px' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Working Hours</label>
+                                    <textarea
+                                        className="admin-input"
+                                        value={draftValues.info?.hours || ''}
+                                        onChange={(e) => handleDeepDraftChange('info', 'hours', e.target.value)}
+                                        placeholder="Mon-Fri: 08:00 - 22:00&#10;Sat-Sun: 10:00 - 23:00"
+                                        rows={3}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Address / Map Link</label>
+                                    <input
+                                        className="admin-input"
+                                        value={draftValues.info?.address || ''}
+                                        onChange={(e) => handleDeepDraftChange('info', 'address', e.target.value)}
+                                        placeholder="123 Main St, City or Google Maps Link"
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Phone Number</label>
+                                    <input
+                                        className="admin-input"
+                                        value={draftValues.info?.phone || ''}
+                                        onChange={(e) => handleDeepDraftChange('info', 'phone', e.target.value)}
+                                        placeholder="+1 234 567 890"
+                                    />
+                                </div>
                             </div>
-                            {draftValues.promotion?.active && (
-                                <>
-                                    <div>
-                                        <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Title</label>
-                                        <input
-                                            className="admin-input"
-                                            value={draftValues.promotion?.title || ''}
-                                            onChange={(e) => handleDeepDraftChange('promotion', 'title', e.target.value)}
-                                            placeholder="Happy Hour!"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Message</label>
-                                        <textarea
-                                            className="admin-input"
-                                            value={draftValues.promotion?.message || ''}
-                                            onChange={(e) => handleDeepDraftChange('promotion', 'message', e.target.value)}
-                                            placeholder="50% off all cocktails..."
-                                            rows={3}
-                                            style={{ resize: 'vertical' }}
-                                        />
-                                    </div>
-                                </>
-                            )}
+                        </div>
+
+                        <ThemeEditor
+                            theme={draftValues.theme || {}}
+                            onChange={(key, value) => handleDeepDraftChange('theme', key, value)}
+                        />
+
+                        <div className="admin-card">
+                            <h3 style={{ margin: '0 0 24px 0', fontSize: '20px' }}>Promotion Banner</h3>
+                            <div style={{ display: 'grid', gap: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={draftValues.promotion?.active || false}
+                                        onChange={(e) => handleDeepDraftChange('promotion', 'active', e.target.checked)}
+                                        style={{ width: '20px', height: '20px' }}
+                                    />
+                                    <label style={{ fontWeight: 600 }}>Enable Promotion Banner</label>
+                                </div>
+                                {draftValues.promotion?.active && (
+                                    <>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Title</label>
+                                            <input
+                                                className="admin-input"
+                                                value={draftValues.promotion?.title || ''}
+                                                onChange={(e) => handleDeepDraftChange('promotion', 'title', e.target.value)}
+                                                placeholder="Happy Hour!"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Banner Image (Optional)</label>
+                                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                                {draftValues.promotion?.image ? (
+                                                    <div style={{ position: 'relative' }}>
+                                                        <img src={draftValues.promotion.image} alt="Preview" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeepDraftChange('promotion', 'image', '')}
+                                                            style={{ position: 'absolute', top: -6, right: -6, background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', padding: '4px', cursor: 'pointer' }}
+                                                        >
+                                                            <X size={10} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <CloudinaryUploadButton onUpload={(url) => handleDeepDraftChange('promotion', 'image', url)} />
+                                                )}
+                                                <input
+                                                    className="admin-input"
+                                                    value={draftValues.promotion?.image || ''}
+                                                    onChange={(e) => handleDeepDraftChange('promotion', 'image', e.target.value)}
+                                                    placeholder="Image URL..."
+                                                    style={{ flex: 1 }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Message</label>
+                                            <textarea
+                                                className="admin-input"
+                                                value={draftValues.promotion?.message || ''}
+                                                onChange={(e) => handleDeepDraftChange('promotion', 'message', e.target.value)}
+                                                placeholder="50% off all cocktails..."
+                                                rows={3}
+                                                style={{ resize: 'vertical' }}
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
@@ -943,12 +1347,24 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
         descSq: item?.desc?.sq || '',
         price: item?.price || '', // Start empty string to allow typing 0 comfortably
         image: item?.image || '',
-        filterId: item?.filterId || '' // Sub-category ID
+        filterId: item?.filterId || '', // Sub-category ID
+        allergens: item?.allergens || []
     });
 
     // Cloudinary Upload Logic
     const handleImageUpload = (url) => {
         setFormData(prev => ({ ...prev, image: url }));
+    };
+
+    const toggleAllergen = (allergen) => {
+        setFormData(prev => {
+            const current = prev.allergens || [];
+            if (current.includes(allergen)) {
+                return { ...prev, allergens: current.filter(a => a !== allergen) };
+            } else {
+                return { ...prev, allergens: [...current, allergen] };
+            }
+        });
     };
 
     const handleSave = (e) => {
@@ -958,7 +1374,8 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
             desc: { en: formData.descEn, mk: formData.descMk, sq: formData.descSq },
             price: Number(formData.price),
             image: formData.image,
-            filterId: formData.filterId
+            filterId: formData.filterId,
+            allergens: formData.allergens
         });
     };
 
@@ -1010,6 +1427,42 @@ const EditItemForm = ({ item, section, onSave, onCancel, isNew }) => {
                     </div>
                 </div>
             )}
+
+            {/* Allergens Selector */}
+            <div>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Allergens & Badges</label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {ALLERGENS.map(allergen => {
+                        const { icon: Icon, color } = getAllergenDetails(allergen);
+                        const isSelected = formData.allergens?.includes(allergen);
+                        return (
+                            <button
+                                key={allergen}
+                                type="button"
+                                onClick={() => toggleAllergen(allergen)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '6px 12px',
+                                    borderRadius: '100px',
+                                    border: '1px solid',
+                                    borderColor: isSelected ? color : 'var(--glass-border)',
+                                    background: isSelected ? `${color}20` : 'transparent',
+                                    color: isSelected ? color : 'var(--text-muted)',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Icon size={14} />
+                                {allergen}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
             <div>
                 <label style={{ display: 'block', marginBottom: '10px', fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Description (English)</label>
