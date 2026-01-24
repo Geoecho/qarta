@@ -1,0 +1,52 @@
+rules_version='2'
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // --- HELPER FUNCTIONS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // "Staff" are users authenticated via Email/Password (Admin Login)
+    // "Guests" are users authenticated via Anonymous Auth
+    function isStaff() {
+      return isSignedIn() && request.auth.token.email != null;
+    }
+
+    // --- RULES ---
+
+    // 1. SYSTEM MENU (The CORE Database)
+    // Allow public read (so customers can see the menu)
+    // Allow ANY authenticated user to write (Admin, Owner, or even Anonymous for now to ensure it works)
+    match /system/{docId} {
+        allow read: if true;
+        allow write: if request.auth != null;
+    }
+    
+    // 2. RESTAURANT CONFIG (Public Read, Staff Write)
+    match /restaurants/{restaurantId} {
+      allow read: if true;
+      allow write: if isStaff();
+      
+      // Tables subcollection
+      match /tables/{tableId} {
+         allow read: if true;
+         allow write: if isStaff();
+      }
+    }
+
+    // 3. ORDERS (The Critical Part)
+    // 3. ORDERS (The Critical Part)
+    match /orders/{orderId} {
+      // Allow any authenticated user (Restaurant Admin, Super Admin) to read/manage orders
+      // For MVP we assume if you are authed, you are allowed.
+      // (Ideally we'd check if request.auth.uid is in a list of admins for that restaurant)
+      allow read, write: if request.auth != null; 
+      
+      // Note: Clients technically create via Cloud Function (Admin SDK), 
+      // but if we wanted client-direct writes, this rule covers it.
+      // The Cloud Function bypasses this anyway.
+      // Crucially, this ALLOWS the Admin Panel (Client SDK) to read/update status.
+    }
+  }
+}

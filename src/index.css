@@ -1,0 +1,188 @@
+:root {
+  /* 8px Strict Grid System */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+
+  /* Animation */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* Light Mode (Premium Clean) */
+  --bg-app: #F5F5F7;
+  --bg-surface: #FFFFFF;
+  --bg-surface-secondary: #F0F0F2;
+
+  --color-ink: #1D1D1F;
+  --color-text-subtle: #86868B;
+  --border-color: rgba(0, 0, 0, 0.08);
+
+  /* Primary Brand Color - Sky Blue */
+  /* Flattened UI Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  --color-primary: #f43f5e;
+  /* Red fallback */
+  --color-on-primary: #FFFFFF;
+}
+
+.dark {
+  /* Dark Mode Overrides */
+  --bg-app: #050505;
+  --bg-surface: #121212;
+  --bg-surface-secondary: #1E1E1E;
+
+  --color-ink: #E0E6ED;
+  --color-text-subtle: #9DA5B4;
+  --border-color: rgba(255, 255, 255, 0.1);
+
+  --color-primary: #f43f5e;
+  /* Red fallback */
+  --color-on-primary: #FFFFFF;
+
+  /* Flattened UI Shadows (Dark) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Typography - Outfit */
+:root {
+  --font-sans: 'Outfit', sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-app);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Hide Scrollbar but keep functionality */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Global Animations for Order Status */
+@keyframes heartPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.heart-pulse-bg {
+  animation: heartPulse 2s infinite;
+}
+
+.thumb-up-anim {
+  animation: bounce 1s infinite alternate;
+  font-size: 24px;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-4px);
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tilt-shaking {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(5deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
+
+  75% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.tilt-shaking {
+  animation: tilt-shaking 0.5s infinite;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-simple {
+  animation: spin 1s linear infinite;
+}
+
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
