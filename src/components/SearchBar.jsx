@@ -78,7 +78,7 @@ const SearchBar = ({ value, onChange, onClear, language, bottomOffset = 24 }) =>
         >
             <div style={{
                 backgroundColor: 'var(--bg-header-control)',
-                borderRadius: '24px',
+                borderRadius: '20px',
                 padding: '0 20px', // Remove vertical padding, use flex align with fixed height
                 height: '52px', // Fixed height for input area
                 width: '100%',

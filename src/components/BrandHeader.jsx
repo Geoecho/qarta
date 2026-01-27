@@ -47,7 +47,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
                     style={{
                         width: '40px',
                         height: '40px',
-                        borderRadius: '50%',
+                        borderRadius: '16px', // Matched 16px radius
                         border: '1px solid var(--border-color)',
                         background: 'var(--bg-header-control)',
                         color: 'var(--color-header-icon)',
@@ -114,7 +114,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
                     style={{
                         width: '40px',
                         height: '40px',
-                        borderRadius: '50%',
+                        borderRadius: '16px', // Matched 16px radius
                         border: '1px solid var(--border-color)',
                         background: 'var(--bg-header-control)',
                         color: 'var(--color-header-icon)',

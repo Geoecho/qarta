@@ -344,45 +344,48 @@ const ItemDetailModal = ({ item, isOpen, onClose, language = 'en' }) => {
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '16px',
+                                gap: '12px', // Reduced gap for tighter pill
                                 backgroundColor: 'var(--bg-control-secondary)',
-                                padding: '4px',
-                                borderRadius: '26px', // Matches Search Bar
-                                height: '52px', // Comfortable for 44px buttons
-                                border: '1px solid var(--border-color)' // Matches Search Bar
+                                padding: '10px', // 10px padding all around
+                                borderRadius: '28px', // 56px height / 2
+                                height: '56px', // 56px Fixed Height
+                                border: '1px solid var(--border-color)',
+                                boxSizing: 'border-box'
                             }}>
                                 <motion.button
                                     whileTap={{ scale: 0.85 }}
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     style={{
-                                        width: '44px',
-                                        height: '44px',
+                                        width: '36px', // Max 36px high
+                                        height: '36px',
                                         borderRadius: '50%',
                                         border: 'none',
-                                        background: 'transparent',
+                                        background: 'var(--bg-surface)', // Added background for better contrast in pill
                                         cursor: 'pointer',
                                         color: 'var(--color-item-price)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                                     }}
                                 >
-                                    <Minus size={20} />
+                                    <Minus size={18} />
                                 </motion.button>
-                                <span style={{ fontSize: '18px', fontWeight: 800, minWidth: '20px', textAlign: 'center', color: 'var(--color-ink)' }}>{quantity}</span>
+                                <span style={{ fontSize: '18px', fontWeight: 800, minWidth: '24px', textAlign: 'center', color: 'var(--color-ink)' }}>{quantity}</span>
                                 <motion.button
                                     whileTap={{ scale: 0.85 }}
                                     onClick={() => setQuantity(quantity + 1)}
                                     style={{
-                                        width: '44px',
-                                        height: '44px',
+                                        width: '36px', // Max 36px high
+                                        height: '36px',
                                         borderRadius: '50%',
                                         border: 'none',
-                                        background: 'transparent',
+                                        background: 'var(--bg-surface)', // Added background for better contrast in pill 
                                         cursor: 'pointer',
                                         color: 'var(--color-item-price)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                                     }}
                                 >
-                                    <Plus size={20} />
+                                    <Plus size={18} />
                                 </motion.button>
                             </div>
 
@@ -392,12 +395,12 @@ const ItemDetailModal = ({ item, isOpen, onClose, language = 'en' }) => {
                                 onClick={handleAddToCart}
                                 style={{
                                     flex: 1,
-                                    height: '48px', // Scaled down from 56px
-                                    borderRadius: '24px', // Matches Search Bar logic/pill
+                                    height: '56px', // Consistent 56px
+                                    borderRadius: '28px', // Consistent 28px
                                     backgroundColor: 'var(--color-item-price)',
                                     color: '#fff',
                                     border: 'none',
-                                    fontSize: '16px', // Slightly smaller
+                                    fontSize: '16px',
                                     fontWeight: 700,
                                     cursor: 'pointer',
                                     display: 'flex',

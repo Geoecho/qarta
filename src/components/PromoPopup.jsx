@@ -124,14 +124,18 @@ const PromoPopup = ({ promotion }) => {
                                 onClick={handleClose}
                                 style={{
                                     width: '100%',
-                                    padding: '14px',
-                                    borderRadius: '100px',
+                                    height: '56px', // Consistent 56px
+                                    borderRadius: '28px', // Consistent radius
                                     border: 'none',
                                     background: 'var(--color-primary)',
                                     color: 'var(--color-on-primary)',
                                     fontSize: '16px',
                                     fontWeight: 700,
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '0'
                                 }}
                             >
                                 Got it!

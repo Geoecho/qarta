@@ -22,7 +22,7 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '0 24px',
-                marginBottom: '12px'
+                marginBottom: '0px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Sparkles size={18} style={{ color: 'var(--color-item-price)' }} fill="currentColor" />
@@ -45,8 +45,7 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                     display: 'flex',
                     gap: '16px',
                     overflowX: 'auto',
-                    padding: '0 24px',
-                    paddingBottom: '20px', // Increased space for shadow
+                    padding: '15px 24px 24px 24px', // Exactly 15px top padding for the gap
                     scrollSnapType: 'x mandatory',
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
@@ -102,9 +101,7 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                         <div style={{
                             position: 'absolute',
                             inset: 0,
-                            background: isDark
-                                ? 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, transparent 80%)'
-                                : 'linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 40%, transparent 80%)',
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
                             zIndex: 1
                         }} />
 
@@ -117,7 +114,7 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                             flexDirection: 'column',
                             justifyContent: 'center',
                             alignItems: 'flex-start',
-                            color: isDark ? 'white' : 'var(--color-ink)',
+                            color: 'white',
                             maxWidth: '85%',
                             zIndex: 2 // Explicitly above gradient (which has zIndex 1)
                         }}>
@@ -131,6 +128,7 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.05em',
                                 marginBottom: '12px',
+                                color: 'white',
                                 boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
                             }}>
                                 {deal.tag || 'Special'}
@@ -141,8 +139,8 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                                 fontSize: '22px', // Larger for hierarchy
                                 fontWeight: 700, // Reduced from 900
                                 lineHeight: 1.1,
-                                color: isDark ? 'white' : 'var(--color-ink)', // Explicit adaptive color
-                                textShadow: isDark ? '0 2px 4px rgba(0,0,0,0.8)' : 'none'
+                                color: 'white', // Explicit white
+                                textShadow: '0 2px 4px rgba(0,0,0,0.5)'
                             }}>
                                 {typeof deal.title === 'object' ? (deal.title[language] || deal.title['en']) : deal.title}
                             </h3>
@@ -151,13 +149,13 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                                 margin: '0 0 12px 0',
                                 fontSize: '13px', // Slightly larger
                                 fontWeight: 500,
-                                opacity: isDark ? 0.9 : 0.6, // Slightly softer in light mode
+                                opacity: 0.9, // Consistent opacity
                                 lineHeight: 1.4,
                                 display: '-webkit-box',
                                 WebkitLineClamp: 2, // Reduced to 2 lines
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
-                                textShadow: isDark ? '0 1px 2px rgba(0,0,0,0.8)' : 'none'
+                                textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                             }}>
                                 {typeof deal.description === 'object' ? (deal.description[language] || deal.description['en']) : deal.description}
                             </p>
@@ -166,8 +164,8 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                                 <span style={{
                                     fontSize: '18px', // Slightly larger
                                     fontWeight: 800, // Reduced from 900 for better balance
-                                    color: isDark ? 'white' : 'var(--color-ink)',
-                                    textShadow: isDark ? '0 1px 3px rgba(0,0,0,0.5)' : 'none'
+                                    color: 'white',
+                                    textShadow: '0 1px 3px rgba(0,0,0,0.5)'
                                 }}>
                                     {formatPrice(deal.price, language === 'mk' ? 'MKD' : 'EUR')}
                                 </span>
@@ -175,9 +173,9 @@ const DealsCarousel = ({ deals, language, onDealClick, isDark }) => {
                                     <span style={{
                                         fontSize: '13px', // Slightly larger
                                         textDecoration: 'line-through',
-                                        color: isDark ? 'white' : 'var(--color-ink)',
-                                        opacity: isDark ? 0.6 : 0.4,
-                                        textShadow: isDark ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
+                                        color: 'white',
+                                        opacity: 0.6,
+                                        textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                                     }}>
                                         {formatPrice(deal.originalPrice, language === 'mk' ? 'MKD' : 'EUR')}
                                     </span>

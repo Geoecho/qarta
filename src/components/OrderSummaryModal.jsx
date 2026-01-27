@@ -113,10 +113,28 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
             };
         }
         // 4. DECLINED
-        if (dbStatus === 'cancelled') {
+        if (dbStatus === 'cancelled' || dbStatus === 'rejected') {
             return {
                 title: language === 'mk' ? 'Нарачката е одбиена' : (language === 'sq' ? 'Porosia u refuzua' : 'Order Declined'),
-                icon: <X size={48} strokeWidth={3} color="var(--color-ink)" />,
+                icon: (
+                    <motion.div
+                        initial={{ scale: 0.8, rotate: -45, opacity: 0 }}
+                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        style={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: '50%',
+                            background: 'var(--bg-surface-secondary)', // Consistent soft background
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '1px solid var(--border-color)' // Consistent border
+                        }}
+                    >
+                        <X size={32} strokeWidth={3} color="#ef4444" />
+                    </motion.div>
+                ),
                 desc: activeOrder?.declineReason
                     ? `Reason: ${activeOrder.declineReason}`
                     : (language === 'mk' ? 'Ресторанот не може да ја прифати вашата нарачка.' : (language === 'sq' ? 'Restoranti nuk mund ta pranojë porosinë tuaj.' : 'The restaurant could not accept your order.')),
@@ -488,11 +506,12 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             backgroundColor: 'var(--bg-control-secondary)',
-                                                            borderRadius: '22px', // Matches Search Bar style but for smaller pill
-                                                            padding: '0 4px',
-                                                            height: '44px', // 44px Minimum Tap Size
-                                                            gap: '16px',
-                                                            border: '1px solid var(--border-color)'
+                                                            borderRadius: '28px', // Matches new 56px height
+                                                            padding: '10px', // 10px padding
+                                                            height: '56px', // 56px Height
+                                                            gap: '12px',
+                                                            border: '1px solid var(--border-color)',
+                                                            boxSizing: 'border-box'
                                                         }}>
                                                             <motion.button
                                                                 whileTap={{ scale: 0.85 }}
@@ -501,23 +520,23 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                                     item.quantity > 1 ? updateQuantity(itemKey, -1) : removeFromCart(itemKey);
                                                                 }}
                                                                 style={{
-                                                                    width: '40px',
-                                                                    height: '40px',
+                                                                    width: '36px', // 36px max
+                                                                    height: '36px',
                                                                     borderRadius: '50%',
-                                                                    background: 'var(--bg-app)',
-                                                                    border: '1px solid var(--border-color)',
+                                                                    background: 'var(--bg-surface)',
+                                                                    border: 'none',
                                                                     cursor: 'pointer',
                                                                     color: item.quantity === 1 ? 'var(--color-getError, #ef4444)' : 'var(--color-item-price)',
                                                                     display: 'flex',
                                                                     alignItems: 'center',
                                                                     justifyContent: 'center',
-                                                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                                                    boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                                                                 }}
                                                             >
-                                                                {item.quantity === 1 ? <Trash2 size={18} /> : <Minus size={18} />}
+                                                                {item.quantity === 1 ? <Trash2 size={16} /> : <Minus size={16} />}
                                                             </motion.button>
 
-                                                            <span style={{ fontSize: '14px', fontWeight: 800, minWidth: '14px', textAlign: 'center', color: 'var(--color-ink)' }}>
+                                                            <span style={{ fontSize: '16px', fontWeight: 800, minWidth: '18px', textAlign: 'center', color: 'var(--color-ink)' }}>
                                                                 {item.quantity}
                                                             </span>
 
@@ -528,20 +547,20 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                                     updateQuantity(itemKey, 1);
                                                                 }}
                                                                 style={{
-                                                                    width: '40px',
-                                                                    height: '40px',
+                                                                    width: '36px', // 36px max
+                                                                    height: '36px',
                                                                     borderRadius: '50%',
-                                                                    background: 'var(--bg-app)',
-                                                                    border: '1px solid var(--border-color)',
+                                                                    background: 'var(--bg-surface)',
+                                                                    border: 'none',
                                                                     cursor: 'pointer',
                                                                     color: 'var(--color-item-price)',
                                                                     display: 'flex',
                                                                     alignItems: 'center',
                                                                     justifyContent: 'center',
-                                                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                                                    boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
                                                                 }}
                                                             >
-                                                                <Plus size={18} />
+                                                                <Plus size={16} />
                                                             </motion.button>
                                                         </div>
 
@@ -603,7 +622,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                 )}
 
                                 {/* Hide Confirm Button entirely if Order is NOT idle OR if order is already accepted/ready/completed */}
-                                {orderStatus === 'idle' && (!activeOrder || dbStatus === 'placed' || dbStatus === 'cancelled') && (
+                                {orderStatus === 'idle' && (!activeOrder || dbStatus === 'placed' || dbStatus === 'cancelled' || dbStatus === 'rejected') && (
                                     <motion.button
                                         whileTap={{ scale: isSafetyLocked ? 1 : 0.98 }}
                                         onClick={() => !isSafetyLocked && handlePlaceOrder()}
@@ -627,7 +646,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         }}
                                         disabled={isSafetyLocked}
                                     >
-                                        {t.confirmOrder || 'Confirm Order'}
+                                        {isEditing ? (t.retryOrder || 'Retry Order') : (t.confirmOrder || 'Confirm Order')}
                                     </motion.button>
                                 )}
 
@@ -662,8 +681,8 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                     </motion.button>
                                 )}
 
-                                {/* Show "Declined" State */}
-                                {orderStatus === 'confirmed' && dbStatus === 'cancelled' && (
+                                {/* Show "Declined" State - Robust Check */}
+                                {(activeOrder && (dbStatus === 'cancelled' || dbStatus === 'rejected')) && (
                                     <motion.button
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}

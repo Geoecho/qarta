@@ -32,7 +32,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                     overflowY: 'hidden',
                     display: 'flex',
                     gap: '16px',
-                    padding: '12px 24px',
+                    padding: '15px 24px 24px 24px', // 15px top for exact gap
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
                     alignItems: 'center',
@@ -50,6 +50,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                             onClick={() => onSelect(cat.id)}
                             whileTap={{ scale: 0.95 }}
                             animate={{
+                                opacity: isActive ? 1 : 0.7, // Subtle opacity for inactive
                                 scale: isActive ? 1.05 : 1
                             }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -58,39 +59,33 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'flex-start',
-                                gap: '8px',
-                                padding: '6px',
-                                borderRadius: '24px',
-                                width: '124px',
-                                height: 'auto', // Allow height to fit square image + text
-                                minHeight: '170px', // Uniform height
-                                border: isActive ? 'none' : '1px solid var(--border-color)',
+                                gap: '12px', // Increased gap between image and text
+                                padding: '0', // No padding on container
+                                borderRadius: '0',
+                                width: '88px', // Slightly narrower for cleaner look
+                                border: 'none',
                                 cursor: 'pointer',
                                 flexShrink: 0,
                                 position: 'relative',
-                                overflow: 'hidden',
-                                transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-                                backgroundColor: isActive ? 'var(--color-item-price)' : 'var(--bg-header-control)', // Use dynamic price color
-                                color: isActive ? '#ffffff' : 'var(--color-text-subtle)',
-                                boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+                                overflow: 'visible', // Allow shadow overflow if any
+                                backgroundColor: 'transparent', // Transparent background
+                                color: isActive ? 'var(--color-ink)' : 'var(--color-text-subtle)', // Text color change
                             }}
                         >
-
-
                             {/* Image / Icon Container */}
                             <div
                                 style={{
                                     width: '100%',
                                     aspectRatio: '1/1', // Force perfect square
-                                    borderRadius: '18px', // Reduced from 32px
+                                    borderRadius: '16px', // Reduced radius as requested (16px)
                                     overflow: 'hidden',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    background: cat.bgColor ? cat.bgColor : (isActive ? 'rgba(255,255,255,0.2)' : 'var(--category-bg, rgba(0,0,0,0.03))'),
-                                    zIndex: 1,
-                                    position: 'relative',
-                                    flexShrink: 0
+                                    background: cat.bgColor ? cat.bgColor : 'var(--bg-surface-secondary)', // Always light background
+                                    border: isActive ? '2px solid var(--color-item-price)' : 'none', // Remove stroke when disabled
+                                    boxShadow: isActive ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
+                                    transition: 'all 0.3s ease'
                                 }}
                             >
                                 {cat.image ? (
@@ -100,35 +95,29 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 ) : (
-                                    <IconComponent size={32} />
+                                    <IconComponent size={32} color={isActive ? 'var(--color-item-price)' : 'var(--color-text-subtle)'} />
                                 )}
                             </div>
 
                             {/* Label */}
-                            {/* Label */}
                             <div style={{
-                                width: '100%',
-                                zIndex: 1,
-                                color: 'inherit',
-                                flex: 1, // Fill remaining space if any
+                                width: '120%', // Allow text to be slightly wider than image
+                                marginLeft: '-10%',
+                                textAlign: 'center',
                                 minHeight: '34px',
                                 display: 'flex',
-                                alignItems: 'center', // Center vertically in space
+                                alignItems: 'flex-start',
                                 justifyContent: 'center',
-                                paddingBottom: '4px',
-                                overflow: 'hidden'
                             }}>
                                 <span style={{
-                                    fontSize: '11px',
-                                    fontWeight: isActive ? 600 : 500, // Reduced heavy bold
-                                    textAlign: 'center',
+                                    fontSize: '13px', // Larger, cleaner text
+                                    fontWeight: isActive ? 700 : 500,
                                     lineHeight: '1.2',
+                                    color: 'inherit',
                                     display: '-webkit-box',
-                                    WebkitLineClamp: 3,
+                                    WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    wordBreak: 'break-word',
-                                    width: '100%'
+                                    overflow: 'hidden'
                                 }}>
                                     {cat.label[language] || cat.label['en']}
                                 </span>

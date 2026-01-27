@@ -451,7 +451,7 @@ const ClientApp = () => {
           />
           {/* Global Search Results Overlay */}
           <AnimatePresence>
-            {searchQuery && (
+            {searchQuery && isSearchFocused && (
               <SearchResults
                 results={searchResults}
                 language={language}
@@ -476,9 +476,9 @@ const ClientApp = () => {
         {/* Top Navigation - Categories */}
         <div style={{
           paddingTop: '8px',
-          marginBottom: '20px'
+          marginBottom: '0px' // Remove wrapper margin, let internal padding handle it
         }}>
-          <div style={{ padding: '0 24px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ padding: '0 24px', marginBottom: '0px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <LayoutGrid size={18} style={{ color: 'var(--color-item-price)' }} fill="currentColor" fillOpacity={0.2} />
             <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--color-ink)', letterSpacing: '-0.5px' }}>
               {language === 'mk' ? 'Категории' : (language === 'sq' ? 'Kategoritë' : 'Categories')}
@@ -548,18 +548,18 @@ const ClientApp = () => {
                 left: '24px',
                 right: '24px',
                 maxWidth: '500px',
-                height: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'auto' : '56px',
+                height: '56px', // Standard Pill Height always
                 margin: '0 auto',
-                backgroundColor: 'var(--color-item-price)', // Always brand color now, as requested ("not like other pills")
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '24px' : '100px',
-                padding: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '16px' : '0 8px 0 16px',
+                backgroundColor: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '#ef4444' : 'var(--color-item-price)', // Red for error, Brand for others
+                border: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '100px', // Standard Pill Radius always
+                padding: '0 8px 0 16px', // Standard Pill Padding
                 display: 'flex',
-                flexDirection: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'column' : 'row',
-                alignItems: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'stretch' : 'center',
-                justifyContent: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'center' : 'space-between',
-                gap: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '16px' : '0',
-                boxShadow: 'none',
+                flexDirection: 'row', // Always Row
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0',
+                boxShadow: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '0 8px 16px rgba(239, 68, 68, 0.25)' : 'none',
                 cursor: 'pointer',
                 zIndex: 99
               }}
@@ -569,8 +569,8 @@ const ClientApp = () => {
                 alignItems: 'center',
                 flex: 1, // Ensure it takes available space
                 gap: '12px',
-                justifyContent: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'center' : 'flex-start',
-                width: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '100%' : 'auto'
+                justifyContent: 'flex-start',
+                width: 'auto'
               }}>
                 {/* Status Icon */}
                 {(activeOrder?.status === 'placed' || orderStatus === 'waiting') ? (
@@ -579,7 +579,12 @@ const ClientApp = () => {
                   ['ready', 'completed'].includes(activeOrder?.status) ? (
                     <Bell size={24} fill="#fff" strokeWidth={0} className="tilt-shaking" />
                   ) : (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? (
-                    <X size={24} color="#fff" strokeWidth={3} />
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <X size={16} color="#fff" strokeWidth={3} />
+                    </div>
                   ) : (
                     <div style={{ position: 'relative', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div className="pulse-ring" style={{ width: '100%', height: '100%', inset: 0 }}></div>
@@ -588,7 +593,7 @@ const ClientApp = () => {
                   )
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'center' : 'flex-start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <span style={{ color: '#fff', fontWeight: 700, fontSize: '15px', lineHeight: 1.2 }}>
                     {(() => {
                       const s = activeOrder?.status || 'placed';
@@ -612,7 +617,7 @@ const ClientApp = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '100%' : 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'auto' : 'auto' }}>
                 {/* Contextual Action Button */}
                 {activeOrder?.status === 'completed' ? (
                   <div
@@ -624,18 +629,18 @@ const ClientApp = () => {
                     style={{
                       backgroundColor: 'rgba(255,255,255,0.2)',
                       color: '#fff',
-                      padding: '12px 16px',
+                      padding: '10px 20px',
                       borderRadius: '50px',
                       fontWeight: 700,
                       fontSize: '15px',
                       whiteSpace: 'nowrap',
-                      width: '100%',
-                      textAlign: 'center',
                       display: 'flex',
-                      justifyContent: 'center'
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '12px'
                     }}
                   >
-                    {t.newOrder || "Start New Order"}
+                    {t.newOrder || "New Order"}
                   </div>
                 ) : (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? (
                   <div
@@ -645,20 +650,21 @@ const ClientApp = () => {
                       setIsOrderModalOpen(true);
                     }}
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                      color: '#fff',
-                      padding: '12px 16px',
+                      backgroundColor: 'white',
+                      color: '#ef4444',
+                      padding: '10px 24px',
                       borderRadius: '50px',
                       fontWeight: 700,
                       fontSize: '15px', // Match Completed
                       whiteSpace: 'nowrap',
-                      width: '100%',
-                      textAlign: 'center',
                       display: 'flex',
-                      justifyContent: 'center'
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '12px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {t.viewOrder || "View Details"}
+                    {t.tryAgain || "Try Again"}
                   </div>
                 ) : (
                   <div style={{
