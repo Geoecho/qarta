@@ -156,16 +156,23 @@
 .or-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
     padding: 24px;
     overflow-x: auto;
     background: var(--bg-app);
 }
 
+@media (max-width: 1400px) {
+    .or-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2x2 on medium screens */
+    }
+}
+
 @media (max-width: 1100px) {
     .or-grid {
-        grid-template-columns: repeat(3, minmax(300px, 1fr));
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
     }
 }
 
@@ -217,6 +224,10 @@
 
 .or-column.ready .or-col-header {
     border-top: 4px solid #22c55e;
+}
+
+.or-column.rejected .or-col-header {
+    border-top: 4px solid #ef4444;
 }
 
 .or-col-header h2 {
@@ -468,4 +479,75 @@
 .or-btn.decline:hover {
     background: #fee2e2;
     border-color: #fee2e2;
+}
+
+.or-btn.dismiss {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--color-text-subtle);
+}
+
+.or-btn.dismiss:hover {
+    background: var(--bg-surface-hover);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+}
+
+/* --- Responsive Header Tweaks --- */
+
+/* Default: Icon hidden, Text shown */
+.or-logout-icon {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .or-header {
+        padding: 12px 16px;
+        /* Tighter padding */
+        gap: 12px;
+    }
+
+    .or-brand h1 {
+        font-size: 18px;
+        /* Slightly smaller title */
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .or-controls {
+        gap: 8px;
+        /* Tighter controls */
+    }
+
+    .or-icon-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .or-logout-btn {
+        padding: 0;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: var(--bg-surface-secondary);
+    }
+
+    .or-logout-text {
+        display: none;
+        /* Hide text on mobile */
+    }
+
+    .or-logout-icon {
+        display: block;
+        /* Show icon on mobile */
+    }
+
+    .or-lang-btn {
+        padding: 6px 8px;
+        /* Smaller touch targets */
+    }
 }

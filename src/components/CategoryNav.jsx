@@ -23,7 +23,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
         <div style={{
             width: '100%',
             overflow: 'hidden',
-            paddingBottom: '16px' // Increased space for shadow
+            paddingBottom: '4px' // Reduced space for shadow to bring items closer
         }}>
             <div
                 ref={scrollContainerRef}
@@ -32,7 +32,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                     overflowY: 'hidden',
                     display: 'flex',
                     gap: '16px',
-                    padding: '15px 24px 24px 24px', // 15px top for exact gap
+                    padding: '15px 24px 8px 24px', // Reduced top padding for tighter fit
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
                     alignItems: 'center',
@@ -77,7 +77,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                                 style={{
                                     width: '100%',
                                     aspectRatio: '1/1', // Force perfect square
-                                    borderRadius: '16px', // Reduced radius as requested (16px)
+                                    borderRadius: '20px', // Squircle matching Search Bar
                                     overflow: 'hidden',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -101,8 +101,8 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
 
                             {/* Label */}
                             <div style={{
-                                width: '120%', // Allow text to be slightly wider than image
-                                marginLeft: '-10%',
+                                width: '100%', // Full width
+                                marginTop: '4px',
                                 textAlign: 'center',
                                 minHeight: '34px',
                                 display: 'flex',
@@ -126,7 +126,7 @@ const CategoryNav = ({ categories, activeCategory, onSelect, language }) => {
                     );
                 })}
             </div>
-        </div>
+        </div >
     );
 };
 

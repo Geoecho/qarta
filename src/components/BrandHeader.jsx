@@ -9,7 +9,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
 
     return (
         <div style={{
-            padding: '24px',
+            padding: '16px 24px', // Standardized vertical padding (was 24px)
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -64,10 +64,12 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
                 <div style={{
                     display: 'flex',
                     background: 'var(--bg-header-control)',
-                    borderRadius: '100px', // Pill
+                    borderRadius: '16px', // Squircle to match buttons
                     padding: '4px',
                     border: '1px solid var(--border-color)',
-                    position: 'relative'
+                    position: 'relative',
+                    height: '40px', // Managed height to match sticky buttons
+                    alignItems: 'center'
                 }}>
                     {['mk', 'en', 'sq'].map((lang) => (
                         <button
@@ -79,8 +81,12 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
                                 color: language === lang ? 'var(--color-header-icon)' : 'var(--color-text-subtle)',
                                 fontSize: '12px',
                                 fontWeight: 700,
-                                padding: '6px 12px',
-                                borderRadius: '100px',
+                                padding: '0 12px', // Horizontal padding only, let flex handle vertical
+                                height: '100%', // Fill the container height
+                                display: 'flex', // Enable flex for centering
+                                alignItems: 'center', // Vertically center text
+                                justifyContent: 'center', // Horizontally center text
+                                borderRadius: '12px', // Match inner radius
                                 cursor: 'pointer',
                                 position: 'relative',
                                 zIndex: 2,
@@ -95,7 +101,7 @@ const BrandHeader = ({ isDark, toggleTheme, language, setLanguage, logoUrl, isIn
                                         position: 'absolute',
                                         inset: 0,
                                         backgroundColor: 'var(--bg-surface)', // Active pill remains surface color for contrast
-                                        borderRadius: '100px',
+                                        borderRadius: '12px',
                                         zIndex: -1
                                     }}
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}

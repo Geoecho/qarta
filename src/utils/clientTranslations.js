@@ -24,7 +24,9 @@ export const CLIENT_TRANSLATIONS = {
         editOrder: "Edit Order",
         cancelOrder: "Cancel",
         newOrder: "Start New Order",
-        tryAgain: "Try Again"
+        newOrder: "Start New Order",
+        tryAgain: "Try Again",
+        orderDeclined: "Order Declined"
     },
     mk: {
         yourOrder: "Вашата Нарачка",
@@ -51,7 +53,8 @@ export const CLIENT_TRANSLATIONS = {
         editOrder: "Измени Нарачка",
         cancelOrder: "Откажи",
         newOrder: "Започни Нова Нарачка",
-        tryAgain: "Обиди се повторно"
+        tryAgain: "Обиди се повторно",
+        orderDeclined: "Нарачката е одбиена"
     },
     sq: {
         yourOrder: "Porosia Juaj",
@@ -78,6 +81,7 @@ export const CLIENT_TRANSLATIONS = {
         editOrder: "Ndrysho Porosinë",
         cancelOrder: "Anulo",
         newOrder: "Fillo Porosi të Re",
-        tryAgain: "Provo përsëri"
+        tryAgain: "Provo përsëri",
+        orderDeclined: "Porosia u refuzua"
     }
 };

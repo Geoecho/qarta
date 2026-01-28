@@ -8,22 +8,57 @@ const MenuAccordion = ({ section, isOpen, onToggle, language, onItemClick }) => 
     // Smart Icon Resolution
     const IconComponent = getSmartIcon(section.id) || getSmartIcon(section.title?.en) || Utensils;
     const [activeFilter, setActiveFilter] = useState('all');
+    const containerRef = React.useRef(null); // Ref for scroll control
 
     // Reset filter when closed (optional, keeps it clean)
     // useEffect(() => { if(!isOpen) setActiveFilter('all'); }, [isOpen]);
+
+    // SCROLL BEHAVIOR: Guide user on Open/Close
+    React.useEffect(() => {
+        if (isOpen) {
+            // Open: Scroll to top of section (with margin) to maximize view
+            // Delay slightly to allow Framer Motion to begin expansion
+            const timer = setTimeout(() => {
+                if (containerRef.current) {
+                    containerRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start' // Align top of section to top of viewport (respecting scroll-margin)
+                    });
+                }
+            }, 250);
+            return () => clearTimeout(timer);
+        } else {
+            // Close: Guide back to ensure header is fully visible if it drifted
+            // 'nearest' ensures minimal movement if it's already in view, but brings it back if off-screen
+            // Using a shorter delay as collapse is faster visually from user perspective
+            const timer = setTimeout(() => {
+                if (containerRef.current) {
+                    containerRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
+            }, 200);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     const visibleItems = activeFilter === 'all'
         ? section.items
         : section.items.filter(item => (item.filterId || item.tag) === activeFilter);
 
     return (
-        <div style={{
-            marginBottom: '12px',
-            backgroundColor: 'var(--bg-surface)',
-            borderRadius: '20px',
-            border: '1px solid var(--border-color)',
-            overflow: 'hidden'
-        }}>
+        <div
+            ref={containerRef}
+            style={{
+                marginBottom: '12px',
+                backgroundColor: 'var(--bg-surface)',
+                borderRadius: '20px',
+                border: '1px solid var(--border-color)',
+                overflow: 'hidden',
+                scrollMarginTop: '85px' // Crucial: Leaves space for Header/Search when scrolled to
+            }}
+        >
             {/* Header */}
             <button
                 onClick={onToggle}

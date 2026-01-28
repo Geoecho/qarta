@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
-import { Search, X, LayoutGrid, Bell } from 'lucide-react';
+import { Search, X, LayoutGrid, Bell, Flame } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { MenuProvider, usePlatform } from './contexts/MenuContext';
 import { CLIENT_TRANSLATIONS } from './utils/clientTranslations';
@@ -20,6 +20,7 @@ import LandingPage from './landing/LandingPage';
 
 import InfoPage from './components/InfoPage';
 import DealsCarousel from './components/DealsCarousel';
+import OrderHistory from './admin/OrderHistory';
 
 import OrderSummaryModal from './components/OrderSummaryModal';
 import { useTheme } from './hooks/useTheme';
@@ -76,7 +77,7 @@ const ClientApp = () => {
   const [openSectionId, setOpenSectionId] = useState(null); // Accordion state
   const [selectedItem, setSelectedItem] = useState(null); // Item Detail Modal State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { cart, totalCount, totalPrice, loadOrderForRestaurant, orderStatus, activeOrder, resetOrder, setTableId } = useOrder();
+  const { cart, totalCount, totalPrice, loadOrderForRestaurant, orderStatus, activeOrder, resetOrder, setTableId, editOrder } = useOrder();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isStatusHidden, setIsStatusHidden] = useState(() => {
     try {
@@ -87,6 +88,13 @@ const ClientApp = () => {
   useEffect(() => {
     sessionStorage.setItem('qarta_hide_pill', isStatusHidden);
   }, [isStatusHidden]);
+
+  // Force re-render every 30s to update timers
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30000); // 30s check
+    return () => clearInterval(interval);
+  }, []);
 
   // Reset hidden state when NEW order is placed
   useEffect(() => {
@@ -536,150 +544,231 @@ const ClientApp = () => {
 
         <AnimatePresence>
           {!isOrderModalOpen && orderStatus !== 'idle' && !isStatusHidden && (
-            <motion.div
-              initial={{ y: 100, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 100, opacity: 0, scale: 0.95 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-              onClick={() => setIsOrderModalOpen(true)}
-              style={{
-                position: 'fixed',
-                bottom: '24px',
-                left: '24px',
-                right: '24px',
-                maxWidth: '500px',
-                height: '56px', // Standard Pill Height always
-                margin: '0 auto',
-                backgroundColor: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '#ef4444' : 'var(--color-item-price)', // Red for error, Brand for others
-                border: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'none' : '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '100px', // Standard Pill Radius always
-                padding: '0 8px 0 16px', // Standard Pill Padding
-                display: 'flex',
-                flexDirection: 'row', // Always Row
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '0',
-                boxShadow: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '0 8px 16px rgba(239, 68, 68, 0.25)' : 'none',
-                cursor: 'pointer',
-                zIndex: 99
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                flex: 1, // Ensure it takes available space
-                gap: '12px',
-                justifyContent: 'flex-start',
-                width: 'auto'
-              }}>
-                {/* Status Icon */}
-                {(activeOrder?.status === 'placed' || orderStatus === 'waiting') ? (
-                  <div className="spinner-simple" style={{ width: 24, height: 24, border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
-                ) : (
-                  ['ready', 'completed'].includes(activeOrder?.status) ? (
-                    <Bell size={24} fill="#fff" strokeWidth={0} className="tilt-shaking" />
-                  ) : (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? (
-                    <div style={{
-                      width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                      <X size={16} color="#fff" strokeWidth={3} />
-                    </div>
-                  ) : (
-                    <div style={{ position: 'relative', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div className="pulse-ring" style={{ width: '100%', height: '100%', inset: 0 }}></div>
-                      <div style={{ width: 10, height: 10, background: '#fff', borderRadius: '50%', zIndex: 2 }}></div>
-                    </div>
-                  )
-                )}
+            <div style={{
+              position: 'fixed',
+              bottom: '24px',
+              left: '24px',
+              right: '24px',
+              zIndex: 99,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              pointerEvents: 'none', // Let clicks pass through transparent areas
+              gap: '8px'
+            }}>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span style={{ color: '#fff', fontWeight: 700, fontSize: '15px', lineHeight: 1.2 }}>
-                    {(() => {
-                      const s = activeOrder?.status || 'placed';
-                      if (s === 'completed') return t.orderCompleted || "Order Finished";
-                      if (s === 'rejected' || s === 'cancelled') return t.orderDeclined || "Order Declined"; // Add trans key if needed or fallback
-                      if (s === 'ready') return t.orderReady || "Ready!";
-                      if (s === 'accepted' || s === 'cooking') return t.preparing || "Preparing";
-                      return t.orderSent || "Sent";
-                    })()}
-                  </span>
-                  <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: 500 }}>
-                    {(() => {
-                      const s = activeOrder?.status || 'placed';
-                      if (s === 'completed') return t.completedDesc || "Tap to start new";
-                      if (s === 'rejected' || s === 'cancelled') return t.tryAgain || "Please try again.";
-                      if (s === 'ready') return restaurant?.serviceType === 'self' ? (t.readyDescSelf || "Come pick it up!") : (t.readyDesc || "It's ready!");
-                      if (s === 'accepted' || s === 'cooking') return t.preparingDesc || "Preparing...";
-                      return t.orderSentDesc || "Waiting...";
-                    })()}
-                  </span>
-                </div>
-              </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: (activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? 'auto' : 'auto' }}>
-                {/* Contextual Action Button */}
-                {activeOrder?.status === 'completed' ? (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      resetOrder();
-                      setIsStatusHidden(true); // Hide pill after reset
-                    }}
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                      color: '#fff',
-                      padding: '10px 20px',
-                      borderRadius: '50px',
-                      fontWeight: 700,
-                      fontSize: '15px',
-                      whiteSpace: 'nowrap',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: '12px'
-                    }}
-                  >
-                    {t.newOrder || "New Order"}
-                  </div>
-                ) : (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Maybe open modal? or reset? Opening modal shows reason.
-                      setIsOrderModalOpen(true);
-                    }}
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#ef4444',
-                      padding: '10px 24px',
-                      borderRadius: '50px',
-                      fontWeight: 700,
-                      fontSize: '15px', // Match Completed
-                      whiteSpace: 'nowrap',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: '12px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    {t.tryAgain || "Try Again"}
-                  </div>
-                ) : (
+              {/* MAIN STATUS PILL - Squircle Design */}
+              <motion.div
+                initial={{ y: 100, opacity: 0, scale: 0.95 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                exit={{ y: 100, opacity: 0, scale: 0.95 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                onClick={() => setIsOrderModalOpen(true)}
+                style={{
+                  width: '100%',
+                  maxWidth: '500px',
+                  height: '68px', /* Taller for substantial feel */
+                  backgroundColor: (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? '#ef4444' : 'var(--color-item-price)',
+                  borderRadius: '20px', /* Matching Search Bar */
+                  padding: '10px', /* Uniform padding as requested */
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '16px',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.25)',
+                  cursor: 'pointer',
+                  pointerEvents: 'auto',
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: 1,
+                  gap: '16px',
+                  minWidth: 0,
+                  height: '100%'
+                }}>
+                  {/* Status Icon Area - No Background, Bigger */}
                   <div style={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: '#fff',
-                    padding: '10px 16px',
-                    borderRadius: '50px',
-                    fontWeight: 600,
-                    fontSize: '14px',
+                    width: '48px', /* Bigger space */
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    // backgroundColor: 'transparent', // Removed background
+                    // borderRadius: '12px' // Not needed if transparent
                   }}>
-                    View
+                    {(activeOrder?.status === 'placed' || orderStatus === 'waiting') ? (
+                      <div className="spinner-simple" style={{ width: 28, height: 28, border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
+                    ) : (
+                      ['ready', 'completed'].includes(activeOrder?.status) ? (
+                        <Bell size={28} fill="#fff" strokeWidth={0} className="tilt-shaking" />
+                      ) : (activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') ? (
+                        <X size={28} color="#fff" strokeWidth={3} />
+                      ) : (
+
+                        /* Timer / Delayed Logic */
+                        (() => {
+                          // Safe calculation
+                          const durationMins = activeOrder?.estimatedDuration || 0;
+                          const start = activeOrder?.acceptedAt ? new Date(activeOrder.acceptedAt).getTime() : Date.now();
+                          const now = Date.now();
+                          const durationMs = durationMins * 60000;
+                          const elapsedMs = now - start;
+                          const remainingMs = durationMs - elapsedMs;
+                          const isDelayed = remainingMs <= 0;
+                          const lateMins = isDelayed ? Math.abs(Math.ceil(remainingMs / 60000)) : 0;
+
+                          // Timer Params
+                          const size = 44;
+                          const strokeWidth = 4;
+                          const radius = 18;
+                          const circumference = 2 * Math.PI * radius; // ~113
+
+                          // Progress: 0 (start) -> 1 (end)
+                          const progress = Math.min(Math.max(elapsedMs / durationMs, 0), 1);
+                          const initialOffset = circumference * progress;
+
+                          return (
+                            <div style={{ position: 'relative', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="44" height="44" style={{ transform: 'rotate(-90deg)' }}>
+                                <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.3)" strokeWidth="4" fill="none" />
+                                {!isDelayed && (
+                                  <motion.circle
+                                    cx="22" cy="22" r="18"
+                                    stroke="#fff"
+                                    strokeWidth="4"
+                                    fill="none"
+                                    strokeDasharray={circumference}
+                                    initial={{ strokeDashoffset: initialOffset }}
+                                    animate={{ strokeDashoffset: circumference }}
+                                    transition={{ duration: remainingMs / 1000, ease: "linear" }}
+                                  />
+                                )}
+                                {/* If delayed, maybe a pulsing ring or just empty track with pulsing text? Let's keep it clean: Empty track, pulsing text. */}
+                              </svg>
+                              <div className={isDelayed ? "pulsing-orange" : ""} style={{
+                                position: 'absolute',
+                                fontSize: '13px',
+                                fontWeight: 800,
+                                color: '#fff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}>
+                                {isDelayed ? `+${lateMins}m` : Math.ceil(remainingMs / 60000) + 'm'}
+                              </div>
+                            </div>
+                          );
+                        })()
+                      )
+                    )}
                   </div>
-                )}
-              </div>
-            </motion.div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', minWidth: 0, flex: 1, gap: '2px' }}>
+                    <span style={{
+                      color: '#fff',
+                      fontWeight: 800,
+                      fontSize: '16px',
+                      lineHeight: '1.1',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      width: '100%',
+                      letterSpacing: '-0.3px'
+                    }}>
+                      {(() => {
+                        const s = activeOrder?.status || 'placed';
+                        if (s === 'completed') return t.orderCompleted || "Order Finished";
+                        if (s === 'rejected' || s === 'cancelled') return t.orderDeclined || "Order Declined";
+                        if (s === 'ready') return t.orderReady || "Ready!";
+                        if (s === 'accepted' || s === 'cooking') return t.preparing || "Preparing";
+                        return t.orderSent || "Sent";
+                      })()}
+                    </span>
+                    <span style={{
+                      color: 'rgba(255,255,255,0.85)',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      lineHeight: '1.1',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      width: '100%'
+                    }}>
+                      {(() => {
+                        const s = activeOrder?.status || 'placed';
+                        if (s === 'rejected' || s === 'cancelled') return activeOrder.rejectionReason || (t.tryAgain || "Please try again.");
+                        if (s === 'accepted' || s === 'cooking') return t.orderOnWay || "Order is correctly being made";
+                        if (s === 'completed') return t.completedDesc || "Tap to start new";
+                        if (s === 'ready') return t.readyDesc || "It's ready!";
+                        return t.orderSentDesc || "Waiting...";
+                      })()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* View Button - Squircle to match */}
+                <div style={{
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  color: '#fff',
+                  width: '64px', /* Fixed square-ish/squircle button? Or rectangle */
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '12px', /* Lower radius for internal item */
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  flexShrink: 0
+                }}>
+                  View
+                </div>
+              </motion.div>
+
+              {/* SECONDARY ACTION PILL - Squircle Style */}
+              {(activeOrder?.status === 'completed' || activeOrder?.status === 'rejected' || activeOrder?.status === 'cancelled') && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 20, opacity: 0 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (activeOrder?.status === 'completed') {
+                      resetOrder();
+                      setIsStatusHidden(true);
+                    } else {
+                      if (activeOrder && editOrder) editOrder();
+                      setIsOrderModalOpen(true);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    maxWidth: '500px',
+                    height: '56px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)', /* Dark Glass */
+                    backdropFilter: 'blur(16px)',
+                    color: '#fff',
+                    borderRadius: '20px', /* Matches Status Pill */
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 600,
+                    fontSize: '15px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    marginTop: '8px'
+                  }}
+                >
+                  {activeOrder?.status === 'completed' ? (t.newOrder || "New Order") : (t.tryAgain || "Try Again")}
+                </motion.div>
+              )}
+            </div>
           )}
         </AnimatePresence>
 
@@ -722,45 +811,45 @@ const ClientApp = () => {
                 margin: '0 auto',
                 backgroundColor: 'var(--color-item-price)', // Keep brand color base
                 border: '1px solid rgba(255,255,255,0.2)', // Increased visibility stroke
-                borderRadius: '100px', // Match Order Pill
-                height: '52px', // Match SearchBar
-                padding: '0 16px', // Equal spacing symmetrically
+                borderRadius: '20px', // Squircle matching Search Bar/Status Pill
+                height: '60px', // Slightly taller for better touch target
+                padding: '0 10px', // Equal spacing
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                zIndex: 99
+                zIndex: 99,
+                boxShadow: '0 12px 32px rgba(0,0,0,0.3)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{
-                  background: '#fff',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.2)',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '10px', /* Squircle Counter */
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--color-item-price)',
+                  color: '#fff',
                   fontWeight: 800,
-                  fontSize: '13px'
+                  fontSize: '14px'
                 }}>
                   {totalCount}
                 </div>
-                <span style={{ color: '#fff', fontWeight: 700, fontSize: '15px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                <span style={{ color: '#fff', fontWeight: 700, fontSize: '16px', letterSpacing: '-0.3px', textTransform: 'none' }}>
                   {CLIENT_TRANSLATIONS[language]?.viewOrder || CLIENT_TRANSLATIONS['en'].viewOrder}
                 </span>
               </div>
 
               {/* Total Price Pill */}
               <div style={{
-                backgroundColor: 'rgba(0,0,0,0.2)', // Darker translucent pill
-                color: '#fff',
-                padding: '0 16px', // Reduced vertical padding + flex center
-                borderRadius: '100px', // Fully Round
-                fontWeight: 700,
+                backgroundColor: '#fff', /* White contrast */
+                color: 'var(--color-item-price)',
+                padding: '0 16px',
+                borderRadius: '12px', /* Squircle */
+                fontWeight: 800,
                 fontSize: '15px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                height: '36px', // Explicit reduced height
+                height: '36px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -816,6 +905,11 @@ const App = () => {
             } />
 
             {/* Client Routes */}
+            <Route path="/admin/:slug/history" element={
+              <ProtectedRestaurantRoute>
+                <OrderHistory />
+              </ProtectedRestaurantRoute>
+            } />
             <Route path="/:slug" element={<ClientApp />} />
             <Route path="/:slug/info" element={<InfoPage />} />
 

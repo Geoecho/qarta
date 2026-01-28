@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, CheckCircle, Flame, Archive, Bell, Volume2, VolumeX, ArrowLeft, X } from 'lucide-react';
+import { Clock, CheckCircle, Flame, Archive, Bell, Volume2, VolumeX, ArrowLeft, X, LogOut } from 'lucide-react';
 import { db, auth } from '../firebase';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -50,7 +50,11 @@ const TRANSLATIONS = {
         viewMenu: 'View Menu',
         logout: 'Logout',
         noOrders: 'No active orders',
-        waitingForOrders: 'Waiting for orders...'
+        waitingForOrders: 'Waiting for orders...',
+        dismiss: 'Dismiss',
+        orderDeclined: 'ORDER DECLINED',
+        orderCanceled: 'ORDER CANCELED',
+        rejectionReason: 'Reason'
     },
     mk: {
         title: 'Нарачки',
@@ -70,7 +74,11 @@ const TRANSLATIONS = {
         viewMenu: 'Мени',
         logout: 'Одјава',
         noOrders: 'Нема активни нарачки',
-        waitingForOrders: 'Чекање нарачки...'
+        waitingForOrders: 'Чекање нарачки...',
+        dismiss: 'Тргни',
+        orderDeclined: 'НАРАЧКАТА Е ОДБИЕНА',
+        orderCanceled: 'НАРАЧКАТА Е ОТКАЖАНА',
+        rejectionReason: 'Причина'
     },
     sq: {
         title: 'Porosite',
@@ -90,7 +98,11 @@ const TRANSLATIONS = {
         viewMenu: 'Menyja',
         logout: 'Dil',
         noOrders: 'Nuk ka porosi aktive',
-        waitingForOrders: 'Duke pritur porosi...'
+        waitingForOrders: 'Duke pritur porosi...',
+        dismiss: 'Hiq',
+        orderDeclined: 'POROSIA U REFUZUA',
+        orderCanceled: 'POROSIA U ANULUA',
+        rejectionReason: 'Arsyeja'
     }
 };
 
@@ -112,7 +124,9 @@ const OrderReceiver = () => {
 
     // Rejection Modal State
     const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+    const [acceptanceModalOpen, setAcceptanceModalOpen] = useState(false); // New state
     const [orderToReject, setOrderToReject] = useState(null);
+    const [orderToAccept, setOrderToAccept] = useState(null); // New state
     const [selectedOrder, setSelectedOrder] = useState(null); // Detail Modal State
 
     // Language State
@@ -137,8 +151,13 @@ const OrderReceiver = () => {
 
     // 2. Local Password Check
     useEffect(() => {
-        const savedAuth = localStorage.getItem(`cafe_${slug}_auth`);
-        if (savedAuth === 'true') {
+        // PERMANENT FIX: Check both Restaurant Auth AND Super Admin Auth
+        const isRestaurantAuth = localStorage.getItem(`isAuth_${slug}`) === 'true';
+        const isSuperAdmin = localStorage.getItem('isAdminAuthenticated') === 'true';
+
+        console.log("--- DEBUG: Auth Check ---", { isRestaurantAuth, isSuperAdmin });
+
+        if (isRestaurantAuth || isSuperAdmin) {
             setIsAuthenticated(true);
         }
         setLoading(false);
@@ -176,17 +195,37 @@ const OrderReceiver = () => {
 
     const doLogin = () => {
         if (rememberMe) {
-            localStorage.setItem(`cafe_${slug}_auth`, 'true');
+            localStorage.setItem(`isAuth_${slug}`, 'true');
         } else {
-            localStorage.removeItem(`cafe_${slug}_auth`);
+            // If not remembering, we still set it for the session, or rely on state.
+            // But App.jsx expects it for routing protection.
+            // So we must set it.
+            localStorage.setItem(`isAuth_${slug}`, 'true');
+            // Ideally we'd valid session storage vs local, but let's stick to local for simplicity as per existing pattern
         }
         setIsAuthenticated(true);
         setAuthError('');
     };
 
     // 3. Orders Listener
+    // 3. Listen for Orders
     useEffect(() => {
-        if (!slug || !isAuthenticated || !firebaseUser) return;
+        // PERMANENT DEBUGGING FOR AUTH ISSUES
+        console.log("--- DEBUG: OrderReceiver Effect Triggered ---");
+        console.log("State Check:", {
+            slug,
+            isAuthenticated,
+            hasFirebaseUser: !!firebaseUser,
+            firebaseUid: firebaseUser?.uid
+        });
+
+        if (!slug || !isAuthenticated || !firebaseUser) {
+            console.log("--- DEBUG: Listener ABORTED - Missing Requirements ---");
+            return;
+        }
+
+        console.log("--- DEBUG: OrderReceiver Listener STARTED ---");
+        console.log("Listening for orders where restaurantSlug ==", slug);
 
         const q = query(
             collection(db, 'orders'),
@@ -195,6 +234,7 @@ const OrderReceiver = () => {
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
+            console.log("Snapshot received. Empty?", snapshot.empty, "Docs count:", snapshot.docs.length);
             const fetchedOrders = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
@@ -221,6 +261,20 @@ const OrderReceiver = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug, isAuthenticated, firebaseUser]);
 
+    const getElapsed = (isoString) => {
+        if (!isoString) return '';
+        const diff = Math.floor((new Date() - new Date(isoString)) / 60000);
+        if (diff < 1) return 'Just now';
+        return `${diff} ${t.mins}`;
+    };
+
+    // Timer tick
+    const [tick, setTick] = useState(0);
+    useEffect(() => {
+        const timer = setInterval(() => setTick(prev => prev + 1), 60000);
+        return () => clearInterval(timer);
+    }, []);
+
     const updateStatus = async (orderId, newStatus, extraData = {}) => {
         try {
             const orderRef = doc(db, 'orders', orderId);
@@ -243,78 +297,33 @@ const OrderReceiver = () => {
     const confirmReject = (reason) => {
         if (orderToReject) {
             updateStatus(orderToReject.id, 'rejected', { rejectionReason: reason });
+            setRejectionModalOpen(false); // Close modal
         }
     };
 
-    const getElapsed = (isoString) => {
-        if (!isoString) return '';
-        const diff = Math.floor((new Date() - new Date(isoString)) / 60000);
-        if (diff < 1) return 'Just now';
-        return `${diff} ${t.mins}`;
+    // New Acceptance Logic
+    const handleAcceptClick = (order) => {
+        setOrderToAccept(order);
+        setAcceptanceModalOpen(true);
     };
 
-    // Timer tick
-    const [tick, setTick] = useState(0);
-    useEffect(() => {
-        const timer = setInterval(() => setTick(t => t + 1), 60000);
-        return () => clearInterval(timer);
-    }, []);
+    const confirmAccept = (minutes) => {
+        if (orderToAccept) {
+            updateStatus(orderToAccept.id, 'accepted', {
+                estimatedDuration: minutes,
+                acceptedAt: new Date().toISOString()
+            });
+            setAcceptanceModalOpen(false);
+        }
+    };
 
-    // --- Render Logic ---
-    if (!isAuthenticated) {
-        return (
-            <div style={{
-                height: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'var(--bg-app)',
-                color: 'var(--color-ink)'
-            }}>
-                <form onSubmit={handleLogin} style={{
-                    backgroundColor: 'var(--bg-surface)',
-                    padding: '40px',
-                    borderRadius: '24px',
-                    boxShadow: 'var(--shadow-lg)',
-                    width: '100%',
-                    maxWidth: '400px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px'
-                }}>
-                    <h2 style={{ textAlign: 'center', margin: 0 }}>Login</h2>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="Password"
-                        style={{
-                            padding: '12px',
-                            borderRadius: '12px',
-                            border: '1px solid var(--border-color)',
-                            fontSize: '16px'
-                        }}
-                    />
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--color-text-subtle)' }}>
-                        <input
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            style={{ width: '16px', height: '16px', accentColor: 'var(--color-primary)' }}
-                        />
-                        Remember password
-                    </label>
-
-                    {authError && <p style={{ color: 'red', margin: 0, fontSize: '14px' }}>{authError}</p>}
-                    <button type="submit" className="admin-btn admin-btn-primary">Login</button>
-                </form>
-            </div>
-        );
-    }
+    // ... (rest of logic) ...
 
     const newOrders = orders.filter(o => o.status === 'placed');
     const prepOrders = orders.filter(o => o.status === 'accepted' || o.status === 'cooking');
     const readyOrders = orders.filter(o => o.status === 'ready');
+    // Show 'rejected' or 'cancelled' UNLESS they are archived
+    const rejectedOrders = orders.filter(o => (o.status === 'rejected' || o.status === 'cancelled') && !o.archived);
 
     return (
         <div className="or-container">
@@ -344,6 +353,14 @@ const OrderReceiver = () => {
 
                     <div className="or-divider"></div>
 
+                    <button
+                        onClick={() => navigate(`/admin/${slug}/history`)}
+                        className="or-icon-btn"
+                        title={t.title === 'Orders' ? 'History' : 'Historija'}
+                    >
+                        <Archive size={20} />
+                    </button>
+
                     <button onClick={() => setSoundEnabled(!soundEnabled)} className="or-icon-btn">
                         {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
                     </button>
@@ -351,15 +368,16 @@ const OrderReceiver = () => {
                         localStorage.removeItem(`cafe_${slug}_auth`);
                         setIsAuthenticated(false);
                     }} className="or-logout-btn">
-                        {t.logout}
+                        <span className="or-logout-text">{t.logout}</span>
+                        <LogOut size={18} className="or-logout-icon" />
                     </button>
                 </div>
-            </header>
+            </header >
 
             {/* Grid */}
-            <div className="or-grid">
+            < div className="or-grid" >
                 {/* 1. NEW */}
-                <div className="or-column new">
+                < div className="or-column new" >
                     <div className="or-col-header">
                         <Bell size={18} />
                         <h2>{t.new} ({newOrders.length})</h2>
@@ -379,7 +397,8 @@ const OrderReceiver = () => {
                                     t={t}
                                     lang={lang}
                                     elapsed={getElapsed(order.updatedAt || order.createdAt)}
-                                    onAction={() => updateStatus(order.id, 'accepted')}
+                                    // Use handleAcceptClick now
+                                    onAction={() => handleAcceptClick(order)}
                                     onDecline={() => handleRejectClick(order)}
                                     actionLabel={t.accept}
                                     actionType="accept"
@@ -389,10 +408,10 @@ const OrderReceiver = () => {
                             ))}
                         </AnimatePresence>
                     </div>
-                </div>
+                </div >
 
                 {/* 2. PREP */}
-                <div className="or-column prep">
+                < div className="or-column prep" >
                     <div className="or-col-header">
                         <Flame size={18} />
                         <h2>{t.preparing} ({prepOrders.length})</h2>
@@ -417,10 +436,10 @@ const OrderReceiver = () => {
                             />
                         ))}
                     </div>
-                </div>
+                </div >
 
                 {/* 3. READY */}
-                <div className="or-column ready">
+                < div className="or-column ready" >
                     <div className="or-col-header">
                         <CheckCircle size={18} />
                         <h2>{t.ready} ({readyOrders.length})</h2>
@@ -445,13 +464,49 @@ const OrderReceiver = () => {
                             />
                         ))}
                     </div>
-                </div>
-            </div>
+                </div >
+
+                {/* 4. REJECTED / CANCELLED */}
+                < div className="or-column rejected" >
+                    <div className="or-col-header">
+                        <X size={18} />
+                        <h2>{t.decline || 'Rejected'} ({rejectedOrders.length})</h2>
+                    </div>
+                    <div className="or-list">
+                        {rejectedOrders.length === 0 && (
+                            <div className="or-empty">
+                                <p>{t.noOrders}</p>
+                            </div>
+                        )}
+                        {rejectedOrders.map(order => (
+                            <OrderCard
+                                key={order.id}
+                                order={order}
+                                t={t}
+                                lang={lang}
+                                elapsed={getElapsed(order.updatedAt)}
+                                onAction={() => updateStatus(order.id, 'archived', { archived: true })}
+                                actionLabel={t.dismiss || 'Dismiss'}
+                                actionType="dismiss" // We'll need to style this
+                                onClick={() => setSelectedOrder(order)}
+                                isRejected={true}
+                            />
+                        ))}
+                    </div>
+                </div >
+            </div >
 
             <RejectionModal
                 isOpen={rejectionModalOpen}
                 onClose={() => setRejectionModalOpen(false)}
                 onConfirm={confirmReject}
+                t={t}
+            />
+
+            <AcceptanceModal
+                isOpen={acceptanceModalOpen}
+                onClose={() => setAcceptanceModalOpen(false)}
+                onConfirm={confirmAccept}
                 t={t}
             />
 
@@ -461,17 +516,180 @@ const OrderReceiver = () => {
                 onClose={() => setSelectedOrder(null)}
                 t={t}
                 lang={lang}
-                onAccept={(id) => { updateStatus(id, 'accepted'); setSelectedOrder(null); }}
+                onAccept={(id) => {
+                    // Find the order object to pass to handleAcceptClick
+                    const orderToAcc = orders.find(o => o.id === id);
+                    if (orderToAcc) {
+                        setSelectedOrder(null);
+                        handleAcceptClick(orderToAcc);
+                    }
+                }}
                 onReject={(order) => { setSelectedOrder(null); handleRejectClick(order); }}
                 onMarkReady={(id) => { updateStatus(id, 'ready'); setSelectedOrder(null); }}
                 onComplete={(id) => { updateStatus(id, 'completed'); setSelectedOrder(null); }}
             />
-        </div>
+        </div >
+    );
+};
+
+// Premium Time Selection Modal
+const AcceptanceModal = ({ isOpen, onClose, onConfirm, t }) => {
+    if (!isOpen) return null;
+
+    const times = [10, 15, 20, 25, 30, 40, 50, 60];
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                className="rm-overlay"
+                onClick={onClose}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
+                exit={{ opacity: 0 }}
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 2000
+                }}
+            >
+                <motion.div
+                    className="rm-modal"
+                    onClick={e => e.stopPropagation()}
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    style={{
+                        background: 'var(--bg-surface)',
+                        borderRadius: '24px',
+                        padding: '32px',
+                        width: '100%',
+                        maxWidth: '420px',
+                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                        border: '1px solid var(--border-color)',
+                        textAlign: 'center'
+                    }}
+                >
+                    <div style={{
+                        margin: '0 auto 16px',
+                        width: '56px', height: '56px',
+                        borderRadius: '50%', background: 'var(--bg-surface-secondary)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'var(--color-primary)'
+                    }}>
+                        <Clock size={28} />
+                    </div>
+                    <h3 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 700 }}>{t.estimateTime || "Estimated Time"}</h3>
+                    <p style={{ margin: '0 0 24px', color: 'var(--color-text-subtle)', fontSize: '15px' }}>{t.chooseTimeDesc || "How long will this take?"}</p>
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)', // Explicit 4 columns
+                        gap: '8px', // Slightly tighter gap for mobile
+                        marginBottom: '24px'
+                    }}>
+                        {times.map(mins => (
+                            <button
+                                key={mins}
+                                onClick={() => onConfirm(mins)}
+                                style={{
+                                    padding: '12px 4px',
+                                    borderRadius: '16px', // Squircle
+                                    border: '1px solid var(--border-color)',
+                                    background: 'var(--bg-surface-secondary)',
+                                    cursor: 'pointer',
+                                    fontSize: '15px',
+                                    fontWeight: 700,
+                                    color: 'var(--color-ink)',
+                                    transition: 'transform 0.1s, background 0.2s',
+                                    minHeight: '48px' // Touch target size
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+                                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                            >
+                                {mins}m
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Custom Time Input */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '12px',
+                        marginBottom: '24px',
+                        alignItems: 'center'
+                    }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <input
+                                type="number"
+                                placeholder={t.customTime || "Custom"}
+                                id="custom-time-input"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const val = parseInt(e.target.value);
+                                        if (val > 0) onConfirm(val);
+                                    }
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    borderRadius: '16px', // Squircle
+                                    border: '1px solid var(--border-color)',
+                                    background: 'var(--bg-app)',
+                                    color: 'var(--color-ink)',
+                                    fontSize: '16px',
+                                    outline: 'none'
+                                }}
+                            />
+                        </div>
+                        <button
+                            onClick={() => {
+                                const val = parseInt(document.getElementById('custom-time-input').value);
+                                if (val > 0) onConfirm(val);
+                            }}
+                            style={{
+                                padding: '0 24px',
+                                height: '46px',
+                                borderRadius: '16px', // Squircle
+                                border: 'none',
+                                background: 'var(--color-primary)',
+                                color: 'var(--color-on-primary)',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                fontSize: '15px'
+                            }}
+                        >
+                            {t.set || "Set"}
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={onClose}
+                        style={{
+                            width: '100%',
+                            padding: '14px',
+                            borderRadius: '16px',
+                            border: 'none',
+                            background: 'transparent',
+                            color: 'var(--color-text-subtle)',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: '15px'
+                        }}
+                    >
+                        {t.cancel || "Cancel"}
+                    </button>
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
     );
 };
 
 // Robust OrderCard Component
-const OrderCard = ({ order, t, lang, onAction, onDecline, actionLabel, actionType, showDecline, elapsed, onClick }) => {
+const OrderCard = ({ order, t, lang, onAction, onDecline, actionLabel, actionType, showDecline, elapsed, onClick, isRejected }) => {
 
     // Safe Name Extraction
     const getName = (nameObj) => {
@@ -522,9 +740,8 @@ const OrderCard = ({ order, t, lang, onAction, onDecline, actionLabel, actionTyp
                             {item.selectedOptions && item.selectedOptions.length > 0 && (
                                 <div className="or-opts">
                                     {item.selectedOptions.map((opt, idx) => {
-                                        const optName = typeof opt.name === 'object'
-                                            ? getName(opt.name)
-                                            : (opt.name || opt.label);
+                                        // Fix for Error #31: Ensure we always extract a string, even if label is an object
+                                        const optName = getName(opt.name || opt.label);
                                         return idx === 0 ? optName : `, ${optName}`;
                                     })}
                                 </div>
@@ -538,6 +755,27 @@ const OrderCard = ({ order, t, lang, onAction, onDecline, actionLabel, actionTyp
             {order.note && (
                 <div className="or-note">
                     <strong>{t.note}:</strong> {order.note}
+                </div>
+            )}
+
+            {/* Rejected Info */}
+            {isRejected && (
+                <div className="or-rejected-info" style={{
+                    marginTop: '8px',
+                    padding: '12px',
+                    background: '#fef2f2',
+                    border: '1px solid #fee2e2',
+                    borderRadius: '8px',
+                    color: '#991b1b'
+                }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', marginBottom: '4px' }}>
+                        {order.status === 'cancelled' ? t.orderCanceled : t.orderDeclined}
+                    </div>
+                    {order.rejectionReason && (
+                        <div style={{ fontSize: '13px' }}>
+                            <strong>{t.rejectionReason}:</strong> {order.rejectionReason}
+                        </div>
+                    )}
                 </div>
             )}
 

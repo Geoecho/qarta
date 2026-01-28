@@ -20,176 +20,165 @@ const MenuItem = ({ item, index, isLast, language, onClick, hideIcon }) => {
         addToCart(item);
     };
 
+    const hasImage = !hideIcon && item.image;
+
     return (
         <div
             onClick={() => onClick && onClick(item)}
             style={{
                 position: 'relative', // Needed for absolute positioning of button
                 display: 'grid',
-                gridTemplateColumns: (hideIcon || !item.image) ? '1fr' : '1fr 100px',
+                gridTemplateColumns: hasImage ? '1fr 100px' : '1fr', // Single columns for text-only
                 gap: '12px',
-                paddingTop: index === 0 ? '16px' : '12px',
-                paddingBottom: isLast ? '16px' : '12px',
-                paddingRight: 0,
+                paddingTop: index === 0 ? '16px' : '16px', // Standardized vertical padding (16px)
+                paddingBottom: isLast ? '16px' : '16px', // Standardized vertical padding (16px)
+                paddingRight: hasImage ? 0 : '0px', // No right padding, we manage button space
                 paddingLeft: 0,
                 borderBottom: isLast ? 'none' : '1px solid var(--border-color)',
-                alignItems: 'start',
+                alignItems: hasImage ? 'start' : 'stretch', // Stretch for text-only to allow bottom alignment
                 cursor: 'pointer',
                 backgroundColor: 'var(--bg-item-card, transparent)', // Configurable background
-                transition: 'background-color 0.2s' // Add subtle hover effect potentially?
+                transition: 'background-color 0.2s',
+                minHeight: hasImage ? 'auto' : '80px' // Ensure enough height for button
             }}
         >
             {/* Left Column: Content */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, paddingBottom: (hideIcon || !item.image) ? '24px' : '0', paddingRight: (hideIcon || !item.image) ? '40px' : '0' }}>
-                {/* Title */}
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px', // Tighter content gap
+                minWidth: 0,
+                paddingBottom: hasImage ? '0' : '0', // No extra padding needed, flex gap handles it
+                paddingRight: hasImage ? '0' : '48px', // Reserve space for the button on the right
+                justifyContent: 'flex-start',
+                height: '100%'
+            }}>
+                {/* Title (Always Top) */}
                 <h3 style={{
-                    margin: '0 0 2px 0',
-                    fontSize: '16px', // Slightly larger
-                    fontWeight: 700, // Stronger hierarchy
+                    margin: 0,
+                    fontSize: '16px',
+                    fontWeight: 700,
                     color: 'var(--color-item-title, var(--color-ink))',
                     lineHeight: 1.3
                 }}>
                     {item.name?.[language] || item.name?.['en'] || item.name || 'Unnamed Item'}
                 </h3>
 
-                {/* Price */}
+                {/* Price (Under Title) */}
                 <div style={{
-                    fontSize: '14px',
+                    fontSize: '15px',
                     fontWeight: 600,
-                    color: 'var(--color-item-price, var(--color-primary))'
+                    color: 'var(--color-item-price, var(--color-primary))',
+                    marginBottom: '2px'
                 }}>
                     <AnimatedPrice value={item.price} currency={currency} />
                     {item.options && item.options.length > 0 && <span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--color-text-subtle)', marginLeft: '4px' }}>+ options</span>}
                 </div>
 
-                {/* Description */}
+                {/* Description (Under Price) */}
                 {(item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']) && (
                     <p style={{
                         margin: 0,
-                        fontSize: '13px', // Increased from 12px
-                        color: 'var(--color-text-subtle)', // More consistent subtle color
+                        fontSize: '14px', // Good readable size
+                        color: 'var(--color-text-subtle)',
                         opacity: 0.85,
-                        lineHeight: 1.5,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        lineHeight: 1.4,
+                        marginBottom: '4px'
                     }}>
                         {item.desc?.[language] || item.desc?.['en'] || item.description?.[language] || item.description?.['en']}
                     </p>
                 )}
 
-                {/* Ingredients */}
-                {displayIngredients && (
-                    <p style={{
-                        margin: 0,
-                        fontSize: '11px',
-                        fontStyle: 'italic',
-                        color: 'var(--color-item-desc, var(--color-text-subtle))', // Use same desc color
-                        lineHeight: 1.4
-                    }}>
-                        {typeof displayIngredients === 'object'
-                            ? (displayIngredients[language] || displayIngredients.en)
-                            : displayIngredients
-                        }
-                    </p>
-                )}
+                {/* Ingredients & Allergens Container - Pushed nicely */}
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {/* Ingredients */}
+                    {displayIngredients && (
+                        <p style={{
+                            margin: 0,
+                            fontSize: '12px',
+                            fontStyle: 'italic',
+                            color: 'var(--color-text-subtle)',
+                            opacity: 0.7
+                        }}>
+                            {typeof displayIngredients === 'object'
+                                ? (displayIngredients[language] || displayIngredients.en)
+                                : displayIngredients
+                            }
+                        </p>
+                    )}
 
-                {/* Allergens - Horizontal */}
-                {displayAllergens.length > 0 && (
-                    <div style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '4px',
-                        marginTop: '2px'
-                    }}>
-                        {displayAllergens.map((alg, i) => {
-                            const { icon: Icon, color, label } = getAllergenDetails(alg, language);
-                            return (
-                                <div key={i} style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '3px',
-                                    padding: '3px 6px',
-                                    borderRadius: '4px',
-                                    backgroundColor: `${color}15`,
-                                    border: `1px solid ${color}40`
-                                }}>
-                                    <Icon size={10} color={color} strokeWidth={2.5} />
-                                    <span style={{
-                                        fontSize: '9px',
-                                        fontWeight: 700,
-                                        color: color,
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.02em'
+                    {/* Allergens - Horizontal Row */}
+                    {displayAllergens.length > 0 && (
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '6px',
+                            marginTop: '2px'
+                        }}>
+                            {displayAllergens.map((alg, i) => {
+                                const { icon: Icon, color, label } = getAllergenDetails(alg, language);
+                                return (
+                                    <div key={i} style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '2px 0', // Minimal padding, just icon + text
                                     }}>
-                                        {label}
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-
-                {/* Options Chips Row */}
-                {item.options && item.options.length > 0 && (
-                    <div style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '6px',
-                        marginTop: '4px'
-                    }}>
-                        {item.options.map((opt) => (
-                            <div
-                                key={opt.id}
-                                style={{
-                                    padding: '4px 8px',
-                                    borderRadius: '6px',
-                                    border: '1px solid var(--border-color)',
-                                    backgroundColor: 'var(--bg-surface-secondary)',
-                                    color: 'var(--color-text-subtle)',
-                                    fontSize: '11px',
-                                    fontWeight: 500,
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                {opt.label?.[language] || opt.label?.['en'] || opt.label}
-                                {opt.price > 0 && ` +${formatPrice(opt.price, currency)}`}
-                            </div>
-                        ))}
-                    </div>
-                )}
+                                        <div style={{
+                                            padding: '4px',
+                                            borderRadius: '6px',
+                                            backgroundColor: `${color}15`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <Icon size={12} color={color} strokeWidth={2.5} />
+                                        </div>
+                                        <span style={{
+                                            fontSize: '10px',
+                                            fontWeight: 600,
+                                            color: 'var(--color-text-subtle)', // Subtle text next to colorful icon
+                                            textTransform: 'uppercase',
+                                        }}>
+                                            {label}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* No-Image Add Button (Top Right of Card) */}
-            {(hideIcon || !item.image) && (
+            {/* No-Image Add Button (Bottom Right) */}
+            {!hasImage && (
                 <motion.button
-                    whileTap={{ scale: 0.85, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={handleAddClick}
                     style={{
                         position: 'absolute',
-                        top: '12px', // Moved to Top
+                        bottom: isLast ? '16px' : '16px', // Align with bottom padding
                         right: '0px',
-                        width: '36px', // Slightly larger touch target for primary action
-                        height: '36px',
-                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%', // Circle
                         backgroundColor: 'var(--color-item-price)',
-                        border: 'none', // Removed border to match design req
+                        border: 'none',
                         color: '#fff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', // Enhanced shadow
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                         zIndex: 10
                     }}
                 >
-                    <Plus size={20} strokeWidth={3} />
+                    <Plus size={18} strokeWidth={3} />
                 </motion.button>
             )}
 
             {/* Right Column: Image */}
-            {(!hideIcon && item.image) && (
+            {hasImage && (
                 <div style={{ position: 'relative', width: '100px', height: '100px', flexShrink: 0 }}>
                     <img
                         src={item.image}
@@ -211,10 +200,10 @@ const MenuItem = ({ item, index, isLast, language, onClick, hideIcon }) => {
                         onClick={handleAddClick}
                         style={{
                             position: 'absolute',
-                            bottom: '-6px',
-                            right: '-6px',
-                            width: '28px',
-                            height: '28px',
+                            bottom: '-4px', // Slightly tucked
+                            right: '-4px', // Slightly tucked
+                            width: '32px', // Consistency: 32px
+                            height: '32px',
                             borderRadius: '50%',
                             backgroundColor: 'var(--color-item-price)',
                             border: '2px solid var(--bg-surface)', // Border to separate from image/bg
@@ -227,7 +216,7 @@ const MenuItem = ({ item, index, isLast, language, onClick, hideIcon }) => {
                             zIndex: 10
                         }}
                     >
-                        <Plus size={16} strokeWidth={3} />
+                        <Plus size={18} strokeWidth={3} />
                     </motion.button>
                 </div>
             )}

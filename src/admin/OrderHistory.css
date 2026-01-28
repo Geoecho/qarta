@@ -1,0 +1,273 @@
+/* Order History Screen */
+.oh-container {
+    min-height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--color-ink);
+    display: flex;
+    flex-direction: column;
+}
+
+.oh-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+}
+
+.oh-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.oh-back-btn {
+    background: none;
+    border: none;
+    color: var(--color-ink);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.oh-back-btn:hover {
+    background: var(--bg-subtle);
+}
+
+.oh-title h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.oh-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.oh-search-wrap {
+    position: relative;
+    width: 300px;
+}
+
+.oh-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-subtle);
+    pointer-events: none;
+}
+
+.oh-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-app);
+    color: var(--color-ink);
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.oh-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.oh-content {
+    flex: 1;
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Filter Tabs */
+.oh-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.oh-filter-btn {
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--color-text-subtle);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.oh-filter-btn:hover {
+    background: var(--bg-subtle);
+}
+
+.oh-filter-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+/* List */
+.oh-list {
+    display: grid;
+    gap: 16px;
+}
+
+.oh-empty {
+    text-align: center;
+    padding: 64px;
+    color: var(--color-text-subtle);
+    background: var(--bg-surface);
+    border-radius: 24px;
+    border: 1px dashed var(--border-color);
+}
+
+/* History Card */
+.oh-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.oh-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.oh-card.rejected {
+    border-left: 4px solid #ef4444;
+}
+
+.oh-card.completed {
+    border-left: 4px solid #22c55e;
+}
+
+.oh-card.cancelled {
+    border-left: 4px solid #f97316;
+}
+
+.oh-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.oh-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.oh-id {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-ink);
+}
+
+.oh-date {
+    font-size: 13px;
+    color: var(--color-text-subtle);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.oh-items {
+    font-size: 14px;
+    color: var(--color-text-subtle);
+    max-width: 600px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.oh-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.oh-total {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.oh-status {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.oh-status.completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.oh-status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.oh-status.cancelled {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+@media (max-width: 768px) {
+    .oh-header {
+        padding: 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    .oh-brand {
+        justify-content: space-between;
+    }
+
+    .oh-search-wrap {
+        width: 100%;
+    }
+
+    .oh-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .oh-card-meta {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-color);
+        padding-top: 12px;
+    }
+}

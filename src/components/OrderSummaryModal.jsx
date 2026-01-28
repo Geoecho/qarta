@@ -64,7 +64,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                     <motion.div
                         animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
                         transition={{ repeat: Infinity, duration: 2 }}
-                        style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--color-item-price)15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                         <CheckCircle size={32} color="var(--color-item-price)" />
                     </motion.div>
@@ -83,7 +83,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                     <motion.div
                         animate={{ rotate: [-5, 5, -5], scale: [1, 1.1, 1] }}
                         transition={{ repeat: Infinity, duration: 1 }}
-                        style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--color-item-price)15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                         <Flame size={32} color="var(--color-item-price)" />
                     </motion.div>
@@ -91,7 +91,8 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                 desc: t.preparingDesc,
                 color: 'var(--color-item-price)',
                 showLikeInteract: true,
-                stepIndex: 1
+                stepIndex: 1,
+                showTimer: true
             };
         }
         // 3. READY / COMPLETED
@@ -102,7 +103,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                     <motion.div
                         animate={{ rotate: [-15, 15, -15, 15, 0] }}
                         transition={{ repeat: Infinity, duration: 1.5, repeatDelay: 1 }}
-                        style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--color-item-price)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                         <Bell size={32} fill="white" />
                     </motion.div>
@@ -124,7 +125,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                         style={{
                             width: 64,
                             height: 64,
-                            borderRadius: '50%',
+                            borderRadius: '20px',
                             background: 'var(--bg-surface-secondary)', // Consistent soft background
                             display: 'flex',
                             alignItems: 'center',
@@ -277,20 +278,27 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         position: 'relative',
                                         overflow: 'hidden'
                                     }}>
-                                        {/* Status Icon Center with Modern Float Animation */}
-                                        <motion.div
-                                            animate={{ y: [0, -8, 0] }}
-                                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                            style={{ marginBottom: '8px' }}
-                                        >
-                                            {statusContent.icon}
-                                        </motion.div>
+                                        {/* Dynamic Countdown or Status Icon */}
+                                        {(statusContent.showTimer && activeOrder?.estimatedDuration && activeOrder?.acceptedAt) ? (
+                                            <CountdownTimer
+                                                duration={activeOrder.estimatedDuration}
+                                                startTime={activeOrder.acceptedAt}
+                                                t={t}
+                                            />
+                                        ) : (
+                                            <motion.div
+                                                animate={{ y: [0, -8, 0] }}
+                                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                                style={{ marginBottom: '8px' }}
+                                            >
+                                                {statusContent.icon}
+                                            </motion.div>
+                                        )}
 
                                         <div style={{ zIndex: 1, position: 'relative' }}>
                                             <h3 style={{
                                                 margin: '0 0 4px 0',
                                                 fontSize: '24px',
-                                                fontWeight: 800,
                                                 fontWeight: 800,
                                                 color: 'var(--color-ink)',
                                                 letterSpacing: '-0.5px'
@@ -412,9 +420,19 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         margin: '0'
                                     }}>
                                         {/* Removed "Your Order" Header as requested */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {/* Removed "Your Order" Header as requested */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                                             {((activeOrder?.items && activeOrder.items.length > 0) ? activeOrder.items : cart).map((item, i) => (
-                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '15px', color: 'var(--color-ink)' }}>
+                                                <div key={i} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    fontSize: '15px',
+                                                    color: 'var(--color-ink)',
+                                                    minHeight: '56px',
+                                                    padding: '8px 0',
+                                                    borderBottom: '1px solid var(--border-color)'
+                                                }}>
                                                     <span style={{ flex: 1, paddingRight: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
                                                         <span style={{
                                                             fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -432,11 +450,8 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                 </div>
                                             ))}
 
-                                            {/* Divider */}
-                                            <div style={{ height: '1px', background: 'var(--border-color)', margin: '8px 0' }} />
-
                                             {/* Total */}
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '18px', color: 'var(--color-ink)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '18px', color: 'var(--color-ink)', marginTop: '16px' }}>
                                                 <span>Total</span>
                                                 <span><AnimatedPrice value={Number(activeOrder?.total || totalPrice || 0)} currency={currency} /></span>
                                             </div>
@@ -506,10 +521,10 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             backgroundColor: 'var(--bg-control-secondary)',
-                                                            borderRadius: '28px', // Matches new 56px height
-                                                            padding: '10px', // 10px padding
-                                                            height: '56px', // 56px Height
-                                                            gap: '12px',
+                                                            borderRadius: '20px', // Squircle
+                                                            padding: '8px',
+                                                            height: '48px', // Slightly shorter than pill
+                                                            gap: '8px',
                                                             border: '1px solid var(--border-color)',
                                                             boxSizing: 'border-box'
                                                         }}>
@@ -520,9 +535,9 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                                     item.quantity > 1 ? updateQuantity(itemKey, -1) : removeFromCart(itemKey);
                                                                 }}
                                                                 style={{
-                                                                    width: '36px', // 36px max
-                                                                    height: '36px',
-                                                                    borderRadius: '50%',
+                                                                    width: '32px',
+                                                                    height: '32px',
+                                                                    borderRadius: '12px', // Squircle
                                                                     background: 'var(--bg-surface)',
                                                                     border: 'none',
                                                                     cursor: 'pointer',
@@ -547,9 +562,9 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                                                     updateQuantity(itemKey, 1);
                                                                 }}
                                                                 style={{
-                                                                    width: '36px', // 36px max
-                                                                    height: '36px',
-                                                                    borderRadius: '50%',
+                                                                    width: '32px',
+                                                                    height: '32px',
+                                                                    borderRadius: '12px', // Squircle
                                                                     background: 'var(--bg-surface)',
                                                                     border: 'none',
                                                                     cursor: 'pointer',
@@ -604,8 +619,8 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                             )}
                         </div>
 
-                        {/* Footer */}
-                        {(cart.length > 0 || orderStatus !== 'idle') && (
+                        {/* Footer - Hide if Preparing (Accepted/Cooking) as there are no actions */}
+                        {(cart.length > 0 || orderStatus !== 'idle') && activeOrder?.status !== 'accepted' && activeOrder?.status !== 'cooking' && (
                             <div style={{
                                 padding: '24px 24px 34px 24px', // Extra bottom padding for iOS home indicator
                                 backgroundColor: 'var(--bg-modal-card)',
@@ -629,7 +644,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         style={{
                                             width: '100%',
                                             height: '56px',
-                                            borderRadius: '100px', // Fully Rounded Pill
+                                            borderRadius: '20px', // Squircle
                                             backgroundColor: isSafetyLocked ? 'var(--bg-control-secondary)' : 'var(--color-item-price)',
                                             color: isSafetyLocked ? 'var(--color-text-subtle)' : '#fff',
                                             border: 'none',
@@ -662,7 +677,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         style={{
                                             width: '100%',
                                             height: '56px',
-                                            borderRadius: '100px',
+                                            borderRadius: '20px', // Squircle
                                             backgroundColor: 'var(--bg-surface-secondary)',
                                             color: 'var(--color-ink)',
                                             border: 'none',
@@ -682,7 +697,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                 )}
 
                                 {/* Show "Declined" State - Robust Check */}
-                                {(activeOrder && (dbStatus === 'cancelled' || dbStatus === 'rejected')) && (
+                                {(activeOrder && (dbStatus === 'cancelled' || dbStatus === 'rejected') && !isEditing && orderStatus !== 'idle') && (
                                     <motion.button
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
@@ -695,7 +710,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                         style={{
                                             width: '100%',
                                             height: '56px',
-                                            borderRadius: '100px',
+                                            borderRadius: '20px', // Squircle
                                             backgroundColor: 'var(--color-item-price)',
                                             color: '#fff',
                                             border: 'none',
@@ -726,7 +741,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                             style={{
                                                 flex: 1,
                                                 height: '48px',
-                                                borderRadius: '100px', // Round
+                                                borderRadius: '20px', // Squircle
                                                 backgroundColor: 'var(--bg-surface-secondary)',
                                                 color: 'var(--color-ink)',
                                                 border: '1px solid var(--border-color)',
@@ -755,7 +770,7 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
                                             style={{
                                                 flex: 1,
                                                 height: '48px',
-                                                borderRadius: '100px', // Round
+                                                borderRadius: '20px', // Squircle
                                                 backgroundColor: 'rgba(239, 68, 68, 0.1)', // Red tint
                                                 color: '#ef4444',
                                                 border: '1px solid rgba(239, 68, 68, 0.2)',
@@ -784,3 +799,134 @@ const OrderSummaryModal = ({ isOpen, onClose, language = 'en' }) => {
 };
 
 export default OrderSummaryModal;
+
+// Premium Countdown Timer Component
+const CountdownTimer = ({ duration, startTime, t }) => {
+    const [timeLeft, setTimeLeft] = React.useState(0);
+    const [progress, setProgress] = React.useState(100);
+    const [isDelayed, setIsDelayed] = React.useState(false);
+
+    React.useEffect(() => {
+        const calculateTime = () => {
+            const start = new Date(startTime).getTime();
+            const end = start + (duration * 60 * 1000);
+            const now = new Date().getTime();
+            const total = end - start;
+            const remaining = end - now;
+
+            if (remaining <= 0) {
+                setTimeLeft(0);
+                setProgress(0);
+                setIsDelayed(true);
+            } else {
+                setTimeLeft(Math.ceil(remaining / 60000)); // Minutes
+                const p = (remaining / total) * 100;
+                setProgress(p);
+                setIsDelayed(false);
+            }
+        };
+
+        calculateTime();
+        const timer = setInterval(calculateTime, 1000); // Update every second for smooth ring if needed, but min is fine
+        return () => clearInterval(timer);
+    }, [duration, startTime]);
+
+    const size = 100;
+    const strokeWidth = 8;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (progress / 100) * circumference;
+
+    return (
+        <div style={{ position: 'relative', width: size, height: size, marginBottom: '8px' }}>
+            {/* SVG Ring */}
+            <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+                {/* Track */}
+                <circle
+                    stroke="var(--bg-surface-secondary)"
+                    fill="transparent"
+                    strokeWidth={strokeWidth}
+                    r={radius}
+                    cx={size / 2}
+                    cy={size / 2}
+                />
+                {!isDelayed && (
+                    <circle
+                        stroke="var(--color-item-price)"
+                        fill="transparent"
+                        strokeWidth={strokeWidth}
+                        strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                        style={{ transition: 'stroke-dashoffset 1s linear' }}
+                    />
+                )}
+                {isDelayed && (
+                    <circle
+                        stroke="var(--color-item-price)"
+                        fill="transparent"
+                        strokeWidth={strokeWidth}
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                        opacity={0.1} // Very subtle fill or ring? Let's just do track. Or faint ring.
+                        strokeDasharray={circumference} // Full ring
+                    />
+                )}
+            </svg>
+
+            {/* Content Center */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '12px'
+            }}>
+                {isDelayed ? (
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <span className="pulsing-orange" style={{
+                            fontSize: '24px',
+                            fontWeight: 800,
+                            lineHeight: 1,
+                            color: 'var(--color-item-price)'
+                        }}>
+                            {/* timeLeft is calculated as Math.ceil(remaining / 60000). If remaining is negative, timeLeft is 0 in current logic.
+                                We need to adjust logic above or recalculate.
+                                Actually logic above sets timeLeft=0 if remaining<=0.
+                                Let's fix the calculation logic in the same component.
+                             */}
+                            +{Math.abs(Math.ceil((new Date().getTime() - (new Date(startTime).getTime() + duration * 60000)) / 60000))}
+                        </span>
+                        <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-text-subtle)', marginTop: '2px' }}>
+                            min late
+                        </span>
+                    </motion.div>
+                ) : (
+                    <>
+                        <span style={{ fontSize: '24px', fontWeight: 800, lineHeight: 1, color: 'var(--color-ink)' }}>
+                            {timeLeft}
+                        </span>
+                        <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-text-subtle)', marginTop: '2px' }}>
+                            min
+                        </span>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};

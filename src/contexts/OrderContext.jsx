@@ -130,7 +130,21 @@ export const OrderProvider = ({ children }) => {
 
 
     // Cancel/Reset
-    const cancelOrder = () => {
+    const cancelOrder = async () => {
+        // If we have an active order ID, update it in Firestore before clearing local state
+        if (currentOrderId && orderStatus !== 'idle') {
+            try {
+                const orderRef = doc(db, 'orders', currentOrderId);
+                await updateDoc(orderRef, {
+                    status: 'cancelled',
+                    updatedAt: new Date().toISOString()
+                });
+                console.log("Order cancelled by user:", currentOrderId);
+            } catch (err) {
+                console.error("Failed to cancel order in DB:", err);
+            }
+        }
+
         setOrderStatus('idle');
         setCurrentOrderId(null);
         setActiveOrder(null);
@@ -223,9 +237,16 @@ export const OrderProvider = ({ children }) => {
         setOrderStatus('waiting'); // UI Feedback immediately
         const targetSlug = restaurantSlugProp || currentSlug || 'default';
 
+        console.log("--- DEBUG: placeOrder ---");
+        console.log("restaurantSlugProp:", restaurantSlugProp);
+        console.log("currentSlug:", currentSlug);
+        console.log("Final targetSlug:", targetSlug);
+        console.log("Table ID:", tableId);
+
         try {
             // HANDLE EDIT MODE (Update existing doc)
             if (isEditing && activeOrder && currentOrderId) {
+                console.log("Updating existing order:", currentOrderId);
                 const orderRef = doc(db, 'orders', currentOrderId);
                 await updateDoc(orderRef, {
                     items: cart,
@@ -263,6 +284,7 @@ export const OrderProvider = ({ children }) => {
                 restaurantSlug: targetSlug,
                 tableId: tableId || 'walk-in'
             };
+            console.log("Submitting Payload to Cloud Function:", payload);
 
             let result;
             try {
